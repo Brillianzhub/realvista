@@ -7,6 +7,9 @@
     "icon": "./assets/images/icon.png",
     "scheme": "realvista",
     "userInterfaceStyle": "automatic",
+    "permissions": [
+      "LOCATION"
+    ],
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -31,6 +34,9 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "googleMapsApiKey": "AIzaSyAs-y_tUDFUwIckZFYAZ3-C-2WdYbTAcNI"
     }
   }
 }

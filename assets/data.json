@@ -1,0 +1,127 @@
+[
+    {
+        "id": 1,
+        "location": "New York",
+        "initialCost": 100000,
+        "currentCost": 120000,
+        "percentageReturn": 20,
+        "coordinates": [
+            {
+                "latitude": 40.712776,
+                "longitude": -74.005974
+            },
+            {
+                "latitude": 40.712800,
+                "longitude": -74.002000
+            },
+            {
+                "latitude": 40.715000,
+                "longitude": -74.002500
+            },
+            {
+                "latitude": 40.714500,
+                "longitude": -74.006000
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "location": "London",
+        "initialCost": 200000,
+        "currentCost": 250000,
+        "percentageReturn": 25,
+        "coordinates": [
+            {
+                "latitude": 51.507351,
+                "longitude": -0.127758
+            },
+            {
+                "latitude": 51.507200,
+                "longitude": -0.125000
+            },
+            {
+                "latitude": 51.510000,
+                "longitude": -0.125500
+            },
+            {
+                "latitude": 51.509500,
+                "longitude": -0.128000
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "location": "Sydney",
+        "initialCost": 150000,
+        "currentCost": 180000,
+        "percentageReturn": 20,
+        "coordinates": [
+            {
+                "latitude": -33.865143,
+                "longitude": 151.207089
+            },
+            {
+                "latitude": -33.865000,
+                "longitude": 151.205000
+            },
+            {
+                "latitude": -33.870000,
+                "longitude": 151.205500
+            },
+            {
+                "latitude": -33.869500,
+                "longitude": 151.208000
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "location": "Tokyo",
+        "initialCost": 250000,
+        "currentCost": 300000,
+        "percentageReturn": 20,
+        "coordinates": [
+            {
+                "latitude": 35.676200,
+                "longitude": 139.650300
+            },
+            {
+                "latitude": 35.676000,
+                "longitude": 139.648000
+            },
+            {
+                "latitude": 35.680000,
+                "longitude": 139.648500
+            },
+            {
+                "latitude": 35.679500,
+                "longitude": 139.651000
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "location": "Paris",
+        "initialCost": 180000,
+        "currentCost": 220000,
+        "percentageReturn": 22,
+        "coordinates": [
+            {
+                "latitude": 48.853410,
+                "longitude": 2.348800
+            },
+            {
+                "latitude": 48.853200,
+                "longitude": 2.346000
+            },
+            {
+                "latitude": 48.857000,
+                "longitude": 2.346500
+            },
+            {
+                "latitude": 48.856500,
+                "longitude": 2.349000
+            }
+        ]
+    }
+]
