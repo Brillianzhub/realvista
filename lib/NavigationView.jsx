@@ -1,29 +1,34 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
+import { router } from 'expo-router';
+
 
 const NavigationView = () => {
+
+    const navigateTo = (route) => {
+        router.replace(route);
+    };
+
     return (
         <View style={styles.container}>
-            {/* Placeholder for logo */}
             <Image
-                source={{ uri: 'https://your-logo-url.com/logo.png' }} // Replace with your logo URL
+                source={{ uri: 'https://your-logo-url.com/logo.png' }}
                 style={styles.logo}
                 resizeMode="contain"
             />
 
             <Text style={styles.title}>Menu</Text>
 
-            {/* Menu Items */}
-            <TouchableOpacity onPress={() => alert('Go to Settings')} style={styles.menuItem}>
-                <Text style={styles.menuText}>Settings</Text>
+            <TouchableOpacity onPress={() => router.push('/manage_property')} style={styles.menuItem}>
+                <Text style={styles.menuText}>Manage Properties</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => alert('Go to Profile')} style={styles.menuItem}>
+            <TouchableOpacity onPress={() => router.push('/profile')} style={styles.menuItem}>
                 <Text style={styles.menuText}>Profile</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => alert('Logout')} style={styles.menuItem}>
-                <Text style={styles.menuText}>Logout</Text>
+            <TouchableOpacity onPress={() => router.push('/settings')} style={styles.menuItem}>
+                <Text style={styles.menuText}>Settings</Text>
             </TouchableOpacity>
         </View>
     );

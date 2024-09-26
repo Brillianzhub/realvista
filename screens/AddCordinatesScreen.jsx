@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, Text, StyleSheet } from 'react-native';
+import { View, Button, Text, StyleSheet, TextInput, ScrollView } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-const TrendScreen = ({ onSave }) => {
+const AddCoordinatesScreen = ({ onSave }) => {
     const [coordinates, setCoordinates] = useState([]);
     const [currentLocation, setCurrentLocation] = useState(null);
 
+    const [manualLatitude, setManualLatitude] = useState('');
+    const [manualLongitude, setManualLongitude] = useState('');
+
     useEffect(() => {
-        // Request location permissions and fetch the current location
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
@@ -32,15 +34,29 @@ const TrendScreen = ({ onSave }) => {
 
     const savePoints = () => {
         if (coordinates.length >= 3) {
-            onSave(coordinates); // Pass the selected coordinates to the parent component
+            onSave(coordinates);
         } else {
             alert('You need at least 3 points to define an area.');
         }
     };
 
-    console.log(coordinates)
+
+    const handleAddManualCoordinate = () => {
+        if (manualLatitude && manualLongitude) {
+            const newCoordinate = {
+                latitude: parseFloat(manualLatitude),
+                longitude: parseFloat(manualLongitude),
+            };
+            setCoordinates([...coordinates, newCoordinate]);
+            setManualLatitude('');
+            setManualLongitude('');
+        } else {
+            alert('Please enter valid coordinates');
+        }
+    }
+
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
             {currentLocation && (
                 <MapView
                     style={styles.map}
@@ -51,7 +67,6 @@ const TrendScreen = ({ onSave }) => {
                         longitudeDelta: 0.01,
                     }}
                 >
-                    {/* Display the polygon if there are 3 or more points */}
                     {coordinates.length >= 3 && (
                         <Polygon
                             coordinates={coordinates}
@@ -61,18 +76,36 @@ const TrendScreen = ({ onSave }) => {
                         />
                     )}
 
-                    {/* Display the markers for each point */}
                     {coordinates.map((coordinate, index) => (
                         <Marker key={index} coordinate={coordinate} title={`Point ${index + 1}`} />
                     ))}
                 </MapView>
             )}
 
+            <View style={{ marginTop: 50 }}>
+                <TextInput
+                    style={styles.input}
+                    placeholder='Enter Latitude'
+                    keyboardType='numeric'
+                    value={manualLatitude}
+                    onChangeText={setManualLatitude}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder='Enter Longitude'
+                    keyboardType='numeric'
+                    value={manualLongitude}
+                    onChangeText={setManualLongitude}
+                />
+                <Button title="Add Manually Entered Coordinate" onPress={handleAddManualCoordinate} />
+            </View>
             <View style={styles.buttonContainer}>
                 <Button title="Add Point" onPress={addPoint} />
                 <Button title="Save Points" onPress={savePoints} />
                 <Button title="Cancel" onPress={() => onSave([])} />
             </View>
+
+
 
             <View style={styles.pointList}>
                 <Text>Selected Points:</Text>
@@ -82,14 +115,16 @@ const TrendScreen = ({ onSave }) => {
                     </Text>
                 ))}
             </View>
-        </View>
+
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    contentContainer: {
         flex: 1,
         justifyContent: 'center',
+        marginBottom: 20
     },
     map: {
         width: '100%',
@@ -103,6 +138,12 @@ const styles = StyleSheet.create({
     pointList: {
         padding: 10,
     },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        marginVertical: 5,
+    },
 });
 
-export default TrendScreen;
+export default AddCoordinatesScreen;
