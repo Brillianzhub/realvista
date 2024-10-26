@@ -1,28 +1,42 @@
-import { StyleSheet, Text, View, Pressable } from 'react-native'
-import React from 'react'
-import { router } from 'expo-router'
+import { StyleSheet, Text, View, Pressable, ImageBackground } from 'react-native';
+import React from 'react';
+import { router } from 'expo-router';
+import images from '../constants/images';
 
 const index = () => {
 
   const handleNavigation = () => {
-    router.replace('/home')
-  }
+    router.replace('/sign-in');
+  };
 
   return (
-    <View style={styles.container}>
-      <Pressable onPress={handleNavigation}>
-        <Text>Press to Continue</Text>
-      </Pressable>
-    </View>
-  )
-}
+    <ImageBackground
+      source={images.landing}
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
+        <Pressable onPress={handleNavigation}>
+          <Text style={styles.text}>Press to Continue</Text>
+        </Pressable>
+      </View>
+    </ImageBackground>
+  );
+};
 
-export default index
+export default index;
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
-  }
-})
+    alignItems: 'center',
+  },
+  text: {
+    color: 'white',
+    fontSize: 18,
+  },
+});

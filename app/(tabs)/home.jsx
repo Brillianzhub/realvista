@@ -58,9 +58,6 @@ const HomeScreen = () => {
   const bottomSheetRef = useRef(null);
   const [mapType, setMapType] = useState('standard');
   const mapRef = useRef(null);
-
-
-  // Snap points for the Bottom Sheet
   const snapPoints = useMemo(() => ['50%', '95%'], []);
 
   const totalInvested = data.reduce((acc, item) => acc + item.initialCost, 0);
@@ -94,7 +91,6 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Summary Section */}
       <View style={styles.summary}>
         <Text style={styles.header}>RealVista Portfolio Summary</Text>
         <Text>Total Invested: ${totalInvested.toLocaleString()}</Text>
@@ -114,7 +110,7 @@ const HomeScreen = () => {
         snapPoints={snapPoints}
         enablePanDownToClose={true}
         onClose={closeBottomSheet}
-      // enableContentPanningGesture={true}
+        enableContentPanningGesture={true}
       >
         <View style={styles.bottomSheetContent}>
           {selectedItem && (
@@ -123,7 +119,6 @@ const HomeScreen = () => {
               <Text>Initial Cost: ${selectedItem.initialCost.toLocaleString()}</Text>
               <Text>Current Cost: ${selectedItem.currentCost.toLocaleString()}</Text>
               <Text>Percentage Return: {selectedItem.percentageReturn}%</Text>
-
               <MapView
                 ref={mapRef}
                 style={styles.map}

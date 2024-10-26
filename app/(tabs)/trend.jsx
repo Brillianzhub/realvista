@@ -8,7 +8,6 @@ const TrendScreen = ({ onSave }) => {
     const [currentLocation, setCurrentLocation] = useState(null);
 
     useEffect(() => {
-        // Request location permissions and fetch the current location
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
@@ -32,7 +31,7 @@ const TrendScreen = ({ onSave }) => {
 
     const savePoints = () => {
         if (coordinates.length >= 3) {
-            onSave(coordinates); // Pass the selected coordinates to the parent component
+            onSave(coordinates);
         } else {
             alert('You need at least 3 points to define an area.');
         }
@@ -51,7 +50,6 @@ const TrendScreen = ({ onSave }) => {
                         longitudeDelta: 0.01,
                     }}
                 >
-                    {/* Display the polygon if there are 3 or more points */}
                     {coordinates.length >= 3 && (
                         <Polygon
                             coordinates={coordinates}
@@ -61,7 +59,6 @@ const TrendScreen = ({ onSave }) => {
                         />
                     )}
 
-                    {/* Display the markers for each point */}
                     {coordinates.map((coordinate, index) => (
                         <Marker key={index} coordinate={coordinate} title={`Point ${index + 1}`} />
                     ))}

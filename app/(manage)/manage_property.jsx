@@ -58,7 +58,6 @@ const AppProperty = () => {
         }
     };
 
-    console.log(propertyDetails)
 
     return (
         <View style={styles.container}>

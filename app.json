@@ -7,9 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "realvista",
     "userInterfaceStyle": "automatic",
-    "permissions": [
-      "LOCATION"
-    ],
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
