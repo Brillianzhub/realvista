@@ -1,47 +1,148 @@
-import { StyleSheet, Text, View, TextInput, Pressable, Image, Alert } from 'react-native';
-import React, { useState } from 'react';
-import images from '../../constants/images'; // Ensure the path is correct
+import { Alert, Text, TouchableOpacity, View, Pressable, Linking, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { Link, router } from 'expo-router';
+import FormField from '../../components/FormField';
+import CustomButton from '../../components/CustomButton';
+import { useGlobalContext } from '../../context/GlobalProvider';
+// import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { icons } from '../../constants';
+import images from '../../constants/images';
+// import { usePushNotifications } from '../../usePushNotifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const signIn = async (email, password) => {
+    try {
+        // First, sign in the user
+        const signInResponse = await fetch('http://192.168.0.57:8000/accounts/signin/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+            }),
+        });
+
+        if (!signInResponse.ok) {
+            const errorData = await signInResponse.json();
+            throw new Error(errorData.error || 'Failed to sign in');
+        }
+
+        // If sign-in is successful, request the token
+        const tokenResponse = await fetch('http://192.168.0.57:8000/portfolio/api-token-auth/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: email, // or 'email' if the endpoint expects email
+                password: password,
+            }),
+        });
+
+        const tokenData = await tokenResponse.json();
+        if (!tokenData.token) {
+            throw new Error('Authentication token not provided');
+        }
+
+        // Store the token
+        await AsyncStorage.setItem('authToken', tokenData.token);
+
+        return tokenData;
+    } catch (error) {
+        console.error('Sign-In Error:', error);
+        Alert.alert('Sign-In Error', error.message);
+        return null;
+    }
+};
 
 const SignIn = () => {
-    // State variables for email and password
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
+    const { setUser, setIsLogged } = useGlobalContext();
+    // const { expoPushToken } = usePushNotifications();
 
-    // Function to handle login
-    const handleLogin = async () => {
-        // Basic validation
-        if (!email || !password) {
-            Alert.alert('Please enter your email and password.');
+    const [form, setForm] = useState({
+        email: '',
+        password: ''
+    });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+    const submit = async () => {
+        if (!form.email || !form.password) {
+            Alert.alert('Error', 'Please fill in all the fields');
             return;
         }
 
+        setIsSubmitting(true);
+
+        // const deviceToken = expoPushToken.data || expoPushToken
+
         try {
-            const response = await fetch('https://your-backend-api.com/login', { // Replace with your backend URL
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Login failed. Please check your credentials.');
+            const result = await signIn(form.email, form.password);
+            if (result) {
+                setUser({
+                    id: result.id,
+                    email: result.email,
+                    name: result.name,
+                    authProvider: 'email'
+                });
+                setIsLogged(true);
+                router.replace('/home');
             }
-
-            const data = await response.json();
-            console.log('Login successful:', data);
         } catch (error) {
-            Alert.alert(error.message);
+            console.error('Login Error:', error);
+            Alert.alert('Error', 'Failed to sign in. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    // Function to handle Google login (placeholder)
-    const handleGoogleLogin = () => {
-        // Implement Google login logic here
-        Alert.alert('Google login not implemented yet.');
-    };
+    // const configureGoogleSignIn = () => {
+    //     GoogleSignin.configure({
+    //         androidClientId: "1019179928415-t4tno89dijmofiavdibd7oc10skcv2q6.apps.googleusercontent.com",
+    //     });
+    // };
+
+    // useEffect(() => {
+    //     configureGoogleSignIn();
+    // }, []);
+
+    // const googleSignIn = async () => {
+    //     try {
+    //         await GoogleSignin.hasPlayServices();
+    //         const googleUserInfo = await GoogleSignin.signIn();
+
+    //         const deviceToken = expoPushToken.data || expoPushToken;
+
+    //         setUser({
+    //             id: googleUserInfo.user.id,
+    //             email: googleUserInfo.user.email,
+    //             name: googleUserInfo.user.name,
+    //             authProvider: 'google',
+    //         });
+
+    //         setIsLoggedIn(true);
+    //         router.replace('/home');
+
+    //         await fetch('https://www.brillianzhub.com/save-google-user/', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 id: googleUserInfo.user.id,
+    //                 email: googleUserInfo.user.email,
+    //                 name: googleUserInfo.user.name,
+    //                 device_token: deviceToken
+    //             }),
+    //         });
+    //     } catch (e) {
+    //         Alert.alert('Google Sign-In Error', e.message);
+    //     }
+    // };
 
     return (
         <View style={styles.container}>
@@ -52,31 +153,33 @@ const SignIn = () => {
                 />
             </View>
             <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email"
+                <FormField
+                    title="Email"
+                    value={form.email}
+                    handleChangeText={(e) => setForm({
+                        ...form,
+                        email: e
+                    })}
+                    otherStyles="mt-5"
                     keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={email}
-                    onChangeText={setEmail}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
+
+                <FormField
+                    title="Password"
+                    value={form.password}
+                    handleChangeText={(e) => setForm({
+                        ...form,
+                        password: e
+                    })}
+                    otherStyles="mt-3"
                 />
-                <Link href="/reset-password" className="text-lg font-psemibold text-secondary">
+
+                <Link href="/reset-password" style={styles.linkText}>
                     <Text style={styles.forgotPassword}>Forgot your password ?</Text>
                 </Link>
-                <Pressable style={styles.button} onPress={handleLogin}>
+
+                <Pressable style={styles.button} onPress={submit}>
                     <Text style={styles.buttonText}>Login</Text>
-                </Pressable>
-                <Pressable>
-                    <Link href="/sign-up">
-                        <Text style={styles.forgotPassword}>Don't have account ?</Text>
-                    </Link>
                 </Pressable>
             </View>
             <View style={styles.separatorContainer}>
@@ -86,11 +189,16 @@ const SignIn = () => {
                 />
             </View>
             <View style={styles.googleButtonContainer}>
-                <Pressable style={styles.googleButton} onPress={handleGoogleLogin}>
+                <Pressable style={styles.googleButton}>
                     <Image
                         source={images.google}
                     />
                     <Text style={styles.googleButtonText}>Login with Google</Text>
+                </Pressable>
+                <Pressable style={styles.signUpBtn}>
+                    <Link href="/sign-up">
+                        <Text style={styles.forgotPassword}>Create new account ?</Text>
+                    </Link>
                 </Pressable>
             </View>
         </View>
@@ -113,14 +221,23 @@ const styles = StyleSheet.create({
     logo: {
         width: 214,
         height: 48,
-        resizeMode: 'contain', // Ensures the logo maintains its aspect ratio
+        resizeMode: 'contain',
     },
     loginpref: {
         marginVertical: 10,
     },
     formContainer: {
-        width: '100%', // Use the full width for the form
-        // marginBottom: 20,
+        width: '100%',
+        maxWidth: 400,
+        alignSelf: 'center',
+        padding: 20,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+        backgroundColor: 'white',
     },
     input: {
         width: '100%',
@@ -130,8 +247,8 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 15,
         marginBottom: 15,
-        backgroundColor: '#fff', // White background for input fields
-        elevation: 1, // Adds a slight shadow effect
+        backgroundColor: '#fff',
+        elevation: 1,
     },
     button: {
         width: '100%',
@@ -171,6 +288,12 @@ const styles = StyleSheet.create({
     separatorContainer: {
         marginVertical: 20,
         alignItems: 'center',
+    },
+    linkText: {
+        paddingBottom: 20
+    },
+    signUpBtn: {
+        padding: 20
     },
     // separator: {
     //     fontSize: 16,

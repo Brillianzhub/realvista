@@ -3,7 +3,7 @@ import React from 'react';
 import { router } from 'expo-router';
 import images from '../constants/images';
 
-const index = () => {
+const Index = () => {
 
   const handleNavigation = () => {
     router.replace('/sign-in');
@@ -15,15 +15,15 @@ const index = () => {
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
-        <Pressable onPress={handleNavigation}>
-          <Text style={styles.text}>Press to Continue</Text>
+        <Pressable onPress={handleNavigation} style={styles.button}>
+          <Text style={styles.buttonText}>Continue</Text>
         </Pressable>
       </View>
     </ImageBackground>
   );
 };
 
-export default index;
+export default Index;
 
 const styles = StyleSheet.create({
   backgroundImage: {
@@ -35,8 +35,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  text: {
+  button: {
+    position: 'absolute',
+    bottom: 100,
+    backgroundColor: '#FB902E',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+  },
+  buttonText: {
     color: 'white',
     fontSize: 18,
+    textAlign: 'center',
   },
 });

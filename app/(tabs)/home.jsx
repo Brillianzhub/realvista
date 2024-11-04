@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, Pressable } from 'r
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import BottomSheet from '@gorhom/bottom-sheet';
 import dummyData from '../../assets/data.json';
+import { useGlobalContext } from '../../context/GlobalProvider';
 
 
 const R = 6371000;
@@ -53,6 +54,8 @@ const calculateAreaInSquareMeters = (coordinates) => {
 };
 
 const HomeScreen = () => {
+  const { user, setUser, setIsLogged } = useGlobalContext();
+
   const [data] = useState(dummyData);
   const [selectedItem, setSelectedItem] = useState(null);
   const bottomSheetRef = useRef(null);
@@ -77,6 +80,7 @@ const HomeScreen = () => {
   const toggleMapType = () => {
     setMapType((prevType) => (prevType === 'standard' ? 'satellite' : 'standard'));
   }
+
 
   const renderItem = ({ item }) => (
     <TouchableOpacity

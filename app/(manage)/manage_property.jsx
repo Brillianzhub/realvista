@@ -1,101 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AddCoordinatesScreen from '../../screens/AddCordinatesScreen';
 
-const AppProperty = () => {
-    const [savedCoordinates, setSavedCoordinates] = useState([]);
-    const [showAddCoordinates, setShowAddCoordinates] = useState(false);
-    const [propertyDetails, setPropertyDetails] = useState({
-        title: 'Sample Property',
-        location: 'New York',
-        initialInvestment: 100000,
-        currentPrice: 120000,
-    });
+const CreateProperty = () => {
+    const [location, setLocation] = useState('');
+    const [description, setDescription] = useState('');
+    const [propertyType, setPropertyType] = useState('');
+    const [initialCost, setInitialCost] = useState('');
+    const [currentValue, setCurrentValue] = useState('');
+    const [area, setArea] = useState('');
 
-    useEffect(() => {
-        // Fetch data from AsyncStorage when the component mounts
-        getStoredData();
-    }, []);
+    const addProperty = async () => {
+        const token = await AsyncStorage.getItem('authToken');
 
-    const handleSaveCoordinates = (coordinates) => {
-        if (coordinates.length) {
-            setSavedCoordinates(coordinates);
-            setShowAddCoordinates(false);
+        console.log(`Token ${token}`)
+
+        if (!token) {
+            Alert.alert('Error', 'No authentication token found');
+            return;
         }
-    };
 
-
-
-    const saveData = async () => {
         try {
-            const propertyData = {
-                ...propertyDetails,
-                coordinates: savedCoordinates,
-            };
-            await AsyncStorage.setItem('propertyData', JSON.stringify(propertyData));
-            Alert.alert('Success', 'Property data has been saved.');
-        } catch (error) {
-            console.log('Error saving data', error);
-        }
-    };
+            const response = await fetch('http://192.168.0.57:8000/properties/add/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
+                },
+                body: JSON.stringify({
+                    location,
+                    description,
+                    property_type: propertyType,
+                    initial_cost: initialCost,
+                    current_value: currentValue,
+                    area_sqm: area,
+                }),
+            });
 
-    const getStoredData = async () => {
-        try {
-            const data = await AsyncStorage.getItem('propertyData');
-            if (data !== null) {
-                const parsedData = JSON.parse(data);
-                setPropertyDetails({
-                    title: parsedData.title,
-                    location: parsedData.location,
-                    initialInvestment: parsedData.initialInvestment,
-                    currentPrice: parsedData.currentPrice,
-                });
-                setSavedCoordinates(parsedData.coordinates || []);
+            if (!response.ok) {
+                throw new Error('Failed to create property');
             }
+
+            const result = await response.json();
+            Alert.alert('Success', 'Property created successfully');
         } catch (error) {
-            console.log('Error retrieving data', error);
+            Alert.alert('Error', error.message);
         }
     };
-
 
     return (
         <View style={styles.container}>
+            <Text style={styles.label}>Location:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Title"
-                value={propertyDetails.title}
-                onChangeText={(text) => setPropertyDetails({ ...propertyDetails, title: text })}
+                value={location}
+                onChangeText={setLocation}
             />
+            <Text style={styles.label}>Description:</Text>
             <TextInput
-                style={styles.input}
-                placeholder="Location"
-                value={propertyDetails.location}
-                onChangeText={(text) => setPropertyDetails({ ...propertyDetails, location: text })}
+                style={[styles.input, styles.textArea]}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={4}
             />
+            <Text style={styles.label}>Property Type:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Initial Investment"
-                value={propertyDetails.initialInvestment.toString()}
+                value={propertyType}
+                onChangeText={setPropertyType}
+            />
+            <Text style={styles.label}>Initial Cost:</Text>
+            <TextInput
+                style={styles.input}
+                value={initialCost}
+                onChangeText={setInitialCost}
                 keyboardType="numeric"
-                onChangeText={(text) => setPropertyDetails({ ...propertyDetails, initialInvestment: Number(text) })}
             />
+            <Text style={styles.label}>Current Value:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Current Price"
-                value={propertyDetails.currentPrice.toString()}
+                value={currentValue}
+                onChangeText={setCurrentValue}
                 keyboardType="numeric"
-                onChangeText={(text) => setPropertyDetails({ ...propertyDetails, currentPrice: Number(text) })}
             />
-            <Text>Coordinates: {savedCoordinates.length > 0 ? JSON.stringify(savedCoordinates) : 'No coordinates added'}</Text>
-
-            {!showAddCoordinates ? (
-                <Button title="Add Coordinates" onPress={() => setShowAddCoordinates(true)} />
-            ) : (
-                <AddCoordinatesScreen onSave={handleSaveCoordinates} />
-            )}
-
-            <Button title="Save Data" onPress={saveData} />
+            <Text style={styles.label}>Area (sqm):</Text>
+            <TextInput
+                style={styles.input}
+                value={area}
+                onChangeText={setArea}
+                keyboardType="numeric"
+            />
+            <Button title="Add Property" onPress={addProperty} />
         </View>
     );
 };
@@ -104,19 +100,27 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+        backgroundColor: '#f8f9fa',
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 5,
     },
     input: {
-        height: 40,
-        borderColor: 'gray',
         borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        padding: 10,
+        fontSize: 16,
+        marginBottom: 15,
+        backgroundColor: '#fff',
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
+    textArea: {
+        height: 100,
+        textAlignVertical: 'top',
     },
 });
 
-export default AppProperty;
+export default CreateProperty;
