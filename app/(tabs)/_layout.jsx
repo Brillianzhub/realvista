@@ -1,14 +1,16 @@
 import React, { useRef } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, TouchableOpacity } from 'react-native';
+import { StatusBar, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import HomeScreen from '../(tabs)/home';
+import HomeScreen from './Home';
 import InvestmentScreen from '../(tabs)/invest';
 import TrendScreen from '../(tabs)/trend';
 import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
+
+// import ProjectDetail from '../../screens/ProjectDetail';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
@@ -20,11 +22,11 @@ const RealVistaTabs = () => {
     <Tab.Navigator
       screenOptions={{
         lazy: true,
-        tabBarStyle: { backgroundColor: colors.card },
-        tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold' },
-        tabBarIndicatorStyle: { backgroundColor: colors.primary },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.text,
+        tabBarStyle: { backgroundColor: '#358B8B' },
+        tabBarLabelStyle: { fontSize: 16, fontWeight: 'bold' },
+        tabBarIndicatorStyle: { backgroundColor: '#FB902E' },
+        tabBarActiveTintColor: '#FB902E',
+        tabBarInactiveTintColor: 'white',
       }}
     >
       <Tab.Screen name="Portfolio" component={HomeScreen} />
@@ -45,38 +47,71 @@ const RealVistaStack = () => {
   };
 
   return (
-    <DrawerLayout
-      ref={drawerRef}
-      drawerWidth={300}
-      drawerPosition="left"
-      renderNavigationView={() => <NavigationView />}
-    >
-      <Stack.Navigator>
-        <Stack.Screen
-          name="RealVistaTabs"
-          component={RealVistaTabs}
-          options={{
-            headerTitle: 'RealVista',
-            headerTitleAlign: 'center',
-            headerLeft: () => (
-              <TouchableOpacity onPress={openDrawer}>
-                <Ionicons name="menu" size={24} color="black" style={{ marginLeft: 15 }} />
-              </TouchableOpacity>
-            ),
-            headerRight: () => (
-              <View style={{ flexDirection: 'row', marginRight: 15 }}>
-                <TouchableOpacity onPress={() => alert('Notifications')}>
-                  <Ionicons name="notifications" size={24} color="black" style={{ marginHorizontal: 10 }} />
+
+    <React.Fragment>
+      <StatusBar
+        barStyle="light-content"
+      />
+
+
+      <DrawerLayout
+        ref={drawerRef}
+        drawerWidth={300}
+        drawerPosition="left"
+        renderNavigationView={() => <NavigationView />}
+      >
+        <Stack.Navigator>
+          <Stack.Screen
+            name="RealVistaTabs"
+            component={RealVistaTabs}
+            options={{
+              headerTitle: 'Realvista',
+              headerTitleAlign: 'center',
+              headerLeft: () => (
+                <TouchableOpacity onPress={openDrawer}>
+                  <Ionicons name="menu" size={30} color="white" style={{ marginLeft: 15 }} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => alert('Profile')}>
-                  <Ionicons name="person" size={24} color="black" />
-                </TouchableOpacity>
-              </View>
-            ),
-          }}
-        />
-      </Stack.Navigator>
-    </DrawerLayout>
+              ),
+              headerRight: () => (
+                <View style={{ flexDirection: 'row', marginRight: 15 }}>
+                  <TouchableOpacity onPress={() => alert('Notifications')}>
+                    <Ionicons name="notifications" size={30} color="white" style={{ marginHorizontal: 10 }} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => alert('Profile')}>
+                    <Ionicons name="person" size={30} color="white" />
+                  </TouchableOpacity>
+                </View>
+              ),
+              headerStyle: {
+                backgroundColor: '#358B8B',
+              },
+              headerTitleStyle: {
+                fontSize: 24,
+                color: 'white',
+                fontWeight: 'bold',
+              },
+            }}
+          />
+          {/* <Stack.Screen
+            name="ProjectDetail"
+            component={ProjectDetail}
+            options={{
+              title: 'Project Details',
+              headerTitleAlign: 'center',
+              headerStyle: {
+                backgroundColor: '#358B8B',
+              },
+              headerTitleStyle: {
+                fontSize: 24,
+                color: 'white',
+                fontWeight: 'bold',
+              },
+              headerTintColor: 'white',
+            }}
+          /> */}
+        </Stack.Navigator>
+      </DrawerLayout>
+    </React.Fragment>
   );
 };
 

@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const signIn = async (email, password) => {
     try {
         // First, sign in the user
-        const signInResponse = await fetch('http://192.168.0.57:8000/accounts/signin/', {
+        const signInResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/accounts/signin/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ const signIn = async (email, password) => {
         }
 
         // If sign-in is successful, request the token
-        const tokenResponse = await fetch('http://192.168.0.57:8000/portfolio/api-token-auth/', {
+        const tokenResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/portfolio/api-token-auth/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ const SignIn = () => {
                     authProvider: 'email'
                 });
                 setIsLogged(true);
-                router.replace('/home');
+                router.replace('/Home');
             }
         } catch (error) {
             console.error('Login Error:', error);
@@ -154,7 +154,7 @@ const SignIn = () => {
             </View>
             <View style={styles.formContainer}>
                 <FormField
-                    title="Email"
+                    placeholder="Email"
                     value={form.email}
                     handleChangeText={(e) => setForm({
                         ...form,
@@ -165,7 +165,7 @@ const SignIn = () => {
                 />
 
                 <FormField
-                    title="Password"
+                    placeholder="Password"
                     value={form.password}
                     handleChangeText={(e) => setForm({
                         ...form,

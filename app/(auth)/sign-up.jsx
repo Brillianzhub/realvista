@@ -1,7 +1,6 @@
-import { TouchableOpacity, Linking, Text, View, Alert, Image, Pressable } from 'react-native';
+import { Text, View, Alert, Image, Pressable } from 'react-native';
 import React, { useState } from 'react';
 import FormField from '../../components/FormField';
-import CustomButton from '../../components/CustomButton';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import images from '../../constants/images';
 import { Link, router } from 'expo-router';
@@ -26,7 +25,7 @@ const SignUp = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('http://192.168.0.57:8000/accounts/register_user/', {
+            const response = await fetch('https://brillianzhub.eu.pythonanywhere.com/accounts/register_user/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,7 +52,7 @@ const SignUp = () => {
             });
             setIsLogged(true);
 
-            router.replace('/home');
+            router.replace('/Home');
         } catch (error) {
             Alert.alert('Error', error.message);
         } finally {
@@ -61,7 +60,6 @@ const SignUp = () => {
         }
     };
 
-    // python manage.py runserver 0.0.0.0:8000
 
     return (
         <View style={styles.container}>
@@ -73,27 +71,27 @@ const SignUp = () => {
             </View>
             <View style={styles.formContainer}>
                 <FormField
-                    title="Fullname"
+                    placeholder="Fullname"
                     value={form.name}
                     handleChangeText={(e) => setForm({ ...form, name: e })}
                     otherStyles=""
                 />
 
                 <FormField
-                    title="Email"
+                    placeholder="Email"
                     value={form.email}
                     handleChangeText={(e) => setForm({ ...form, email: e })}
                     otherStyles="mt-3"
                     keyboardType="email-address"
                 />
                 <FormField
-                    title="Password"
+                    placeholder="Password"
                     value={form.password}
                     handleChangeText={(e) => setForm({ ...form, password: e })}
                     otherStyles="mt-5"
                 />
                 <Pressable style={styles.button} onPress={submit}>
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>Register</Text>
                 </Pressable>
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>

@@ -21,7 +21,7 @@
     "app/_layout.jsx",
     "app/index.jsx",
     "app/(tabs)/_layout.jsx",
-    "app/(tabs)/home.jsx"
+    "app/(tabs)/Home.jsx"
   ],
   "extends": "expo/tsconfig.base"
 }

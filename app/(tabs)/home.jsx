@@ -1,73 +1,22 @@
-import React, { useState, useRef, useMemo } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Pressable } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
-import BottomSheet from '@gorhom/bottom-sheet';
-import dummyData from '../../assets/data.json';
-import { useGlobalContext } from '../../context/GlobalProvider';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import PropertyDetail from '../../components/PropertyDetail';
 
+const dummyData = require('../../assets/dummyData.json');
 
-const R = 6371000;
-
-// Haversine Distance Calculation
-const haversineDistance = (coord1, coord2) => {
-  const toRad = (value) => (value * Math.PI) / 180;
-
-  const lat1 = coord1.latitude;
-  const lon1 = coord1.longitude;
-  const lat2 = coord2.latitude;
-  const lon2 = coord2.longitude;
-
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c; // Distance in meters
-};
-
-// Shoelace formula to calculate land area
-const calculateAreaInSquareMeters = (coordinates) => {
-  const toRad = (value) => (value * Math.PI) / 180;
-  const R = 6371000;
-
-  let area = 0;
-
-  if (coordinates.length > 2) {
-    for (let i = 0; i < coordinates.length; i++) {
-      const lat1 = toRad(coordinates[i].latitude);
-      const lon1 = toRad(coordinates[i].longitude);
-      const lat2 = toRad(coordinates[(i + 1) % coordinates.length].latitude);
-      const lon2 = toRad(coordinates[(i + 1) % coordinates.length].longitude);
-
-      area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
-    }
-
-    area = (Math.abs(area) * R * R) / 2.0;
-  }
-
-  return Math.abs(area);
-};
-
-const HomeScreen = () => {
-  const { user, setUser, setIsLogged } = useGlobalContext();
-
-  const [data] = useState(dummyData);
+const Home = () => {
   const [selectedItem, setSelectedItem] = useState(null);
-  const bottomSheetRef = useRef(null);
   const [mapType, setMapType] = useState('standard');
-  const mapRef = useRef(null);
-  const snapPoints = useMemo(() => ['50%', '95%'], []);
+  const bottomSheetRef = useRef(null);
 
-  const totalInvested = data.reduce((acc, item) => acc + item.initialCost, 0);
-  const totalReturns = data.reduce((acc, item) => acc + item.currentCost, 0);
-  const percentageReturn = ((totalReturns - totalInvested) / totalInvested) * 100;
+  // const openBottomSheet = (item) => {
+  //   setSelectedItem(item);
+  //   bottomSheetRef.current?.expand();
+  // };
 
   const openBottomSheet = (item) => {
+    // alert(`Selected item: ${item.location}`);  // Debug check
     setSelectedItem(item);
     bottomSheetRef.current?.expand();
   };
@@ -81,129 +30,122 @@ const HomeScreen = () => {
     setMapType((prevType) => (prevType === 'standard' ? 'satellite' : 'standard'));
   }
 
-
   const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.listItem}
-      onPress={() => openBottomSheet(item)}
-    >
-      <Text style={styles.location}>{item.location}</Text>
-      <Text>Initial Cost: ${item.initialCost.toLocaleString()}</Text>
-      <Text>Land Area: {calculateAreaInSquareMeters(item.coordinates).toFixed(2)} m²</Text>
+    <TouchableOpacity style={styles.propertyItem} onPress={() => openBottomSheet(item)}>
+      <Text style={styles.propertyHeadText}>LOCATION: {item.location}</Text>
+      <Text style={styles.propertyText}>DESCRIPTION: {item.description}</Text>
+      <Text style={styles.propertyText}>INITIAL COST: {item.initialCost}</Text>
+      <Text style={styles.propertyText}>AREA: {item.area}</Text>
     </TouchableOpacity>
   );
-
   return (
     <View style={styles.container}>
-      <View style={styles.summary}>
-        <Text style={styles.header}>RealVista Portfolio Summary</Text>
-        <Text>Total Invested: ${totalInvested.toLocaleString()}</Text>
-        <Text>Total Returns: ${totalReturns.toLocaleString()}</Text>
-        <Text>Percentage Return: {percentageReturn.toFixed(2)}%</Text>
-      </View>
-
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-      />
-
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={snapPoints}
-        enablePanDownToClose={true}
-        onClose={closeBottomSheet}
-        enableContentPanningGesture={true}
-      >
-        <View style={styles.bottomSheetContent}>
-          {selectedItem && (
-            <>
-              <Text style={styles.modalTitle}>{selectedItem.location}</Text>
-              <Text>Initial Cost: ${selectedItem.initialCost.toLocaleString()}</Text>
-              <Text>Current Cost: ${selectedItem.currentCost.toLocaleString()}</Text>
-              <Text>Percentage Return: {selectedItem.percentageReturn}%</Text>
-              <MapView
-                ref={mapRef}
-                style={styles.map}
-                mapType={mapType}
-                initialRegion={{
-                  latitude: selectedItem.coordinates[0].latitude,
-                  longitude: selectedItem.coordinates[0].longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
-                showsUserLocation={true}
-                zoomEnabled={true}
-                scrollEnabled={true}
-                pitchEnabled={true}
-              >
-                <Marker
-                  coordinate={selectedItem.coordinates[0]}
-                  title={selectedItem.location}
-                />
-                <Polygon
-                  coordinates={selectedItem.coordinates}
-                  fillColor="rgba(0, 200, 0, 0.3)"
-                  strokeColor="rgba(0,0,0,0.5)"
-                  strokeWidth={2}
-                />
-              </MapView>
-            </>
-          )}
-          <View >
-            <Pressable onPress={toggleMapType} style={{ backgroundColor: '#136e8b', width: '50%', padding: 10, borderRadius: 5 }}>
-              <Text style={{ color: 'white' }}>Toggle Map</Text>
-            </Pressable>
-          </View>
+      <View style={styles.header}>
+        <View style={styles.summaryContainer}>
+          <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
+          <Text style={styles.summaryText}>Total Investment: $4000.00</Text>
+          <Text style={styles.summaryText}>Total Returns: $4500.00</Text>
+          <Text style={styles.summaryText}>Percentage Returns: 25%</Text>
         </View>
+      </View>
+      <View style={styles.propertiesList}>
+        <FlatList
+          data={dummyData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+      <TouchableOpacity style={styles.addButton} onPress={() => alert('Add Property')}>
+        <Ionicons name="add" size={30} color="white" />
+      </TouchableOpacity>
 
-      </BottomSheet>
+      <PropertyDetail
+        selectedItem={selectedItem}
+        closeBottomSheet={closeBottomSheet}
+        toggleMapType={toggleMapType}
+        mapType={mapType}
+        bottomSheetRef={bottomSheetRef}
+      />
     </View>
   );
 };
 
+export default Home;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-  },
-  summary: {
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: '#eef',
-    borderRadius: 10,
+    backgroundColor: '#f5f5f5',
   },
   header: {
+    alignItems: 'center',
+    marginBottom: 10,
+    backgroundColor: '#358B8B'
+  },
+  headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: 'white',
+    textAlign: 'left',
+    marginTop: 15
   },
-  listItem: {
-    backgroundColor: '#f9f9f9',
+  summaryContainer: {
+    backgroundColor: '#fff',
+    width: '90%',
     padding: 15,
+    margin: 20,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  location: {
+  summaryTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
   },
-  bottomSheetContent: {
-    padding: 20,
+  summaryText: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 5,
+  },
+  propertiesList: {
+    flex: 1,
+    padding: 10,
+  },
+  propertyItem: {
+    marginBottom: 20,
+    borderRadius: 10,
+    backgroundColor: '#358B8B1A',
+    padding: 10
+  },
+  propertyHeadText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+    color: '#FB902E',
+    fontWeight: 'bold'
+  },
+  propertyText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 20, 
+    right: 20, 
+    backgroundColor: '#358B8B', // Set your desired background color
+    width: 60, // Set the width of the circle
+    height: 60, // Set the height of the circle
+    borderRadius: 30, // Make the button circular by setting borderRadius to half the width/height
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  map: {
-    width: '100%',
-    height: '70%',
-    marginVertical: 10,
+    elevation: 5, // Optional: Adds a shadow effect to the button
   },
 });
-
-export default HomeScreen;

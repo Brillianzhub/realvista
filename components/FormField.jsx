@@ -1,22 +1,44 @@
 import { Text, TextInput, View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { icons } from '../constants/';
+import { Picker } from '@react-native-picker/picker';
 
 
-const FormField = ({ title, value, placeholder, handleChangeText, otherStyles, ...props }) => {
-    const [showPassword, setShowPassword] = useState(false)
+const FormField = ({ title, value, placeholder, handleChangeText, otherStyles, numberOfLines, multiline, ...props }) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const propertyTypes = [
+        { label: "Land", value: 'land' },
+        { label: "Building", value: 'building' },
+        { label: "Commercial Property", value: 'commercial' },
+        { label: "Residential Property", value: 'residential' }
+    ];
 
     return (
         <View style={[styles.container, otherStyles]}>
             <Text style={styles.label}>{title}</Text>
             <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    value={value}
-                    placeholder={placeholder}
-                    onChangeText={handleChangeText}
-                    secureTextEntry={title === 'Password' && !showPassword}
-                />
+                {placeholder === 'Property Type' ? (
+                    <Picker
+                        selectedValue={value}
+                        style={styles.picker}
+                        onValueChange={(itemValue) => handleChangeText(itemValue)}
+                    >
+                        {propertyTypes.map((option) => (
+                            <Picker.Item key={option.value} label={option.label} value={option.value} />
+                        ))}
+                    </Picker>
+                ) : (
+                    <TextInput
+                        style={styles.input}
+                        value={value}
+                        placeholder={placeholder}
+                        onChangeText={handleChangeText}
+                        multiline={multiline}
+                        numberOfLines={numberOfLines}
+                        secureTextEntry={title === 'Password' && !showPassword}
+                    />
+                )}
                 {title === 'Password' && (
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                         <Image
@@ -31,7 +53,6 @@ const FormField = ({ title, value, placeholder, handleChangeText, otherStyles, .
     )
 
 }
-
 
 const styles = StyleSheet.create({
     container: {
@@ -56,8 +77,14 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 16,
         color: '#333',
+        textAlignVertical: 'top',
     },
-
+    picker: {
+        flex: 1,
+        fontSize: 16,
+        color: '#333',
+        borderRadius: 50
+    },
     eyeIcon: {
         width: 24,
         height: 24,
