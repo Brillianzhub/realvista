@@ -76,7 +76,6 @@ const SignUp = () => {
                     handleChangeText={(e) => setForm({ ...form, name: e })}
                     otherStyles=""
                 />
-
                 <FormField
                     placeholder="Email"
                     value={form.email}

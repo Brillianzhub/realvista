@@ -1,13 +1,25 @@
 import { StyleSheet, Text, View, Pressable, ImageBackground } from 'react-native';
 import React from 'react';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
+
 import images from '../constants/images';
+import { useGlobalContext } from '@/context/GlobalProvider';
+
 
 const Index = () => {
+  const { isLogged } = useGlobalContext();
+
+  const router = useRouter();
 
   const handleNavigation = () => {
-    router.replace('/sign-in');
+    if (isLogged) {
+      router.replace('/Home');
+    } else {
+      router.replace('/sign-in');
+    }
   };
+
+
 
   return (
     <ImageBackground

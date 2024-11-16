@@ -7,7 +7,7 @@ import { router } from "expo-router";
 const AuthLayout = () => {
 
     const handleBackPress = () => {
-        router.replace('/home');
+        router.replace('/Home');
     };
 
     return (

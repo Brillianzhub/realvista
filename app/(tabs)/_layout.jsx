@@ -4,13 +4,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './Home';
-import InvestmentScreen from '../(tabs)/invest';
 import TrendScreen from '../(tabs)/trend';
 import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
-
-// import ProjectDetail from '../../screens/ProjectDetail';
+import Investment from './invest';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
@@ -30,7 +28,7 @@ const RealVistaTabs = () => {
       }}
     >
       <Tab.Screen name="Portfolio" component={HomeScreen} />
-      <Tab.Screen name="Investment" component={InvestmentScreen} />
+      <Tab.Screen name="Investment" component={Investment} />
       <Tab.Screen name="Trend" component={TrendScreen} />
     </Tab.Navigator>
   );
@@ -52,8 +50,6 @@ const RealVistaStack = () => {
       <StatusBar
         barStyle="light-content"
       />
-
-
       <DrawerLayout
         ref={drawerRef}
         drawerWidth={300}
@@ -92,23 +88,6 @@ const RealVistaStack = () => {
               },
             }}
           />
-          {/* <Stack.Screen
-            name="ProjectDetail"
-            component={ProjectDetail}
-            options={{
-              title: 'Project Details',
-              headerTitleAlign: 'center',
-              headerStyle: {
-                backgroundColor: '#358B8B',
-              },
-              headerTitleStyle: {
-                fontSize: 24,
-                color: 'white',
-                fontWeight: 'bold',
-              },
-              headerTintColor: 'white',
-            }}
-          /> */}
         </Stack.Navigator>
       </DrawerLayout>
     </React.Fragment>

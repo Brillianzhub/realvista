@@ -1,26 +1,40 @@
 import React, { useState } from 'react';
-import { View, Image, Dimensions, StyleSheet } from 'react-native';
-import Carousel from 'react-native-snap-carousel';
+import { View, Image, Dimensions, StyleSheet, Text } from 'react-native';
+import PagerView from 'react-native-pager-view';
 
-const { width: screenWidth } = Dimensions.get('window');
+// Define screen width to use in styles
+// const { width: screenWidth } = Dimensions.get('window');
 
 const ProjectImageCarousel = ({ images }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const renderItem = ({ item }) => (
+  // Render an item in the carousel
+  const renderItem = (item) => (
     <Image source={{ uri: item.image_url }} style={styles.carouselImage} />
   );
 
+  // If images array is empty or undefined, return a message instead of the carousel
+  if (!images || images.length === 0) {
+    return (
+      <View style={styles.noImagesContainer}>
+        <Text>No images available</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.carouselContainer}>
-      <Carousel
-        data={images}
-        renderItem={renderItem}
-        sliderWidth={screenWidth}
-        itemWidth={screenWidth}
-        onSnapToItem={(index) => setActiveIndex(index)}
-        loop={true}
-      />
+      <PagerView
+        style={styles.pagerView}
+        initialPage={0}
+        onPageSelected={(e) => setActiveIndex(e.nativeEvent.position)}
+      >
+        {images.map((item, index) => (
+          <View key={index}>
+            {renderItem(item)}
+          </View>
+        ))}
+      </PagerView>
       <View style={styles.dotContainer}>
         {images.map((_, index) => (
           <View
@@ -41,9 +55,14 @@ export default ProjectImageCarousel;
 const styles = StyleSheet.create({
   carouselContainer: {
     alignItems: 'center',
+    position: 'relative',
+  },
+  pagerView: {
+    flex: 1,
+    height: 250,
   },
   carouselImage: {
-    width: screenWidth,
+    // width: screenWidth,
     height: 250,
     resizeMode: 'cover',
   },
@@ -64,5 +83,10 @@ const styles = StyleSheet.create({
   },
   inactiveDot: {
     backgroundColor: '#808080',
+  },
+  noImagesContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 250,
   },
 });

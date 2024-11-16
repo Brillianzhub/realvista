@@ -36,12 +36,15 @@ const signIn = async (email, password) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: email, // or 'email' if the endpoint expects email
+                username: email,
                 password: password,
             }),
         });
 
         const tokenData = await tokenResponse.json();
+
+        // console.log(tokenData)
+
         if (!tokenData.token) {
             throw new Error('Authentication token not provided');
         }
@@ -125,7 +128,7 @@ const SignIn = () => {
     //         });
 
     //         setIsLoggedIn(true);
-    //         router.replace('/home');
+    //         router.replace('/Home');
 
     //         await fetch('https://www.brillianzhub.com/save-google-user/', {
     //             method: 'POST',

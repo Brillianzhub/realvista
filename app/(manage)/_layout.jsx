@@ -9,7 +9,7 @@ const ManageLayout = () => {
     const navigation = useNavigation();
 
     const handleBackPress = () => {
-        router.replace('/home');
+        router.replace('/Home');
     };
 
     return (
