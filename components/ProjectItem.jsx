@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
-const ProjectItem = ({ item }) => (
-    <TouchableOpacity style={styles.projectItem}>
+const ProjectItem = ({ item, onPress }) => (
+    < TouchableOpacity style = { styles.projectItem } onPress = { onPress } >
         <View style={styles.projectInfo}>
             <Text style={styles.projectName}>{item.name}</Text>
             <View style={styles.imageAndDetailsContainer}>
@@ -23,7 +23,7 @@ const ProjectItem = ({ item }) => (
             </View>
             <Text style={styles.projectDescription} numberOfLines={3} ellipsizeMode="tail">{item.description}</Text>
         </View>
-    </TouchableOpacity>
+    </TouchableOpacity >
 );
 
 const styles = StyleSheet.create({

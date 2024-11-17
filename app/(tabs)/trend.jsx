@@ -37,7 +37,6 @@ const TrendScreen = ({ onSave }) => {
         }
     };
 
-    console.log(coordinates)
     return (
         <View style={styles.container}>
             {currentLocation && (

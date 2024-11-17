@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-// import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProjectsContext = createContext();
@@ -42,7 +41,7 @@ export const ProjectsProvider = ({ children }) => {
     }, []);
 
     return (
-        <ProjectsContext.Provider value={projects}>
+        <ProjectsContext.Provider value={{ projects, fetchProjects }}>
             {children}
         </ProjectsContext.Provider>
     );

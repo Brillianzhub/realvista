@@ -4,7 +4,7 @@
     "slug": "realvista",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo_realvista.png",
     "scheme": "realvista",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -35,7 +35,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "googleMapsApiKey": ".............",
+      "googleMapsApiKey": "AIzaSyAs-y_tUDFUwIckZFYAZ3-C-2WdYbTAcNI",
       "router": {
         "origin": false
       },
@@ -45,4 +45,3 @@
     }
   }
 }
-

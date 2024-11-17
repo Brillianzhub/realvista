@@ -2,6 +2,12 @@ import landing from '../assets/images/landing-page.png';
 import landing2 from '../assets/images/landing-page2.png';
 import landing3 from '../assets/images/landing-page3.png';
 import landing4 from '../assets/images/landing-page4.png';
+import leftArrow from '../assets/images/left-arrow.png';
+import rightArrow from '../assets/images/right-arrow.png';
+import upArrow from '../assets/images/up.png';
+import location from '../assets/images/location.png';
+
+
 
 import logo from '../assets/images/logo.png';
 import loginpref from '../assets/images/loginpref.png';
@@ -15,5 +21,9 @@ export default {
     landing4,
     logo,
     loginpref,
-    google
+    google,
+    leftArrow,
+    rightArrow,
+    upArrow,
+    location
 };

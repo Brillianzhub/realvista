@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FlatList, StyleSheet, RefreshControl, View } from 'react-native';
-import { useProjectData } from '@/context/ProjectsContext';
 import ProjectItem from '@/components/ProjectItem';
+import { useNavigation } from '@react-navigation/native';
+import { useProjectData } from '@/context/ProjectsContext';
 
-const ProjectList = ({ navigation }) => {
-    const projects = useProjectData();
+const ProjectList = () => {
+    const navigation = useNavigation();
     const [refreshing, setRefreshing] = useState(false);
+    const { projects, fetchProjects } = useProjectData();
 
-    const onRefresh = () => {
+    const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        setTimeout(() => {
-            setRefreshing(false);
-        }, 2000);
-    };
+        await fetchProjects();
+        setRefreshing(false);
+    }, [fetchProjects]);
 
-
-    const handleProjectPress = (projectId) => {
-        navigation.navigate('ProjectDetail', {
-            projectId: projectId
-        });
+    const handleItemPress = (projectId) => {
+        navigation.navigate('ProjectDetail', { projectId });
     };
 
     return (
@@ -28,10 +26,10 @@ const ProjectList = ({ navigation }) => {
                 renderItem={({ item }) => (
                     <ProjectItem
                         item={item}
-                        onPress={() => handleProjectPress(item.id)}
+                        onPress={() => handleItemPress(item.id)}
                     />
                 )}
-                keyExtractor={item => item.id.toString()}
+                keyExtractor={(item) => item.id.toString()}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -47,8 +45,8 @@ const ProjectList = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 15
-    }
+        padding: 15,
+    },
 });
 
 export default ProjectList;
