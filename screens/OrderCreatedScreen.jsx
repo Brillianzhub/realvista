@@ -7,7 +7,7 @@ const OrderCreatedScreen = ({ route }) => {
 
     const { orderData } = route.params;
 
-    if (!orderData) return <Text>No Ordder Data</Text>
+    if (!orderData) return <Text>No Order Data</Text>
 
     const {
         order_reference,
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     amount: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#007BFF', 
+        color: '#007BFF',
         marginTop: 5,
         textAlign: 'center',
     },

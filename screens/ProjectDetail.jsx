@@ -124,7 +124,7 @@ const ProjectDetail = ({ route }) => {
                         style={styles.toggleButton}
                     >
                         <Text style={styles.toggleButtonText}>
-                            {isDescriptionVisible ? 'Hide Project Description' : 'View Project Description'}
+                            About
                         </Text>
                         <Ionicons
                             name={isDescriptionVisible ? 'chevron-up' : 'chevron-down'}
@@ -140,39 +140,34 @@ const ProjectDetail = ({ route }) => {
                 </View>
 
                 <View style={styles.projectElement}>
-                    <View style={styles.projectIcon}></View>
                     <View>
                         <Text style={[styles.projectCaption]}>Project Location</Text>
-                        <Text style={styles.projectInfo}>{project.location}</Text>
                     </View>
+                    <Text style={styles.projectInfo}>{project.location}</Text>
                 </View>
                 <View style={styles.projectElement}>
-                    <View style={styles.projectIcon}></View>
                     <View>
                         <Text style={[styles.projectCaption]}>Project Type</Text>
-                        <Text style={styles.projectInfo}>{project.type_of_project}</Text>
                     </View>
+                    <Text style={styles.projectInfo}>{project.type_of_project}</Text>
                 </View>
                 <View style={styles.projectElement}>
-                    <View style={styles.projectIcon}></View>
                     <View>
                         <Text style={[styles.projectCaption]}>Number of Slots</Text>
-                        <Text style={styles.projectInfo}>{project.num_slots}</Text>
                     </View>
+                    <Text style={styles.projectInfo}>{project.num_slots}</Text>
                 </View>
                 <View style={styles.projectElement}>
-                    <View style={styles.projectIcon}></View>
                     <View>
                         <Text style={[styles.projectCaption]}>Cost/Slot</Text>
-                        <Text style={styles.projectInfo}>{project.cost_per_slot}</Text>
                     </View>
+                    <Text style={styles.projectInfo}>{project.cost_per_slot}</Text>
                 </View>
                 <View style={styles.projectElement}>
-                    <View style={styles.projectIcon}></View>
                     <View>
                         <Text style={[styles.projectCaption]}>Status</Text>
-                        <Text style={styles.projectInfo}>{project.status}</Text>
                     </View>
+                    <Text style={styles.projectInfo}>{project.status}</Text>
                 </View>
                 <View>
                     <TouchableOpacity
@@ -230,18 +225,16 @@ const styles = StyleSheet.create({
     projectElement: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         gap: 20,
         marginBottom: 25
     },
     projectIcon: {
-        marginRight: 10,
-        padding: 10,
+        width: 10,
+        height: 10,
+        borderRadius: 4,
+        marginHorizontal: 4,
         backgroundColor: '#a5c9c9',
-        borderRadius: 8,
-        borderRadius: 50,
-        width: 30,
-        height: 30,
     },
 
     toggleButton: {
@@ -272,7 +265,8 @@ const styles = StyleSheet.create({
         marginBottom: 5
     },
     projectInfo: {
-        fontSize: 16,
+        fontSize: 14,
+        color: 'gray'
     },
 
     dotContainer: {

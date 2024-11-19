@@ -4,9 +4,14 @@ import { useRouter } from 'expo-router';
 
 import images from '../constants/images';
 import { useGlobalContext } from '@/context/GlobalProvider';
+import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 
 const Index = () => {
+
+  SystemNavigationBar.setNavigationColor('#358B8B');
+
+
   const { isLogged } = useGlobalContext();
 
   const router = useRouter();

@@ -1,12 +1,10 @@
-import { Stack, useNavigation } from "expo-router";
+import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { TouchableOpacity } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity, Image } from "react-native";
 import { router } from "expo-router";
 
 const ManageLayout = () => {
 
-    const navigation = useNavigation();
 
     const handleBackPress = () => {
         router.replace('/Home');
@@ -23,7 +21,11 @@ const ManageLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
                             </TouchableOpacity>
                         ),
                     }}
@@ -36,7 +38,11 @@ const ManageLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
                             </TouchableOpacity>
                         ),
                     }}
@@ -49,7 +55,11 @@ const ManageLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
                             </TouchableOpacity>
                         ),
                     }}
@@ -62,7 +72,11 @@ const ManageLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
                             </TouchableOpacity>
                         ),
                     }}
@@ -75,7 +89,11 @@ const ManageLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
                             </TouchableOpacity>
                         ),
                     }}

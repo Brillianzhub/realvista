@@ -5,6 +5,9 @@ import GlobalProvider from '../context/GlobalProvider';
 import { ProjectsProvider } from '../context/ProjectsContext';
 
 const RealVistaLayout = () => {
+
+
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <GlobalProvider>

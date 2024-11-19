@@ -9,6 +9,7 @@ import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
 import Investment from './invest';
+import { router } from 'expo-router';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
@@ -20,7 +21,9 @@ const RealVistaTabs = () => {
     <Tab.Navigator
       screenOptions={{
         lazy: true,
-        tabBarStyle: { backgroundColor: '#358B8B' },
+        tabBarStyle: {
+          backgroundColor: '#358B8B'
+        },
         tabBarLabelStyle: { fontSize: 16, fontWeight: 'bold' },
         tabBarIndicatorStyle: { backgroundColor: '#FB902E' },
         tabBarActiveTintColor: '#FB902E',
@@ -44,11 +47,20 @@ const RealVistaStack = () => {
     }
   };
 
+  const handleNav = () => {
+    router.replace('/profile')
+  }
+
+  const handleNavNot = () => {
+    router.replace('/notifications')
+  }
+
   return (
 
     <React.Fragment>
       <StatusBar
         barStyle="light-content"
+        backgroundColor="#358B8B"
       />
       <DrawerLayout
         ref={drawerRef}
@@ -70,10 +82,10 @@ const RealVistaStack = () => {
               ),
               headerRight: () => (
                 <View style={{ flexDirection: 'row', marginRight: 15 }}>
-                  <TouchableOpacity onPress={() => alert('Notifications')}>
+                  <TouchableOpacity onPress={handleNavNot}>
                     <Ionicons name="notifications" size={30} color="white" style={{ marginHorizontal: 10 }} />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => alert('Profile')}>
+                  <TouchableOpacity onPress={handleNav}>
                     <Ionicons name="person" size={30} color="white" />
                   </TouchableOpacity>
                 </View>

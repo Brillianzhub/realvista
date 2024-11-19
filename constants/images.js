@@ -13,7 +13,17 @@ import logo from '../assets/images/logo.png';
 import loginpref from '../assets/images/loginpref.png';
 import google from '../assets/images/google.png';
 import download from '../assets/images/download.png';
+import goTo from '../assets/images/goTo.png';
+import logout from '../assets/images/logout.png';
+import support from '../assets/images/support.png';
+import privacyPolicy from '../assets/images/privacy-policy.png';
+import faq from '../assets/images/faq.png';
+import termsUse from '../assets/images/terms-use.png';
+import whatsapp from '../assets/images/whatsapp.png';
 
+import manage from '../assets/images/manage.png';
+import settings from '../assets/images/settings.png';
+import profile from '../assets/images/profile.png';
 
 
 export default {
@@ -31,5 +41,15 @@ export default {
     increment,
     decrement,
     orderCreated,
-    download
+    download,
+    goTo,
+    logout,
+    support,
+    privacyPolicy,
+    faq,
+    termsUse,
+    whatsapp,
+    manage,
+    settings,
+    profile
 };
