@@ -29,7 +29,6 @@ const signIn = async (email, password) => {
             throw new Error(errorData.error || 'Failed to sign in');
         }
 
-        // If sign-in is successful, request the token
         const tokenResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/portfolio/api-token-auth/', {
             method: 'POST',
             headers: {
@@ -43,13 +42,10 @@ const signIn = async (email, password) => {
 
         const tokenData = await tokenResponse.json();
 
-        // console.log(tokenData)
-
         if (!tokenData.token) {
             throw new Error('Authentication token not provided');
         }
 
-        // Store the token
         await AsyncStorage.setItem('authToken', tokenData.token);
 
         return tokenData;

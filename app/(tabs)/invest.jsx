@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ProjectList from '../../screens/ProjectList';
 import ProjectDetail from '../../screens/ProjectDetail';
 import InvestmentScreen from '../../screens/InvestmentScreen';
+import OrderCreatedScreen from '../../screens/OrderCreatedScreen';
 import { Image, TouchableOpacity } from 'react-native';
 
 const Stack = createStackNavigator();
@@ -22,7 +23,8 @@ const Investment = () => {
                 component={ProjectDetail}
                 options={({ navigation }) => ({
                     headerShown: true,
-                    title: '',
+                    title: 'Project Detail',
+                    headerTitleAlign: 'center',
                     headerStyle: {
                         backgroundColor: '#f2f2f2'
                     },
@@ -46,9 +48,10 @@ const Investment = () => {
                 component={InvestmentScreen}
                 options={({ navigation }) => ({
                     headerShown: true,
-                    title: '',
+                    title: 'Finalize your Order',
+                    headerTitleAlign: 'center',
                     headerStyle: {
-                        backgroundColor: '#f2f2f2'
+                        backgroundColor: '#f2f2f2',
                     },
                     headerLeft: () => (
                         <TouchableOpacity
@@ -62,7 +65,30 @@ const Investment = () => {
                             />
                         </TouchableOpacity>
                     ),
-
+                })}
+            />
+            <Stack.Screen
+                name="OrderCreatedScreen"
+                component={OrderCreatedScreen}
+                options={({ navigation }) => ({
+                    headerShown: true,
+                    title: '',
+                    headerTitleAlign: 'center',
+                    headerStyle: {
+                        backgroundColor: '#f2f2f2',
+                    },
+                    headerLeft: () => (
+                        <TouchableOpacity
+                            style={{ marginLeft: 10 }}
+                            onPress={() => navigation.goBack()}
+                        >
+                            <Image
+                                source={require('../../assets/images/backArrow.png')}
+                                style={{ width: 35, height: 35 }}
+                                resizeMode='contain'
+                            />
+                        </TouchableOpacity>
+                    ),
                 })}
             />
         </Stack.Navigator>

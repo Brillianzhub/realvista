@@ -6,12 +6,14 @@ import leftArrow from '../assets/images/left-arrow.png';
 import rightArrow from '../assets/images/right-arrow.png';
 import upArrow from '../assets/images/up.png';
 import location from '../assets/images/location.png';
-
-
-
+import decrement from '../assets/images/decrement.png';
+import increment from '../assets/images/increment.png';
+import orderCreated from '../assets/images/order_created.png';
 import logo from '../assets/images/logo.png';
 import loginpref from '../assets/images/loginpref.png';
 import google from '../assets/images/google.png';
+import download from '../assets/images/download.png';
+
 
 
 export default {
@@ -25,5 +27,9 @@ export default {
     leftArrow,
     rightArrow,
     upArrow,
-    location
+    location,
+    increment,
+    decrement,
+    orderCreated,
+    download
 };

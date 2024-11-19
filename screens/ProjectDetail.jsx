@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, Image, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import images from '../constants/images';
@@ -21,7 +21,7 @@ const ProjectDetail = ({ route }) => {
         setDescriptionVisible((prev) => !prev);
     };
 
-    const handleInvest = () => {
+    const handleInvest = (projectId) => {
         navigation.navigate('InvestmentScreen', { projectId })
     }
 
@@ -77,7 +77,6 @@ const ProjectDetail = ({ route }) => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.projectTitle}>{project.name}</Text>
             {project.images && project.images.length > 0 ? (
                 <View style={styles.carouselContainer}>
                     <TouchableOpacity
@@ -113,7 +112,7 @@ const ProjectDetail = ({ route }) => {
             ) : (
                 <Text>No images available</Text>
             )}
-
+            <Text style={styles.projectTitle}>{project.name}</Text>
             <View style={styles.budgetView}>
                 <Text style={styles.budget}>Budget: ${project.budget}</Text>
             </View>
@@ -178,7 +177,7 @@ const ProjectDetail = ({ route }) => {
                 <View>
                     <TouchableOpacity
                         style={styles.investButton}
-                        onPress={() => handleInvest()}
+                        onPress={() => handleInvest(projectId)}
                     >
                         <Text style={styles.investNow}>Invest</Text>
                     </TouchableOpacity>
