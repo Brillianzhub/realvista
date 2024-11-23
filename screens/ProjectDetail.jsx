@@ -52,7 +52,6 @@ const ProjectDetail = ({ route }) => {
         fetchProjectDetail();
     }, [projectId]);
 
-    console.log(project)
     const fetchProjectOrder = async () => {
         try {
             const token = await AsyncStorage.getItem('authToken')

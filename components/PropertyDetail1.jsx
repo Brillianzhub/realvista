@@ -1,23 +1,29 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import BottomSheet from '@gorhom/bottom-sheet';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
 
-const PropertyDetail = ({
-    selectedItem,
-    closeBottomSheet,
-    toggleMapType,
-    mapType,
-}) => {
-    if (!selectedItem) {
-        return <View><Text>No data selected.</Text></View>;
-    }
+const PropertyDetail = ({ bottomSheetRef, selectedItem, closeBottomSheet, toggleMapType, mapType }) => {
+    const mapRef = useRef(null);
 
-    const { project, dividends, total_amount, quantity } = selectedItem;
+    if (!selectedItem) return null;
+    const { project, dividends, total_amount, quantity, order_reference, payment_status } = selectedItem;
+
+    const snapPoints = ['50%', '100%'];
 
     return (
-        <View style={styles.container}>
+        <BottomSheet
+            ref={bottomSheetRef}
+            index={-1}
+            snapPoints={snapPoints}
+            enablePanDownToClose={true}
+            onClose={closeBottomSheet}
+            enableContentPanningGesture={true}
+            handleStyle={styles.handleContainer}
+            handleIndicatorStyle={styles.handleIndicator}
+        >
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Property Details</Text>
                 <TouchableOpacity onPress={closeBottomSheet}>
@@ -30,8 +36,8 @@ const PropertyDetail = ({
                     <>
                         <View style={styles.overview}>
                             <View>
-                                <Text style={styles.modalTitle}>{project?.name}</Text>
-                                <Text style={[styles.modalTitle, { color: '#FB902E' }]}>{project.location}</Text>
+                                <Text style={styles.modalTitle}>{selectedItem.project?.name}</Text>
+                                <Text style={[styles.modalTitle, { color: '#FB902E' }]}>{selectedItem.project.location}</Text>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                                 <Text style={styles.propertyDetailText}>Initial Investment:</Text>
@@ -100,14 +106,14 @@ const PropertyDetail = ({
                     </Pressable>
                 </View>
             </View>
-        </View>
+        </BottomSheet>
+
     );
 };
 
+export default PropertyDetail;
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     bottomSheetContent: {
         flex: 1,
         padding: 16,
@@ -160,8 +166,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-
-
+    handleContainer: {
+        backgroundColor: '#358B8B1A',
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+    },
+    
     overview: {
         backgroundColor: 'white',
         padding: 10,
@@ -202,5 +212,3 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-
-export default PropertyDetail;
