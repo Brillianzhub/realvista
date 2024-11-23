@@ -11,7 +11,9 @@ const ProjectDetail = ({ route }) => {
     const { projectId } = route.params;
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [orderData, setOrderData] = useState([])
     const navigation = useNavigation();
+    const [availableSlots, setAvailableSlots] = useState(null);
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -49,6 +51,44 @@ const ProjectDetail = ({ route }) => {
 
         fetchProjectDetail();
     }, [projectId]);
+
+    console.log(project)
+    const fetchProjectOrder = async () => {
+        try {
+            const token = await AsyncStorage.getItem('authToken')
+            if (!token) {
+                console.log('You are not authorised to fetch this data')
+                return;
+            }
+
+            const project_ref = project.project_reference;
+            if (!project_ref) {
+                console.log('Project not specified!')
+                return;
+            }
+            const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/order/project-orders/by_project/?project_ref=${project_ref}`, {
+                headers: {
+                    Authorization: `Token ${token}`
+                },
+            });
+            setOrderData(response.data)
+        } catch (error) {
+        }
+    }
+
+    useEffect(() => {
+        fetchProjectOrder()
+    }, [project]);
+
+
+    useEffect(() => {
+        let sum = 0;
+        for (i = 0; i < orderData.length - 1; i++) {
+            sum += orderData[i].quantity;
+        }
+        const slots = project?.num_slots
+        setAvailableSlots(parseInt(slots - sum))
+    }, [orderData, project])
 
 
     const handleNextImage = () => {
@@ -112,13 +152,15 @@ const ProjectDetail = ({ route }) => {
             ) : (
                 <Text>No images available</Text>
             )}
-            <Text style={styles.projectTitle}>{project.name}</Text>
-            <View style={styles.budgetView}>
+            <View style={{ marginVertical: 15 }}>
+                <Text style={styles.projectTitle}>{project.name}</Text>
+            </View>
+            <View style={{ marginBottom: 25 }}>
                 <Text style={styles.budget}>Budget: ${project.budget}</Text>
             </View>
 
-            <View>
-                <View>
+            <View style={styles.aboutView}>
+                <View >
                     <TouchableOpacity
                         onPress={toggleDescriptionVisibility}
                         style={styles.toggleButton}
@@ -128,12 +170,11 @@ const ProjectDetail = ({ route }) => {
                         </Text>
                         <Ionicons
                             name={isDescriptionVisible ? 'chevron-up' : 'chevron-down'}
-                            size={20}
-                            color="white"
+                            size={25}
+                            color="#358B8B"
                             style={styles.toggleButtonArrowIcon}
                         />
                     </TouchableOpacity>
-
                     {isDescriptionVisible && (
                         <Text style={styles.projectDescription}>{project.description}</Text>
                     )}
@@ -153,9 +194,9 @@ const ProjectDetail = ({ route }) => {
                 </View>
                 <View style={styles.projectElement}>
                     <View>
-                        <Text style={[styles.projectCaption]}>Number of Slots</Text>
+                        <Text style={[styles.projectCaption]}>Available Slots</Text>
                     </View>
-                    <Text style={styles.projectInfo}>{project.num_slots}</Text>
+                    <Text style={styles.projectInfo}>{availableSlots}</Text>
                 </View>
                 <View style={styles.projectElement}>
                     <View>
@@ -174,7 +215,7 @@ const ProjectDetail = ({ route }) => {
                         style={styles.investButton}
                         onPress={() => handleInvest(projectId)}
                     >
-                        <Text style={styles.investNow}>Invest</Text>
+                        <Text style={styles.investNow}>Invest Now</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -187,12 +228,13 @@ export default ProjectDetail;
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
-        paddingHorizontal: 20,
+        padding: 20,
     },
     projectTitle: {
-        fontSize: 24,
-        fontWeight: '400',
+        fontSize: 20,
+        fontWeight: '600',
         marginBottom: 10,
+        color: 'gray'
     },
     carouselContainer: {
         position: 'relative',
@@ -221,13 +263,11 @@ const styles = StyleSheet.create({
         width: 49,
         height: 49,
     },
-
     projectElement: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 20,
-        marginBottom: 25
+        marginVertical: 20
     },
     projectIcon: {
         width: 10,
@@ -241,14 +281,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 10,
-        backgroundColor: '#FB902E',
-        borderRadius: 8,
-        marginBottom: 10,
+        marginBottom: 20,
     },
     toggleButtonText: {
         fontSize: 18,
-        color: 'white',
         fontWeight: '600',
     },
     toggleButtonArrowIcon: {
@@ -256,8 +292,8 @@ const styles = StyleSheet.create({
     },
     projectDescription: {
         fontSize: 16,
-        padding: 10,
-        marginBottom: 10
+        marginBottom: 10,
+        textAlign: 'justify'
     },
     projectCaption: {
         fontSize: 16,
@@ -288,20 +324,16 @@ const styles = StyleSheet.create({
     inactiveDot: {
         backgroundColor: '#ffffff'
     },
-    budgetView: {
-        marginBottom: 10,
-    },
     budget: {
         fontSize: 24,
         fontWeight: 'bold',
         color: '#269690'
     },
     investButton: {
-        // margin: 10,
+        marginBottom: 10,
         backgroundColor: '#FB902E',
         borderRadius: 10,
-        paddingVertical: 15,
-        width: 100,
+        paddingVertical: 10,
         alignItems: 'center'
     },
     investNow: {

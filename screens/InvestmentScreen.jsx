@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useGlobalContext } from '../context/GlobalProvider';
 import { useNavigation } from '@react-navigation/native';
+import { useInvestmentData } from '@/context/InvestmentProvider';
 
 
 const InvestmentScreen = ({ route }) => {
@@ -16,10 +17,15 @@ const InvestmentScreen = ({ route }) => {
     const [totalAmount, setTotalAmount] = useState(0);
     const navigation = useNavigation();
 
+    const { setInvestment } = useInvestmentData();
+
     const formattedAmount = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
     }).format(totalAmount);
+
+    const availableSlots = 10;
+
 
 
     useEffect(() => {
@@ -49,7 +55,13 @@ const InvestmentScreen = ({ route }) => {
 
 
     const incrementQuantity = () => {
-        setQuantity(prevQuantity => prevQuantity + 1);
+        setQuantity(prevQuantity => {
+            if (prevQuantity + 1 > availableSlots) {
+                Alert.alert('The quantity you entered exceeds the available number of slots')
+                return prevQuantity;
+            }
+            return prevQuantity + 1;
+        });
     };
 
     const decrementQuantity = () => {
@@ -89,8 +101,10 @@ const InvestmentScreen = ({ route }) => {
                 user_id: user.id,
                 user_email: user.email,
                 user_name: user.name,
+                project_id: project.id,
                 project_name: project.name,
                 quantity: quantity,
+                cost_per_slot: project.cost_per_slot,
                 total_amount: project.cost_per_slot * quantity,
             };
 
@@ -106,6 +120,7 @@ const InvestmentScreen = ({ route }) => {
             );
 
             if (response.status === 200) {
+                setInvestment(response.data)
                 navigation.navigate('OrderCreatedScreen', { orderData: response.data });
             } else {
                 Alert.alert('Error', 'Failed to send invoice email.');
@@ -137,7 +152,7 @@ const InvestmentScreen = ({ route }) => {
                 {project.images && project.images.length > 0 ? (
                     <View>
                         <Image
-                            source={{ uri: project.images[1].image_url }}
+                            source={{ uri: project.images[0].image_url }}
                             style={styles.projectImage}
                         />
                     </View>
@@ -193,7 +208,7 @@ const InvestmentScreen = ({ route }) => {
                     disabled={loading}
                 >
                     <Text style={styles.proceedButtonText}>
-                        {loading ? 'Processing...' : 'Proceed to Payment'}
+                        {loading ? 'Processing...' : 'Proceed to Create Order'}
                     </Text>
                 </TouchableOpacity>
             </View>

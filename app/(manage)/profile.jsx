@@ -1,52 +1,55 @@
 import { StyleSheet, Text, View, Image, ScrollView, Alert } from 'react-native';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images'
 import { TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { router } from 'expo-router';
 import TransactionDetail from '../../components/TransactionDetail';
-
+import { useInvestmentData } from '../../context/InvestmentProvider';
 
 const profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
     const [selectedItem, setSelectedItem] = useState(null);
     const bottomSheetRef = useRef(null);
+    const { investment } = useInvestmentData();
 
-    let initialName = '';
+    console.log(investment)
 
     const signOut = async () => {
         try {
-            const response = await axios.post('https://brillianzhub.eu.pythonanywhere.com/accounts/logout/')
+            const response = await axios.post(
+                'https://brillianzhub.eu.pythonanywhere.com/accounts/logout/'
+            );
             if (response.status === 200) {
+                console.log("Logged out successfully");
                 return true;
             } else {
+                console.error("Failed to log out");
                 return false;
             }
         } catch (error) {
-            Alert.alert("Logout Error", "Failed to logout. Please try again.")
+            console.error("Logout Error: ", error);
+            Alert.alert('Logout Error', 'Failed to logout. Please try again.');
             return false;
         }
     };
 
     const logout = async () => {
         try {
-            if (user.auth_provider === 'email') {
+            if (user?.auth_provider === 'email') {
                 const success = await signOut();
                 if (!success) return;
-            };
-            setUser(null);
-            setIsLogged(false);
-            // router.replace('/sign-in')
+            }
+            setUser(null); // Clear user
+            setIsLogged(false); // Update login status
+            router.replace('/sign-in')
         } catch (error) {
-            console.error("Logout Error", error)
+            console.error('Logout Error', error);
         }
-    }
+    };
 
-    if (user && user.name) {
-        const initial = user.name.split('')[0];
-        initialName = initial;
-    }
+    const initialName = user?.name ? user.name.charAt(0) : '';
 
     const openTransactionDetails = (item) => {
         setSelectedItem(item);
@@ -71,7 +74,7 @@ const profile = () => {
                     <Text style={styles.userInitialName}>{initialName}</Text>
                 </View>
                 <View style={styles.userNameView}>
-                    <Text style={styles.userName}>{user.name}</Text>
+                    <Text style={styles.userName}>{user?.name}</Text>
                 </View>
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
@@ -112,12 +115,6 @@ const profile = () => {
                             </TouchableOpacity>
                         </View>
                     ))}
-
-                    <TransactionDetail
-                        selectedItem={selectedItem}
-                        bottomSheetRef={bottomSheetRef}
-                        closeBottomSheet={closeBottomSheet}
-                    />
                 </View>
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
@@ -140,7 +137,13 @@ const profile = () => {
                         />
                     </TouchableOpacity>
                 </View>
+
             </View>
+            <TransactionDetail
+                selectedItem={selectedItem}
+                bottomSheetRef={bottomSheetRef}
+                closeBottomSheet={closeBottomSheet}
+            />
         </ScrollView>
     )
 }

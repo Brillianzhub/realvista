@@ -1,22 +1,83 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetail from '../../components/PropertyDetail';
+// import { useInvestmentData } from '@/context/InvestmentProvider';
+import { useGlobalContext } from '@/context/GlobalProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-const dummyData = require('../../assets/dummyData.json');
+
 
 const Home = () => {
+  const { user } = useGlobalContext();
   const [selectedItem, setSelectedItem] = useState(null);
+  const [portfolioSum, setPortfolioSum] = useState(0);
+  const [percentageReturn, setPercentageReturns] = useState(0);
   const [mapType, setMapType] = useState('standard');
   const bottomSheetRef = useRef(null);
 
-  // const openBottomSheet = (item) => {
-  //   setSelectedItem(item);
-  //   bottomSheetRef.current?.expand();
-  // };
+  const [orders, setOrders] = useState([]);
+  const [percentageOwner, setPercentageOwner] = useState(0);
+  // const [loading, setLoading] = useState(true);
+
+  const totalPortfolioValue = portfolioSum.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const fetchUserOrder = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        console.log("Token required for this operation");
+        return;
+      }
+
+      const user_email = user?.email;
+      if (!user_email) {
+        console.log("User email is not available");
+        return;
+      }
+
+      const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/order/user-orders/by_user_email/?user_email=${user_email}`, {
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Encountered error while loading the data", error);
+    }
+  }
+
+  // console.log(orders[0].project.num_slots)
+
+  useEffect(() => {
+    let sum = 0;
+    for (i = 0; i < orders.length - 1; i++) {
+      sum += parseFloat(orders[i].total_amount);
+    }
+    setPortfolioSum(sum)
+
+    const increase = ((100000 - sum) / 100000) * 100;
+    setPercentageReturns(increase)
+
+    for (i = 0; i < orders.length - 1; i++) {
+      console.log(orders[i].quantity)
+    }
+
+  }, [orders])
+
+
+  useEffect(() => {
+    fetchUserOrder()
+  }, [user?.email])
+
 
   const openBottomSheet = (item) => {
-    // alert(`Selected item: ${item.location}`);  // Debug check
     setSelectedItem(item);
     bottomSheetRef.current?.expand();
   };
@@ -32,10 +93,10 @@ const Home = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.propertyItem} onPress={() => openBottomSheet(item)}>
-      <Text style={styles.propertyHeadText}>LOCATION: {item.location}</Text>
-      <Text style={styles.propertyText}>DESCRIPTION: {item.description}</Text>
-      <Text style={styles.propertyText}>INITIAL COST: {item.initialCost}</Text>
-      <Text style={styles.propertyText}>AREA: {item.area}</Text>
+      <Text style={styles.propertyHeadText}>Project: {item.project_name}</Text>
+      <Text style={styles.propertyText}>Initial Investment: {item.total_amount}</Text>
+      <Text style={styles.propertyText}>Current Value: {item.total_amount}</Text>
+      <Text style={styles.propertyText}>Number of Slots: {item.quantity}</Text>
     </TouchableOpacity>
   );
   return (
@@ -43,14 +104,23 @@ const Home = () => {
       <View style={styles.header}>
         <View style={styles.summaryContainer}>
           <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
-          <Text style={styles.summaryText}>Total Investment: $4000.00</Text>
-          <Text style={styles.summaryText}>Total Returns: $4500.00</Text>
-          <Text style={styles.summaryText}>Percentage Returns: 25%</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Investment</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>${totalPortfolioValue}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Returns</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>$4500.00</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Percentage Returns</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{percentageReturn}%</Text>
+          </View>
         </View>
       </View>
       <View style={styles.propertiesList}>
         <FlatList
-          data={dummyData}
+          data={orders}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
@@ -138,8 +208,8 @@ const styles = StyleSheet.create({
   },
   addButton: {
     position: 'absolute',
-    bottom: 20, 
-    right: 20, 
+    bottom: 20,
+    right: 20,
     backgroundColor: '#358B8B', // Set your desired background color
     width: 60, // Set the width of the circle
     height: 60, // Set the height of the circle

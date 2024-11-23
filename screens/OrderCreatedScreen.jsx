@@ -1,6 +1,8 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import images from '../constants/images';
+import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
 
 const OrderCreatedScreen = ({ route }) => {
@@ -9,17 +11,27 @@ const OrderCreatedScreen = ({ route }) => {
 
     if (!orderData) return <Text>No Order Data</Text>
 
+
     const {
         order_reference,
-        order_details: {
+        project_details: {
             project_name,
+            project_reference
+        },
+        order_details: {
             quantity,
+            cost_per_slot,
             total_amount,
             payment_status,
             created_at
         },
     } = orderData;
 
+    const navigation = useNavigation();
+
+    const handleBackToHome = () => {
+        navigation.navigate('Portfolio');
+    };
 
     return (
         <View style={styles.container}>
@@ -46,7 +58,10 @@ const OrderCreatedScreen = ({ route }) => {
                     />
                     <Text style={styles.downloadButtonText}>Download Invoice as PDF</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleBackToHome}
+                >
                     <Text style={styles.buttonText}>Continue</Text>
                 </TouchableOpacity>
             </View>
@@ -76,7 +91,7 @@ const styles = StyleSheet.create({
     amount: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#007BFF',
+        color: '#FB902E',
         marginTop: 5,
         textAlign: 'center',
     },

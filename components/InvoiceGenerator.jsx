@@ -36,7 +36,7 @@ const InvoiceGenerator = ({ user, project, quantity, totalAmount }) => {
                 - Please ensure payment is made within 7 business days.
                 - Bank transfers may take up to 2 working days to process.
 
-                Thank you for your business!
+                Thank you for trusting Realvista GmbH!
             `,
         };
 

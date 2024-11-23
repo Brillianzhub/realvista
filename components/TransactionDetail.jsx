@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
 
 const TransactionDetail = ({ bottomSheetRef, selectedItem, closeBottomSheet }) => {
 
-    const snapPoints = ['50%', '100%'];
+    const snapPoints = ['50%', '80%'];
 
     return (
         <BottomSheet
