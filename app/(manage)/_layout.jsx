@@ -98,6 +98,23 @@ const ManageLayout = () => {
                         ),
                     }}
                 />
+                <Stack.Screen
+                    name="transactions"
+                    options={{
+                        headerShown: true,
+                        title: "Transactions",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
             </Stack>
 
             <StatusBar barStyle="dark-content" backgroundColor="#FFF" />

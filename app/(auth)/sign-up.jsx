@@ -4,9 +4,13 @@ import FormField from '../../components/FormField';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import images from '../../constants/images';
 import { Link, router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator } from 'react-native';
 
 const SignUp = () => {
     const { setUser, setIsLogged } = useGlobalContext();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const [form, setForm] = useState({
         name: '',
@@ -14,7 +18,6 @@ const SignUp = () => {
         password: ''
     });
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const submit = async () => {
         if (!form.name || !form.email || !form.password) {
@@ -44,6 +47,26 @@ const SignUp = () => {
 
             const result = await response.json();
 
+            const tokenResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/portfolio/api-token-auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: form.email,
+                    password: form.password,
+                }),
+            });
+
+            const tokenData = await tokenResponse.json();
+
+            if (!tokenData.token) {
+                throw new Error('Authentication token not provided');
+            }
+
+            await AsyncStorage.setItem('authToken', tokenData.token);
+
+
             setUser({
                 id: result.id,
                 email: result.email,
@@ -63,44 +86,54 @@ const SignUp = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.logoContainer}>
-                <Image
-                    source={images.logo}
-                    style={styles.logo}
-                />
-            </View>
-            <View style={styles.formContainer}>
-                <FormField
-                    placeholder="Fullname"
-                    value={form.name}
-                    handleChangeText={(e) => setForm({ ...form, name: e })}
-                    otherStyles=""
-                />
-                <FormField
-                    placeholder="Email"
-                    value={form.email}
-                    handleChangeText={(e) => setForm({ ...form, email: e })}
-                    otherStyles="mt-3"
-                    keyboardType="email-address"
-                />
-                <FormField
-                    placeholder="Password"
-                    value={form.password}
-                    handleChangeText={(e) => setForm({ ...form, password: e })}
-                    otherStyles="mt-5"
-                />
-                <Pressable style={styles.button} onPress={submit}>
-                    <Text style={styles.buttonText}>Register</Text>
-                </Pressable>
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>
-                        Have an account already?
-                    </Text>
-                    <Link href="/sign-in" style={styles.link}>
-                        Sign In
-                    </Link>
+            {isSubmitting && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#358B8B" />
+                    <Text style={styles.loadingText}>Registering...</Text>
                 </View>
-            </View>
+            )}
+            {!isSubmitting && (
+                <>
+                    <View style={styles.logoContainer}>
+                        <Image
+                            source={images.logo}
+                            style={styles.logo}
+                        />
+                    </View>
+                    <View style={styles.formContainer}>
+                        <FormField
+                            placeholder="Fullname"
+                            value={form.name}
+                            handleChangeText={(e) => setForm({ ...form, name: e })}
+                            otherStyles=""
+                        />
+                        <FormField
+                            placeholder="Email"
+                            value={form.email}
+                            handleChangeText={(e) => setForm({ ...form, email: e })}
+                            otherStyles="mt-3"
+                            keyboardType="email-address"
+                        />
+                        <FormField
+                            placeholder="Password"
+                            value={form.password}
+                            handleChangeText={(e) => setForm({ ...form, password: e })}
+                            otherStyles="mt-5"
+                        />
+                        <Pressable style={styles.button} onPress={submit}>
+                            <Text style={styles.buttonText}>Register</Text>
+                        </Pressable>
+                        <View style={styles.footer}>
+                            <Text style={styles.footerText}>
+                                Have an account already?
+                            </Text>
+                            <Link href="/sign-in" style={styles.link}>
+                                Sign In
+                            </Link>
+                        </View>
+                    </View>
+                </>
+            )}
         </View>
     );
 };
@@ -162,6 +195,22 @@ const styles = {
         fontSize: 18,
         fontWeight: 'bold',
     },
+    loadingContainer: {
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#000',
+    },
+    buttonDisabled: {
+        backgroundColor: '#ccc',
+    },
+
 };
 
 export default SignUp;

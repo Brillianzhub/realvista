@@ -1,36 +1,36 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import images from '../constants/images';
-import { router } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
+
 
 
 const OrderCreatedScreen = ({ route }) => {
-
     const { orderData } = route.params;
-
     if (!orderData) return <Text>No Order Data</Text>
-
 
     const {
         order_reference,
-        project_details: {
-            project_name,
-            project_reference
-        },
         order_details: {
             quantity,
-            cost_per_slot,
             total_amount,
             payment_status,
-            created_at
+            created_at,
+            project_name,
         },
     } = orderData;
 
     const navigation = useNavigation();
 
+
     const handleBackToHome = () => {
-        navigation.navigate('Portfolio');
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Investment' }],
+            })
+        );
     };
 
     return (

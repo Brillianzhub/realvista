@@ -25,6 +25,9 @@ import manage from '../assets/images/manage.png';
 import settings from '../assets/images/settings.png';
 import profile from '../assets/images/profile.png';
 
+import buyOrder from '../assets/images/buyOrder.png';
+import sellOrder from '../assets/images/sell.png';
+
 
 export default {
     landing,
@@ -51,5 +54,7 @@ export default {
     whatsapp,
     manage,
     settings,
-    profile
+    profile,
+    sellOrder,
+    buyOrder
 };

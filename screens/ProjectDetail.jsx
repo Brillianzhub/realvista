@@ -13,7 +13,6 @@ const ProjectDetail = ({ route }) => {
     const [loading, setLoading] = useState(true);
     const [orderData, setOrderData] = useState([])
     const navigation = useNavigation();
-    const [availableSlots, setAvailableSlots] = useState(null);
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -78,17 +77,6 @@ const ProjectDetail = ({ route }) => {
     useEffect(() => {
         fetchProjectOrder()
     }, [project]);
-
-
-    useEffect(() => {
-        let sum = 0;
-        for (i = 0; i < orderData.length - 1; i++) {
-            sum += orderData[i].quantity;
-        }
-        const slots = project?.num_slots
-        setAvailableSlots(parseInt(slots - sum))
-    }, [orderData, project])
-
 
     const handleNextImage = () => {
         if (project.images && currentImageIndex < project.images.length - 1) {
@@ -195,7 +183,7 @@ const ProjectDetail = ({ route }) => {
                     <View>
                         <Text style={[styles.projectCaption]}>Available Slots</Text>
                     </View>
-                    <Text style={styles.projectInfo}>{availableSlots}</Text>
+                    <Text style={styles.projectInfo}>{project.available_slots}</Text>
                 </View>
                 <View style={styles.projectElement}>
                     <View>
@@ -210,12 +198,21 @@ const ProjectDetail = ({ route }) => {
                     <Text style={styles.projectInfo}>{project.status}</Text>
                 </View>
                 <View>
-                    <TouchableOpacity
-                        style={styles.investButton}
-                        onPress={() => handleInvest(projectId)}
-                    >
-                        <Text style={styles.investNow}>Invest Now</Text>
-                    </TouchableOpacity>
+                    {project.available_slots > 0 ? (
+                        <TouchableOpacity
+                            style={styles.investButton}
+                            onPress={() => handleInvest(project.id)}
+                        >
+                            <Text style={styles.investNow}>Invest Now</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity
+                            style={[styles.investButton, { backgroundColor: '#dc9b5e' }]} // Disabled style
+                            disabled={true} // Disable button
+                        >
+                            <Text style={[styles.investNow, { color: '#ccc' }]}>Sold Out</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         </ScrollView>

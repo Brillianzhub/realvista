@@ -25,7 +25,6 @@ const Index = () => {
   };
 
 
-
   return (
     <ImageBackground
       source={images.landing}

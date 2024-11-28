@@ -4,7 +4,11 @@
     "slug": "realvista",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo_realvista.png",
+    "icon": "./assets/images/icon.png",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "scheme": "realvista",
     "userInterfaceStyle": "automatic",
     "splash": {

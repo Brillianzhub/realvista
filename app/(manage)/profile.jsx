@@ -1,20 +1,47 @@
 import { StyleSheet, Text, View, Image, ScrollView, Alert } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images'
 import { TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { router } from 'expo-router';
 import TransactionDetail from '../../components/TransactionDetail';
-import { useInvestmentData } from '../../context/InvestmentProvider';
+import useUserOrders from "../../hooks/useUserOrders";
+import useUserHoldings from "../../hooks/useUserHoldings";
+import useUserDividends from '../../hooks/useUserDividends';
+
+import BottomSheet from '@gorhom/bottom-sheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
     const [selectedItem, setSelectedItem] = useState(null);
     const bottomSheetRef = useRef(null);
-    const { investment } = useInvestmentData();
 
-    console.log(investment)
+    const [totalInvestedAmount, setTotalInvestedAmount] = useState(0);
+
+    const { orders, fetchUserOrders } = useUserOrders();
+    const { holdings, fetchUserHoldings } = useUserHoldings();
+    const { dividends, fetchDividends } = useUserDividends();
+
+    console.log(dividends[0])
+
+    useEffect(() => {
+        const sum = holdings.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+
+        const totalFinalShareAmount = dividends.reduce((total, dividend) => {
+            const sharesSum = dividend.shares.reduce(
+                (shareTotal, share) => shareTotal + parseFloat(share.final_share_amount),
+                0
+            );
+            return total + sharesSum;
+        }, 0);
+
+        setTotalInvestedAmount(sum + totalFinalShareAmount);
+
+    }, [holdings, dividends]);
+
 
     const signOut = async () => {
         try {
@@ -41,8 +68,9 @@ const profile = () => {
                 const success = await signOut();
                 if (!success) return;
             }
-            setUser(null); // Clear user
-            setIsLogged(false); // Update login status
+            await AsyncStorage.removeItem('authToken');
+            setUser(null);
+            setIsLogged(false);
             router.replace('/sign-in')
         } catch (error) {
             console.error('Logout Error', error);
@@ -61,11 +89,14 @@ const profile = () => {
         setSelectedItem(null);
     };
 
-    const transactions = [
-        { id: 1, title: 'Created an order', date: '03/04/25', amount: 200, description: 'Grocery Shopping' },
-        { id: 2, title: 'Completed payment', date: '04/04/25', amount: 500, description: 'Utility Payment' },
-        { id: 3, title: 'Personal Account', date: '05/04/25', amount: 1000, description: 'Rent Payment' },
-    ];
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        return formattedDate;
+    };
+
+    const sortedOrders = orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
 
     return (
         <ScrollView>
@@ -82,15 +113,15 @@ const profile = () => {
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Personal Account</Text>
-                        <Text style={styles.portfolioItemText}>500,000.00 EUR</Text>
+                        <Text style={styles.portfolioItemText}>0.00 USD</Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Investment Account</Text>
-                        <Text style={styles.portfolioItemText}>300,000.00 EUR</Text>
+                        <Text style={styles.portfolioItemText}>{totalInvestedAmount} USD</Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Total</Text>
-                        <Text style={styles.portfolioItemText}>800,000.00 EUR</Text>
+                        <Text style={styles.portfolioItemText}>{totalInvestedAmount} USD</Text>
                     </View>
                 </View>
                 <View style={styles.portfolioSummary}>
@@ -98,13 +129,13 @@ const profile = () => {
                         <Text style={styles.portfolioNetText}>Transactions</Text>
                     </View>
 
-                    {transactions.map((transaction) => (
+                    {sortedOrders.slice(0, 3).map((transaction) => (
                         <View style={styles.portfolioItem} key={transaction.id}>
                             <View style={styles.notificationsViewItem}>
                                 <View style={styles.notificationsPoint}></View>
                                 <View>
-                                    <Text style={styles.portfolioItemText}>{transaction.title}</Text>
-                                    <Text style={styles.notificationsDate}>{transaction.date}</Text>
+                                    <Text style={styles.portfolioItemText}>{transaction.project.name}</Text>
+                                    <Text style={styles.notificationsDate}>{formatDate(transaction.created_at)}</Text>
                                 </View>
                             </View>
                             <TouchableOpacity onPress={() => openTransactionDetails(transaction)}>
@@ -115,6 +146,14 @@ const profile = () => {
                             </TouchableOpacity>
                         </View>
                     ))}
+
+                    <View style={{ marginVertical: 10, paddingLeft: 10 }}>
+                        <TouchableOpacity
+                            onPress={() => router.replace('/transactions')}
+                        >
+                            <Text style={{ fontWeight: '600', color: '#358B8B', fontSize: 16 }}>View all</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
@@ -139,11 +178,24 @@ const profile = () => {
                 </View>
 
             </View>
-            <TransactionDetail
-                selectedItem={selectedItem}
-                bottomSheetRef={bottomSheetRef}
-                closeBottomSheet={closeBottomSheet}
-            />
+
+            <BottomSheet
+                ref={bottomSheetRef}
+                index={-1}
+                snapPoints={['50%', '100%']}
+                enablePanDownToClose={true}
+                onClose={closeBottomSheet}
+                enableContentPanningGesture={true}
+                handleStyle={styles.handleContainer}
+                handleIndicatorStyle={styles.handleIndicator}
+            >
+                <TransactionDetail
+                    selectedItem={selectedItem}
+                    closeBottomSheet={closeBottomSheet}
+                    refreshData={fetchUserOrders}
+                />
+            </BottomSheet>
+
         </ScrollView>
     )
 }
@@ -196,7 +248,6 @@ const styles = StyleSheet.create({
     portfolioItemText: {
         fontSize: 16,
         fontWeight: '600',
-
     },
     notificationsViewItem: {
         flexDirection: 'row',
@@ -212,6 +263,17 @@ const styles = StyleSheet.create({
     },
     notificationsDate: {
         color: 'gray'
-    }
+    },
+    handleContainer: {
+        backgroundColor: '#358B8B1A',
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+    },
+    handleIndicator: {
+        backgroundColor: '#136e8b',
+        width: 50,
+        height: 5,
+        borderRadius: 3,
+    },
 
 })

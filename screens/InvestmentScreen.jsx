@@ -24,9 +24,6 @@ const InvestmentScreen = ({ route }) => {
         currency: 'USD',
     }).format(totalAmount);
 
-    const availableSlots = 10;
-
-
 
     useEffect(() => {
         const fetchProjectDetail = async () => {
@@ -56,7 +53,7 @@ const InvestmentScreen = ({ route }) => {
 
     const incrementQuantity = () => {
         setQuantity(prevQuantity => {
-            if (prevQuantity + 1 > availableSlots) {
+            if (prevQuantity + 1 > project.available_slots) {
                 Alert.alert('The quantity you entered exceeds the available number of slots')
                 return prevQuantity;
             }
@@ -89,14 +86,12 @@ const InvestmentScreen = ({ route }) => {
     const handleProceedToPayment = async () => {
         try {
             setLoading(true);
-
             const token = await AsyncStorage.getItem('authToken');
             if (!token) {
                 Alert.alert('Error', 'User authentication token not found');
                 setLoading(false);
                 return;
             }
-
             const payload = {
                 user_id: user.id,
                 user_email: user.email,
@@ -121,6 +116,7 @@ const InvestmentScreen = ({ route }) => {
 
             if (response.status === 200) {
                 setInvestment(response.data)
+
                 navigation.navigate('OrderCreatedScreen', { orderData: response.data });
             } else {
                 Alert.alert('Error', 'Failed to send invoice email.');

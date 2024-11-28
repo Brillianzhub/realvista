@@ -42,7 +42,7 @@ const ProjectItem = ({ item, onPress }) => (
                 </View>
             </View>
             <View style={{ marginVertical: 1 }}>
-                <Text style={{ fontWeight: 'bold', color: '#252B5C', fontSize: 25 }}>{item.cost_per_slot}
+                <Text style={{ fontWeight: 'bold', color: '#252B5C', fontSize: 25 }}>$ {item.cost_per_slot}
                     <Text style={{ fontSize: 15 }}> {item.currency}/slot</Text>
                 </Text>
             </View>

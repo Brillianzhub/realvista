@@ -1,80 +1,73 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
-import React, { useRef, useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetail from '../../components/PropertyDetail';
-// import { useInvestmentData } from '@/context/InvestmentProvider';
-import { useGlobalContext } from '@/context/GlobalProvider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-
+import useUserDividends from '../../hooks/useUserDividends';
+import useUserHoldings from '../../hooks/useUserHoldings';
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
 
 const Home = () => {
-  const { user } = useGlobalContext();
   const [selectedItem, setSelectedItem] = useState(null);
   const [portfolioSum, setPortfolioSum] = useState(0);
+  const [totalReturn, setTotalReturn] = useState(0);
   const [percentageReturn, setPercentageReturns] = useState(0);
   const [mapType, setMapType] = useState('standard');
   const bottomSheetRef = useRef(null);
+  const [mergedData, setMergedData] = useState([]);
 
-  const [orders, setOrders] = useState([]);
-  const [percentageOwner, setPercentageOwner] = useState(0);
-  // const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { dividends, fetchDividends } = useUserDividends();
+  const { holdings, fetchUserHoldings } = useUserHoldings();
+
 
   const totalPortfolioValue = portfolioSum.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
 
-  const fetchUserOrder = async () => {
-    try {
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) {
-        console.log("Token required for this operation");
-        return;
-      }
-
-      const user_email = user?.email;
-      if (!user_email) {
-        console.log("User email is not available");
-        return;
-      }
-
-      const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/order/user-orders/by_user_email/?user_email=${user_email}`, {
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      setOrders(response.data);
-    } catch (error) {
-      console.error("Encountered error while loading the data", error);
-    }
-  }
-
-  // console.log(orders[0].project.num_slots)
-
   useEffect(() => {
-    let sum = 0;
-    for (i = 0; i < orders.length - 1; i++) {
-      sum += parseFloat(orders[i].total_amount);
-    }
-    setPortfolioSum(sum)
+    if (!holdings || !dividends) return;
 
-    const increase = ((100000 - sum) / 100000) * 100;
-    setPercentageReturns(increase)
+    const dividendMap = dividends.reduce((acc, dividend) => {
+      const projectId = dividend.project.id;
+      if (!acc[projectId]) {
+        acc[projectId] = [];
+      }
+      acc[projectId].push(dividend);
+      return acc;
+    }, {});
 
-    for (i = 0; i < orders.length - 1; i++) {
-      console.log(orders[i].quantity)
-    }
+    const merged = holdings.map(holding => {
+      const projectId = holding.project.id;
+      const relatedDividends = dividendMap[projectId] || [];
+      return {
+        ...holding,
+        dividends: relatedDividends,
+      };
+    });
 
-  }, [orders])
+    setMergedData(merged);
 
+    const totalInvestment = merged.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    setPortfolioSum(totalInvestment);
 
-  useEffect(() => {
-    fetchUserOrder()
-  }, [user?.email])
+    const totalReturns = merged.reduce(
+      (sum, item) =>
+        sum +
+        item.dividends.reduce(
+          (divSum, div) =>
+            divSum +
+            div.shares.reduce((shareSum, share) => shareSum + parseFloat(share.final_share_amount || 0), 0),
+          0
+        ),
+      0
+    );
+
+    setTotalReturn(totalReturns.toFixed(2));
+    setPercentageReturns(((totalReturns / totalInvestment) * 100).toFixed(2));
+  }, [holdings, dividends]);
 
 
   const openBottomSheet = (item) => {
@@ -91,14 +84,61 @@ const Home = () => {
     setMapType((prevType) => (prevType === 'standard' ? 'satellite' : 'standard'));
   }
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.propertyItem} onPress={() => openBottomSheet(item)}>
-      <Text style={styles.propertyHeadText}>Project: {item.project_name}</Text>
-      <Text style={styles.propertyText}>Initial Investment: {item.total_amount}</Text>
-      <Text style={styles.propertyText}>Current Value: {item.total_amount}</Text>
-      <Text style={styles.propertyText}>Number of Slots: {item.quantity}</Text>
-    </TouchableOpacity>
+
+  const renderItem = useCallback(
+    ({ item }) => {
+      const totalUserShare = item.dividends.reduce((sum, dividend) => {
+        const sharesSum = dividend.shares.reduce(
+          (shareSum, share) => shareSum + parseFloat(share.final_share_amount || 0),
+          0
+        );
+        return sum + sharesSum;
+      }, 0);
+
+      const currentValue = parseFloat(item.amount) + totalUserShare;
+
+      const percentageReturn = ((totalUserShare / parseFloat(item.amount)) * 100).toFixed(2);
+
+      return (
+        <TouchableOpacity style={styles.propertyItem} onPress={() => openBottomSheet(item)}>
+          <Text style={styles.propertyHeadText}>Project: {item.project.name}</Text>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={styles.propertyText}>Initial Investment</Text>
+            <Text style={styles.propertyText}>${item.amount}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={styles.propertyText}>Current Value</Text>
+            <Text style={styles.propertyText}>${currentValue.toFixed(2)}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={styles.propertyText}>Percentage Return</Text>
+            {isNaN(percentageReturn) || percentageReturn === null ? (
+              <Text style={styles.propertyText}>0.00%</Text>
+            ) : (
+              <Text style={styles.propertyText}>{percentageReturn}%</Text>
+            )}
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [mergedData]
   );
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([fetchDividends(), fetchUserHoldings()]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -106,37 +146,59 @@ const Home = () => {
           <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Investment</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>${totalPortfolioValue}</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>$ {totalPortfolioValue}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Returns</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>$4500.00</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>$ {totalReturn}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Percentage Returns</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{percentageReturn}%</Text>
+            {isNaN(percentageReturn) || percentageReturn === null ? (
+              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>0.00 %</Text>
+            ) : (
+              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{percentageReturn}%</Text>
+            )}
           </View>
         </View>
       </View>
       <View style={styles.propertiesList}>
         <FlatList
-          data={orders}
+          data={mergedData}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       </View>
       <TouchableOpacity style={styles.addButton} onPress={() => alert('Add Property')}>
         <Ionicons name="add" size={30} color="white" />
       </TouchableOpacity>
 
-      <PropertyDetail
-        selectedItem={selectedItem}
-        closeBottomSheet={closeBottomSheet}
-        toggleMapType={toggleMapType}
-        mapType={mapType}
-        bottomSheetRef={bottomSheetRef}
-      />
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={['25%', '50%', '100%']}
+        enablePanDownToClose={true}
+        onClose={closeBottomSheet}
+        enableContentPanningGesture={true}
+        handleStyle={styles.handleContainer}
+        handleIndicatorStyle={styles.handleIndicator}
+      >
+        <BottomSheetScrollView
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <PropertyDetail
+            selectedItem={selectedItem}
+            closeBottomSheet={closeBottomSheet}
+            toggleMapType={toggleMapType}
+            mapType={mapType}
+          />
+        </BottomSheetScrollView>
+      </BottomSheet>
     </View>
   );
 };
@@ -210,12 +272,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#358B8B', // Set your desired background color
-    width: 60, // Set the width of the circle
-    height: 60, // Set the height of the circle
-    borderRadius: 30, // Make the button circular by setting borderRadius to half the width/height
+    backgroundColor: '#358B8B',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5, // Optional: Adds a shadow effect to the button
+    elevation: 5,
+  },
+  handleIndicator: {
+    backgroundColor: '#136e8b',
+    width: 50,
+    height: 5,
+    borderRadius: 3,
+  },
+  handleContainer: {
+    backgroundColor: '#358B8B1A',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
 });
