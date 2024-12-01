@@ -17,7 +17,7 @@ export const ProjectsProvider = ({ children }) => {
                 return;
             }
 
-            const response = await fetch('https://brillianzhub.eu.pythonanywhere.com/projects/projects_list/', {
+            const response = await fetch('https://www.realvistamanagement.com/projects/projects_list/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Token ${token}`,

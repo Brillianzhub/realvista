@@ -46,7 +46,7 @@ const profile = () => {
     const signOut = async () => {
         try {
             const response = await axios.post(
-                'https://brillianzhub.eu.pythonanywhere.com/accounts/logout/'
+                'https://www.realvistamanagement.com/accounts/logout/'
             );
             if (response.status === 200) {
                 console.log("Logged out successfully");

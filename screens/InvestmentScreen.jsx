@@ -34,7 +34,7 @@ const InvestmentScreen = ({ route }) => {
                     console.error("No authentication token found");
                     return;
                 }
-                const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/projects/${projectId}/`, {
+                const response = await axios.get(`https://www.realvistamanagement.com/projects/${projectId}/`, {
                     headers: {
                         Authorization: `Token ${token}`,
                     },
@@ -104,7 +104,7 @@ const InvestmentScreen = ({ route }) => {
             };
 
             const response = await axios.post(
-                'https://brillianzhub.eu.pythonanywhere.com/order/send-email/',
+                'https://www.realvistamanagement.com/order/send-email/',
                 payload,
                 {
                     headers: {

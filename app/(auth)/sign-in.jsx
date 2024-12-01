@@ -10,7 +10,7 @@ import { ActivityIndicator } from 'react-native';
 
 const signIn = async (email, password) => {
     try {
-        const signInResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/accounts/signin/', {
+        const signInResponse = await fetch('https://www.realvistamanagement.com/accounts/signin/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ const signIn = async (email, password) => {
         }
 
         // Step 2: Get the token
-        const tokenResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/portfolio/api-token-auth/', {
+        const tokenResponse = await fetch('https://www.realvistamanagement.com/portfolio/api-token-auth/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ const signIn = async (email, password) => {
 
         await AsyncStorage.setItem('authToken', tokenData.token);
 
-        const userResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/accounts/current-user/', {
+        const userResponse = await fetch('https://www.realvistamanagement.com/accounts/current-user/', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

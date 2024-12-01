@@ -29,7 +29,7 @@ const useUserDividends = () => {
             }
 
             const response = await fetch(
-                `https://brillianzhub.eu.pythonanywhere.com/dividends/user-dividends/?email=${userEmail}`,
+                `https://www.realvistamanagement.com/dividends/user-dividends/?email=${userEmail}`,
                 {
                     method: 'GET',
                     headers: {

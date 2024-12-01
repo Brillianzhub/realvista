@@ -29,6 +29,7 @@
           "apiKey": "AIzaSyAs-y_tUDFUwIckZFYAZ3-C-2WdYbTAcNI"
         }
       },
+      "googleServicesFile": "./google-services.json",
       "package": "com.brillianzhub.realvista"
     },
     "web": {

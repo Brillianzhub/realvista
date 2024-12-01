@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import GlobalProvider from '../context/GlobalProvider';
 import { ProjectsProvider } from '../context/ProjectsContext';
 import { InvestmentProvider } from '../context/InvestmentProvider';
-
+import { NotificationProvider } from '../context/NotificationContext';
 
 const RealVistaLayout = () => {
 
@@ -13,12 +13,14 @@ const RealVistaLayout = () => {
       <GlobalProvider>
         <InvestmentProvider>
           <ProjectsProvider>
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(manage)" options={{ headerShown: false }} />
-            </Stack>
+            <NotificationProvider>
+              <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="(manage)" options={{ headerShown: false }} />
+              </Stack>
+            </NotificationProvider>
           </ProjectsProvider>
         </InvestmentProvider>
       </GlobalProvider>

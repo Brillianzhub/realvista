@@ -41,7 +41,7 @@ const InvoiceGenerator = ({ user, project, quantity, totalAmount }) => {
         };
 
         try {
-            const response = await axios.post('https://brillianzhub.eu.pythonanywhere.com/order/send-email/', invoiceData);
+            const response = await axios.post('https://www.realvistamanagement.com/order/send-email/', invoiceData);
             if (response.status === 200) {
                 alert('Invoice sent successfully to ' + user.email);
             } else {

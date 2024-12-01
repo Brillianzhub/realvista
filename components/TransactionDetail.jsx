@@ -19,7 +19,7 @@ const TransactionDetail = ({ selectedItem, closeBottomSheet, refreshData }) => {
         };
         try {
             const response = await axios.post(
-                'https://brillianzhub.eu.pythonanywhere.com/order/update-payment-status/',
+                'https://www.realvistamanagement.com/order/update-payment-status/',
                 payload,
                 {
                     headers: {

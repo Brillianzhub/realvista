@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StatusBar, View, TouchableOpacity } from 'react-native';
+import { StatusBar, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './Home';
 import TrendScreen from '../(tabs)/trend';
@@ -10,6 +10,7 @@ import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
 import Investment from './invest';
 import { router } from 'expo-router';
+import { useNotifications } from '../../context/NotificationContext';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
@@ -40,6 +41,8 @@ const RealVistaTabs = () => {
 const RealVistaStack = () => {
   const drawerRef = useRef(null);
   const navigationView = NavigationView();
+  const { hasUnread } = useNotifications();
+
 
   const openDrawer = () => {
     if (drawerRef.current) {
@@ -82,8 +85,14 @@ const RealVistaStack = () => {
               ),
               headerRight: () => (
                 <View style={{ flexDirection: 'row', marginRight: 15 }}>
-                  <TouchableOpacity onPress={handleNavNot}>
+                  {/* <TouchableOpacity onPress={handleNavNot}>
                     <Ionicons name="notifications" size={30} color="white" style={{ marginHorizontal: 10 }} />
+                  </TouchableOpacity> */}
+                  <TouchableOpacity onPress={handleNavNot}>
+                    <View style={styles.notificationWrapper}>
+                      <Ionicons name="notifications" size={30} color="white" style={{ marginHorizontal: 10 }} />
+                      {hasUnread && <View style={styles.dot} />}
+                    </View>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={handleNav}>
                     <Ionicons name="person" size={30} color="white" />
@@ -107,3 +116,19 @@ const RealVistaStack = () => {
 };
 
 export default RealVistaStack;
+
+
+const styles = StyleSheet.create({
+  notificationWrapper: {
+    position: 'relative',
+  },
+  dot: {
+    position: 'absolute',
+    top: 1,
+    right: 30,
+    width: 8,
+    height: 8,
+    backgroundColor: 'red',
+    borderRadius: 5,
+  },
+});

@@ -22,7 +22,7 @@ const useUserHoldings = () => {
                 return;
             }
 
-            const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/holdings/user-holdings/by_user_email/?user_email=${user_email}`, {
+            const response = await axios.get(`https://www.realvistamanagement.com/holdings/user-holdings/by_user_email/?user_email=${user_email}`, {
                 headers: {
                     'Authorization': `Token ${token}`,
                     'Content-Type': 'application/json',

@@ -28,7 +28,7 @@ const SignUp = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('https://brillianzhub.eu.pythonanywhere.com/accounts/register_user/', {
+            const response = await fetch('https://www.realvistamanagement.com/accounts/register_user/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ const SignUp = () => {
 
             const result = await response.json();
 
-            const tokenResponse = await fetch('https://brillianzhub.eu.pythonanywhere.com/portfolio/api-token-auth/', {
+            const tokenResponse = await fetch('https://www.realvistamanagement.com/portfolio/api-token-auth/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

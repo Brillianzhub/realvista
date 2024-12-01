@@ -5,6 +5,7 @@ import PropertyDetail from '../../components/PropertyDetail';
 import useUserDividends from '../../hooks/useUserDividends';
 import useUserHoldings from '../../hooks/useUserHoldings';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { initializePushNotifications } from '../../utils/notifications';
 
 
 const Home = () => {
@@ -22,10 +23,17 @@ const Home = () => {
   const { holdings, fetchUserHoldings } = useUserHoldings();
 
 
+
   const totalPortfolioValue = portfolioSum.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
+
+
+  useEffect(() => {
+    initializePushNotifications();
+  }, []);
+
 
   useEffect(() => {
     if (!holdings || !dividends) return;

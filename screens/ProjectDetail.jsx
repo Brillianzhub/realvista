@@ -35,7 +35,7 @@ const ProjectDetail = ({ route }) => {
                     console.error("No authentication token found");
                     return;
                 }
-                const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/projects/${projectId}/`, {
+                const response = await axios.get(`https://www.realvistamanagement.com/projects/${projectId}/`, {
                     headers: {
                         Authorization: `Token ${token}`,
                     },
@@ -64,7 +64,7 @@ const ProjectDetail = ({ route }) => {
                 console.log('Project not specified!')
                 return;
             }
-            const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/order/project-orders/by_project/?project_ref=${project_ref}`, {
+            const response = await axios.get(`https://www.realvistamanagement.com/order/project-orders/by_project/?project_ref=${project_ref}`, {
                 headers: {
                     Authorization: `Token ${token}`
                 },

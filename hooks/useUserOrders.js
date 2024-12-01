@@ -22,7 +22,7 @@ const useUserOrders = () => {
                 return;
             }
 
-            const response = await axios.get(`https://brillianzhub.eu.pythonanywhere.com/order/user-orders/by_user_email/?user_email=${user_email}`, {
+            const response = await axios.get(`https://www.realvistamanagement.com/order/user-orders/by_user_email/?user_email=${user_email}`, {
                 headers: {
                     'Authorization': `Token ${token}`,
                     'Content-Type': 'application/json',
