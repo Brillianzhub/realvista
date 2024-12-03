@@ -25,7 +25,7 @@ const profile = () => {
     const { holdings, fetchUserHoldings } = useUserHoldings();
     const { dividends, fetchDividends } = useUserDividends();
 
-    console.log(dividends[0])
+    console.log(user)
 
     useEffect(() => {
         const sum = holdings.reduce((acc, item) => acc + parseFloat(item.amount), 0);

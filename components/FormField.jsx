@@ -16,7 +16,9 @@ const FormField = ({ title, value, placeholder, handleChangeText, otherStyles, n
 
     return (
         <View style={[styles.container, otherStyles]}>
-            <Text style={styles.label}>{title}</Text>
+            <View style={{marginVertical: 5}}>
+                <Text style={styles.label}>{title}</Text>
+            </View>
             <View style={styles.inputContainer}>
                 {placeholder === 'Property Type' ? (
                     <Picker
@@ -60,8 +62,9 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 16,
-        color: '#333',
+        color: '#554d4d',
         fontWeight: '500',
+        gap: 10
     },
     inputContainer: {
         flexDirection: 'row',
@@ -77,7 +80,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 16,
         color: '#333',
-        textAlignVertical: 'top',
+        textAlignVertical: 'center',
     },
     picker: {
         flex: 1,

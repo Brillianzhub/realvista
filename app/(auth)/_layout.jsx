@@ -52,6 +52,32 @@ const AuthLayout = () => {
                         ),
                     }}
                 />
+                <Stack.Screen
+                    name="verify-email"
+                    options={{
+                        headerShown: false,
+                        title: "Email Verification",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#000" />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
+                    name="forgot-password"
+                    options={{
+                        headerShown: false,
+                        title: "Forgot Password",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#000" />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
             </Stack>
 
             <StatusBar barStyle="dark-content" backgroundColor="#FFF" />

@@ -27,6 +27,8 @@ import profile from '../assets/images/profile.png';
 
 import buyOrder from '../assets/images/buyOrder.png';
 import sellOrder from '../assets/images/sell.png';
+import welcome from '../assets/images/welcome.png';
+
 
 
 export default {
@@ -56,5 +58,6 @@ export default {
     settings,
     profile,
     sellOrder,
-    buyOrder
+    buyOrder,
+    welcome
 };
