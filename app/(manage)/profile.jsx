@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images'
@@ -14,6 +14,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+
 const profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
     const [selectedItem, setSelectedItem] = useState(null);
@@ -24,8 +25,6 @@ const profile = () => {
     const { orders, fetchUserOrders } = useUserOrders();
     const { holdings, fetchUserHoldings } = useUserHoldings();
     const { dividends, fetchDividends } = useUserDividends();
-
-    console.log(user)
 
     useEffect(() => {
         const sum = holdings.reduce((acc, item) => acc + parseFloat(item.amount), 0);
@@ -43,6 +42,35 @@ const profile = () => {
     }, [holdings, dividends]);
 
 
+    const handleDeleteAccount = () => {
+        if (!user?.email) {
+            Alert.alert("Error", "User email not found. Please log in and try again.");
+            return;
+        }
+
+        const deleteAccountUrl = `https://www.realvistaproperties.com/accounts/delete/?email=${encodeURIComponent(
+            user.email
+        )}`;
+
+        Alert.alert(
+            "Delete Account",
+            "You will be redirected to a web page to delete your account. This action is irreversible.",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+                {
+                    text: "Proceed",
+                    onPress: () => Linking.openURL(deleteAccountUrl).catch(() =>
+                        Alert.alert("Error", "Failed to open the link. Please try again.")
+                    ),
+                },
+            ]
+        );
+    };
+
+
     const signOut = async () => {
         try {
             const response = await axios.post(
@@ -56,9 +84,51 @@ const profile = () => {
                 return false;
             }
         } catch (error) {
-            console.error("Logout Error: ", error);
+            // console.error("Logout Error: ", error);
             Alert.alert('Logout Error', 'Failed to logout. Please try again.');
             return false;
+        }
+    };
+
+    const handleShare = async () => {
+        try {
+            const result = await Share.share({
+                message: 'Check out this amazing app! Download it now from https://www.exampleapp.com', // Replace with your app's details
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    console.log('Shared with activity type:', result.activityType);
+                } else {
+                    console.log('App shared successfully!');
+                }
+            } else if (result.action === Share.dismissedAction) {
+                console.log('Share dismissed.');
+            }
+        } catch (error) {
+            console.error('Error sharing the app:', error);
+        }
+    };
+
+    const handleRateUs = async () => {
+        const appStoreUrl = 'https://apps.apple.com/app/idYOUR_APP_ID'; // Replace with your App Store URL
+        const playStoreUrl = 'https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE_NAME'; // Replace with your Play Store URL
+
+        try {
+            const storeUrl = Platform.OS === 'ios' ? appStoreUrl : playStoreUrl;
+            const supported = await Linking.canOpenURL(storeUrl);
+
+            if (supported) {
+                await Linking.openURL(storeUrl);
+            } else {
+                Alert.alert(
+                    'Error',
+                    'Unable to open the app store. Please try again later.'
+                );
+            }
+        } catch (error) {
+            console.error('Error opening store:', error);
+            Alert.alert('Error', 'An error occurred. Please try again.');
         }
     };
 
@@ -77,7 +147,8 @@ const profile = () => {
         }
     };
 
-    const initialName = user?.name ? user.name.charAt(0) : '';
+    const initialName = user?.name ? user.name.charAt(0).toUpperCase() : '';
+
 
     const openTransactionDetails = (item) => {
         setSelectedItem(item);
@@ -157,13 +228,53 @@ const profile = () => {
                 </View>
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
-                        <Text style={styles.portfolioNetText}>Profile</Text>
+                        <Text style={styles.portfolioNetText}>Info & Interaction</Text>
                     </View>
                     <View style={styles.portfolioItem}>
-                        <Text style={styles.portfolioItemText}>Edit account</Text>
+                        <TouchableOpacity
+                            onPress={() =>
+                                Linking.openURL('https://www.realvistaproperties.com/about-us')
+                            }
+                        >
+
+                            <Text style={styles.portfolioItemText}>About us</Text>
+
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.portfolioItem}>
-                        <Text style={styles.portfolioItemText}>Change password</Text>
+                        <TouchableOpacity
+                            onPress={() =>
+                                Linking.openURL('https://www.realvistaproperties.com/contact-us')
+                            }
+                        >
+                            <Text style={styles.portfolioItemText}>Contact us</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <TouchableOpacity onPress={handleShare}>
+                            <Text style={styles.portfolioItemText}>Share</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <TouchableOpacity onPress={handleRateUs}>
+                            <Text style={styles.portfolioItemText}>Rate us</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={styles.portfolioSummary}>
+                    <View style={styles.portfolioNet}>
+                        <Text style={styles.portfolioNetText}>Personal details</Text>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <Text style={styles.portfolioItemText}>Update your email</Text>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <Text style={styles.portfolioItemText}>Change your password</Text>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <TouchableOpacity onPress={handleDeleteAccount}>
+                            <Text style={[styles.portfolioItemText, { color: 'red' }]}>Delete your account</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
                 <View style={styles.portfolioSummary}>

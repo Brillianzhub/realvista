@@ -170,17 +170,29 @@ const Home = () => {
           </View>
         </View>
       </View>
-      <View style={styles.propertiesList}>
-        <FlatList
-          data={mergedData}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
+      <View style={styles.container}>
+        {mergedData.length === 0 ? (
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.welcomeText}>Welcome to Your Portfolio!</Text>
+            <Text style={styles.instructionText}>
+              Start managing your real estate properties today. Tap the "+" button at the bottom right to add your first property!
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.propertiesList}>
+            <FlatList
+              data={mergedData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
+            />
+          </View>
+        )}
       </View>
+
       <TouchableOpacity style={styles.addButton} onPress={() => alert('Add Property')}>
         <Ionicons name="add" size={30} color="white" />
       </TouchableOpacity>
@@ -298,5 +310,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#358B8B1A',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
+  },
+
+  welcomeContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+    color: '#333',
+  },
+  instructionText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#555',
+    paddingHorizontal: 20,
   },
 });

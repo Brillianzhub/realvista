@@ -53,7 +53,7 @@ const NavigationView = () => {
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={() =>
-                    Linking.openURL('https://wa.me/+4915904976605?text=Hello, I need support!')
+                    Linking.openURL('https://www.realvistaproperties.com/frequently-asked-questions')
                 }
                 style={styles.menuItem}
             >
@@ -65,7 +65,7 @@ const NavigationView = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={() => Linking.openURL('mailto:support.realvista@gmail.com')}
+                onPress={() => Linking.openURL('mailto:support@realvistaproperties.com')}
                 style={styles.menuItem}
             >
                 <Image
@@ -88,7 +88,7 @@ const NavigationView = () => {
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={() =>
-                    Linking.openURL('https://wa.me/+4915904976605?text=Hello, I need support!')
+                    Linking.openURL('https://www.realvistaproperties.com/privacy-policy')
                 }
                 style={styles.menuItem}
             >
@@ -100,7 +100,7 @@ const NavigationView = () => {
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={() =>
-                    Linking.openURL('https://wa.me/+4915904976605?text=Hello, I need support!')
+                    Linking.openURL('https://www.realvistaproperties.com/terms-of-use')
                 }
                 style={styles.menuItem}
             >

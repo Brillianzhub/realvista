@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     SafeAreaView,
     View,
@@ -9,7 +9,8 @@ import {
     Pressable,
     Alert,
     Image,
-    Linking
+    Linking,
+    Keyboard
 } from 'react-native';
 import images from '../../constants/images';
 import { useGlobalContext } from '../../context/GlobalProvider';
@@ -81,6 +82,7 @@ const signIn = async (email, password) => {
 };
 
 
+
 const SignIn = () => {
     const { setUser, setIsLogged } = useGlobalContext();
 
@@ -91,6 +93,21 @@ const SignIn = () => {
         email: '',
         password: ''
     });
+
+
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        });
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -115,7 +132,6 @@ const SignIn = () => {
                 router.replace('/Home');
             }
         } catch (error) {
-            console.error('Login Error:', error);
             Alert.alert('Error', 'Failed to sign in. Please try again.');
         } finally {
             setIsSubmitting(false);

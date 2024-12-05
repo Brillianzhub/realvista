@@ -26,7 +26,7 @@ const ForgotPassword = () => {
 
         try {
             const response = await fetch(
-                'https://www.realvistamanagement.com/accounts/forgot-password/',
+                'https://www.realvistamanagement.com/accounts/request-password-reset/',
                 {
                     method: 'POST',
                     headers: {

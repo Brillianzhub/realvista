@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './Home';
-import TrendScreen from '../(tabs)/trend';
+import MarketScreen from './market';
 import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
@@ -33,7 +33,7 @@ const RealVistaTabs = () => {
     >
       <Tab.Screen name="Portfolio" component={HomeScreen} />
       <Tab.Screen name="Investment" component={Investment} />
-      <Tab.Screen name="Trend" component={TrendScreen} />
+      <Tab.Screen name="Market" component={MarketScreen} />
     </Tab.Navigator>
   );
 };
