@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, Image } from 'react-native';
 
 const MarketScreen = () => {
@@ -46,6 +46,8 @@ const MarketScreen = () => {
         alert(`Contact seller at: ${sellerContact}`);
     };
 
+
+
     const renderProperty = ({ item }) => (
         <View style={styles.propertyCard}>
             <Image source={{ uri: item.image }} style={styles.propertyImage} />
@@ -55,7 +57,7 @@ const MarketScreen = () => {
                 <Text style={styles.propertyDetails}>Price: ${item.price}</Text>
                 <TouchableOpacity
                     style={styles.contactButton}
-                    onPress={() => navigation.navigate('PropertyDetail', { propertyId: item.id })}
+                    onPress={() => navigation.navigate('PropertyDetail', { propertyId: item.id, propertyName: item.title })}
                 >
                     <Text style={styles.contactButtonText}>Contact Seller</Text>
                 </TouchableOpacity>
@@ -162,7 +164,7 @@ const styles = StyleSheet.create({
         color: '#555',
     },
     contactButton: {
-        backgroundColor: '#007BFF',
+        backgroundColor: '#FB902E',
         padding: 8,
         borderRadius: 4,
         alignItems: 'center',

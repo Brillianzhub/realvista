@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Button, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // to navigate between screens
+import { StyleSheet, Text, View, Image, Button, ScrollView, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const PropertyDetailScreen = ({ route }) => {
-    const { propertyId } = route.params; // Assuming propertyId is passed via navigation params
+
+const PropertyDetailScreen = ({ route, navigation }) => {
+    const { propertyId, propertyName } = route.params;
     const [propertyDetails, setPropertyDetails] = useState(null);
 
     // Fetch property details from backend
@@ -21,12 +22,23 @@ const PropertyDetailScreen = ({ route }) => {
         fetchPropertyDetails();
     }, [propertyId]);
 
-    const navigation = useNavigation();
+    // const navigation = useNavigation();
 
     const handleContactSeller = () => {
         // Navigate to a contact page or open a messaging form
         navigation.navigate('ContactSeller', { propertyId });
     };
+
+    // useEffect(() => {
+    //     navigation.setOptions({
+    //         title: propertyName, // Set property name as header title
+    //         headerLeft: () => (
+    //             <TouchableOpacity onPress={() => navigation.goBack()}>
+    //                 <CustomBackIcon /> {/* Your custom back icon */}
+    //             </TouchableOpacity>
+    //         ),
+    //     });
+    // }, [navigation, propertyName]);
 
     if (!propertyDetails) {
         return (

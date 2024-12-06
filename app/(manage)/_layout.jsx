@@ -65,6 +65,23 @@ const ManageLayout = () => {
                     }}
                 />
                 <Stack.Screen
+                    name="add_property"
+                    options={{
+                        headerShown: true,
+                        title: "Add Property",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
                     name="settings"
                     options={{
                         headerShown: true,
