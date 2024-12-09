@@ -13,6 +13,14 @@ import useUserDividends from '../../hooks/useUserDividends';
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import useUserProperty from '../../hooks/useUserProperty';
+
+
+import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotalsWithAnalysis';
+import { calculateReturns } from '../../utils/calculateReturns';
+import { useCurrency } from '../../context/CurrencyContext';
+import { formatCurrency } from '../../utils/formatCurrency';
+
 
 
 const profile = () => {
@@ -25,6 +33,20 @@ const profile = () => {
     const { orders, fetchUserOrders } = useUserOrders();
     const { holdings, fetchUserHoldings } = useUserHoldings();
     const { dividends, fetchDividends } = useUserDividends();
+
+    const { properties, fetchUserProperties } = useUserProperty();
+
+
+    const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
+    const userReturns = calculateReturns(properties)
+
+    const { currency } = useCurrency();
+
+    const totalInvestment = formatCurrency(userTotalsWithAnalysis.totalInvestment, currency);
+    const totalProfit = formatCurrency(userTotalsWithAnalysis.totalProfit, currency);
+
+    console.log(totalInvestment)
+
 
     useEffect(() => {
         const sum = holdings.reduce((acc, item) => acc + parseFloat(item.amount), 0);
@@ -184,15 +206,15 @@ const profile = () => {
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Personal Account</Text>
-                        <Text style={styles.portfolioItemText}>0.00 USD</Text>
+                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{totalInvestment}</Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Investment Account</Text>
-                        <Text style={styles.portfolioItemText}>{totalInvestedAmount} USD</Text>
+                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{totalInvestedAmount}</Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Total</Text>
-                        <Text style={styles.portfolioItemText}>{totalInvestedAmount} USD</Text>
+                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{totalInvestment + totalInvestedAmount}</Text>
                     </View>
                 </View>
                 <View style={styles.portfolioSummary}>
@@ -258,6 +280,16 @@ const profile = () => {
                     <View style={styles.portfolioItem}>
                         <TouchableOpacity onPress={handleRateUs}>
                             <Text style={styles.portfolioItemText}>Rate us</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={styles.portfolioSummary}>
+                    <View style={styles.portfolioNet}>
+                        <Text style={styles.portfolioNetText}>Custom settings</Text>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <TouchableOpacity onPress={() => router.replace('/settings')}>
+                            <Text style={[styles.portfolioItemText]}>Set currency</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -82,6 +82,91 @@ const ManageLayout = () => {
                     }}
                 />
                 <Stack.Screen
+                    name="add_income"
+                    options={{
+                        headerShown: true,
+                        title: "Add Income",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
+                    name="add_expenses"
+                    options={{
+                        headerShown: true,
+                        title: "Add Expenses",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
+                    name="edit_property"
+                    options={{
+                        headerShown: true,
+                        title: "Update Property",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
+                    name="compare_properties"
+                    options={{
+                        headerShown: true,
+                        title: "Compare Properties",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
+                    name="remove_property"
+                    options={{
+                        headerShown: true,
+                        title: "Remove Property",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Image
+                                    source={require('../../assets/images/backArrow.png')}
+                                    style={{ width: 35, height: 35 }}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
                     name="settings"
                     options={{
                         headerShown: true,

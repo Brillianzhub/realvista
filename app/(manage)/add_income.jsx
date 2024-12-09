@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { View, Alert, StyleSheet, Text } from 'react-native';
-import PropertyForm from '../../components/PropertyForm';
+import PropertyIncomeForm from '../../components/PropertyIncomeForm';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 
 
-const AddPropertyScreen = () => {
+const AddPropertyIncome = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFormSubmit = async (values, navigation) => {
+
+    const handleFormSubmit = async (values) => {
         const token = await AsyncStorage.getItem('authToken');
 
         if (!token) {
@@ -22,7 +23,7 @@ const AddPropertyScreen = () => {
 
         try {
             const response = await axios.post(
-                `https://www.realvistamanagement.com/portfolio/properties/add/`,
+                `https://www.realvistamanagement.com/portfolio/property/add-income/`,
                 values,
                 {
                     headers: {
@@ -45,7 +46,6 @@ const AddPropertyScreen = () => {
         }
     };
 
-
     return (
         <View style={{ flex: 1 }}>
             {isSubmitting ? (
@@ -58,11 +58,11 @@ const AddPropertyScreen = () => {
                 >
                     <ActivityIndicator size="large" color="#358B8B" />
                     <Text style={{ textAlign: 'center', marginTop: 10 }}>
-                        Wait while we add your data...
+                        Wait while we add your income...
                     </Text>
                 </View>
             ) : (
-                <PropertyForm onSubmit={handleFormSubmit} />
+                <PropertyIncomeForm onSubmit={handleFormSubmit} />
             )}
         </View>
     );
@@ -70,4 +70,4 @@ const AddPropertyScreen = () => {
 
 const styles = StyleSheet.create({});
 
-export default AddPropertyScreen;
+export default AddPropertyIncome;

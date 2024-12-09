@@ -1,65 +1,63 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PagerView from 'react-native-pager-view';
 import MapViewer from '../components/MapViewer';
+import { useCurrency } from '../context/CurrencyContext';
+import { formatCurrency } from '../utils/formatCurrency';
+
 
 const PropertyDetail = ({
     selectedItem,
     closeBottomSheet,
-    toggleMapType,
-    mapType,
 }) => {
     if (!selectedItem) {
         return <View><Text>No data selected.</Text></View>;
     }
-
-    const [currentValue, setCurrentValue] = useState(0);
-    const [percentageReturn, setPercentageReturn] = useState(0);
-
-    const { project, dividends = [], amount = 0, slots } = selectedItem;
+    const [expanded, setExpanded] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
 
+    const toggleExpanded = () => {
+        setExpanded(!expanded);
+    };
 
-    const processedShares = useMemo(() => {
-        return dividends.flatMap(dividend =>
-            dividend.shares.map(share => ({
-                month: dividend.month,
-                finalShareAmount: parseFloat(share.final_share_amount).toFixed(2),
-            }))
-        );
-    }, [dividends]);
+    const { currency } = useCurrency();
 
+    const formattedInitialCost = formatCurrency(selectedItem.initial_cost, currency);
+    const formattedCurrentCost = formatCurrency(selectedItem.current_value, currency);
 
-    useEffect(() => {
-        if (!dividends || dividends.length === 0) return;
-
-        const totalDividendSum = dividends.reduce((sum, dividend) => {
-            const sharesSum = dividend.shares.reduce(
-                (shareSum, share) => shareSum + parseFloat(share.final_share_amount || 0),
-                0
-            );
-            return sum + sharesSum;
-        }, 0);
-
-        const totalInvestment = parseFloat(amount || 0);
-
-        const currentValue = totalInvestment + totalDividendSum;
-        setCurrentValue(currentValue);
-
-        const percentReturn = totalInvestment > 0
-            ? ((currentValue - totalInvestment) / totalInvestment) * 100
-            : 0;
-
-        setPercentageReturn(percentReturn.toFixed(2));
-    }, [dividends, amount]);
 
     const items = [
-        { label: 'No. of Slots Owned', value: slots },
-        { label: 'Cost per Slot', value: `${project.cost_per_slot}` },
-        { label: 'Date Created', value: new Date(selectedItem.created_at).toLocaleDateString() },
-        { label: 'Example Item', value: 'Example Value' },
+        {
+            label: 'Investment Health',
+            value: `${selectedItem.analysis.investmentHealth}`,
+            style: selectedItem.analysis.investmentHealth === "Excellent returns"
+                ? styles.excellent
+                : selectedItem.analysis.investmentHealth === "Good returns"
+                    ? styles.good
+                    : selectedItem.analysis.investmentHealth === "Moderate returns"
+                        ? styles.moderate
+                        : styles.poor
+        },
+        {
+            label: 'Income Health',
+            value: `${selectedItem.analysis.incomeHealth}`,
+            style: selectedItem.analysis.incomeHealth === "Positive cash flow"
+                ? styles.positiveCashFlow
+                : styles.negativeCashFlow
+        },
+        { label: 'Year Bought', value: `${selectedItem.year_bought}` },
+        { label: 'Number of Units', value: `${selectedItem.num_units}` },
+        { label: 'Property Type', value: `${selectedItem.property_type}` },
     ];
+
+
+    // const items = [
+    //     { label: 'No. of Slots Owned', value: slots },
+    //     { label: 'Cost per Slot', value: `${project?.cost_per_slot}` },
+    //     { label: 'Date Created', value: new Date(selectedItem.created_at).toLocaleDateString() },
+    //     { label: 'Example Item', value: 'Example Value' },
+    // ];
 
 
     return (
@@ -67,7 +65,6 @@ const PropertyDetail = ({
             nestedScrollEnabled={true}
             contentContainerStyle={{ flex: 1 }}
         >
-            {/* <View style={styles.container}> */}
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Property Details</Text>
                 <TouchableOpacity onPress={closeBottomSheet}>
@@ -80,26 +77,21 @@ const PropertyDetail = ({
                     <>
                         <View style={styles.overview}>
                             <View>
-                                <View style={{ marginVertical: 10 }}>
-                                    <Text style={[styles.modalTitle, { color: '#358B8B' }]}>REF: {project?.project_reference}</Text>
-                                </View>
-                                <Text style={styles.modalTitle}>{project?.name}</Text>
-
-                                <Text style={[styles.modalTitle, { color: '#FB902E' }]}>{project.location}</Text>
+                                <Text style={styles.modalTitle}>{selectedItem.title}</Text>
+                                <Text style={[styles.modalTitle, { color: '#FB902E' }]}>{selectedItem.location}</Text>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                                 <Text style={styles.propertyDetailText}>Initial Investment:</Text>
-                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>${amount}</Text>
+                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>{formattedInitialCost}</Text>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                                 <Text style={styles.propertyDetailText}>Current Value:</Text>
-                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>${currentValue}</Text>
+                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>{formattedCurrentCost}</Text>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                                 <Text style={styles.propertyDetailText}>Percentage Return:</Text>
-                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>{percentageReturn}%</Text>
+                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>{selectedItem.percentageReturn}%</Text>
                             </View>
-                            <Text style={styles.propertyDetailText}>{selectedItem.description}</Text>
                         </View>
 
                         <PagerView
@@ -110,7 +102,7 @@ const PropertyDetail = ({
                             {items.map((item, index) => (
                                 <View key={index} style={styles.detailItem}>
                                     <Text style={styles.detailLabel}>{item.label}</Text>
-                                    <Text style={styles.detailValue}>{item.value}</Text>
+                                    <Text style={[styles.detailValue, item.style]}>{item.value}</Text>
                                 </View>
                             ))}
                         </PagerView>
@@ -126,34 +118,63 @@ const PropertyDetail = ({
                             ))}
                         </View>
                         <View style={styles.dividendsContainer}>
-                            <Text style={styles.dividendsHeader}>Dividends</Text>
-                            {processedShares.map((share, index) => (
+                            <Text style={styles.dividendsHeader}>Property info</Text>
+                            <TouchableOpacity onPress={toggleExpanded}>
+                                <Text
+                                    style={styles.dividendDescription}
+                                    numberOfLines={expanded ? 0 : 2} // 0 removes the limit
+                                >
+                                    {selectedItem.description}
+                                </Text>
+                                <Text style={[styles.toggleText, { marginTop: 5, color: '#FB902E' }]}>
+                                    {expanded ? 'Show Less' : 'Read More'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.dividendsContainer}>
+                            <Text style={styles.dividendsHeader}>Revenue received</Text>
+                            {selectedItem.incomes?.map((share, index) => (
                                 <View key={index} style={styles.dividendRow}>
-                                    <Text style={styles.dividendMonth}>{share.month}</Text>
-                                    <Text style={styles.dividendShare}>${share.finalShareAmount}</Text>
+                                    <Text style={styles.dividendMonth}>{share.date_received}</Text>
+                                    <Text style={styles.dividendShare}>${share.amount}</Text>
                                 </View>
                             ))}
+                            <View style={styles.dividendRow}>
+                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>Total</Text>
+                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>{selectedItem.totalIncome}</Text>
+                            </View>
+                        </View>
+                        <View style={styles.dividendsContainer}>
+                            <Text style={styles.dividendsHeader}>Expenses</Text>
+                            {selectedItem.expenses?.map((share, index) => (
+                                <View key={index} style={styles.dividendRow}>
+                                    <Text style={styles.dividendMonth}>{share.date_incurred}</Text>
+                                    <Text style={styles.dividendShare}>${share.amount}</Text>
+                                </View>
+                            ))}
+                            <View style={styles.dividendRow}>
+                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>Total</Text>
+                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>{selectedItem.totalExpenses}</Text>
+                            </View>
+                        </View>
+                        <View style={styles.dividendsContainer}>
+                            <Text style={styles.dividendsHeader}>Net return</Text>
+                            <View style={styles.dividendRow}>
+                                <Text style={styles.dividendMonth}>Total income - Total expenses</Text>
+                                <Text style={styles.dividendShare}>${selectedItem.netReturn}</Text>
+                            </View>
                         </View>
                         <View style={styles.dividendsContainer}>
                             <Text style={styles.dividendsHeader}>Map Location</Text>
                         </View>
                         <MapViewer
-                            latitude={48.7758}
-                            longitude={9.1829}
-                            title={project.name}
-                            description={project.location}
-                            mapType={mapType}
+                            // latitude={48.7758}
+                            // longitude={9.1829}
+                            title={selectedItem.title}
+                            virtual_tour_url={selectedItem.virtual_tour_url}
                         />
                     </>
                 )}
-                <View style={styles.buttonContainer}>
-                    <Pressable onPress={toggleMapType} style={styles.toggleButton}>
-                        <Text style={styles.buttonText}>Toggle Map</Text>
-                    </Pressable>
-                </View>
-                <TouchableOpacity style={styles.sellButton} onPress={() => alert('Sell Property')}>
-                    <Text style={[styles.buttonText, { fontSize: 20 }]}>Sell</Text>
-                </TouchableOpacity>
             </View>
             {/* </View> */}
         </ScrollView>
@@ -307,6 +328,25 @@ const styles = StyleSheet.create({
     },
     inactiveDot: {
         backgroundColor: '#D3D3D3',
+    },
+
+    excellent: {
+        color: 'green', // Green for excellent investment health
+    },
+    good: {
+        color: 'orange', // Orange for good investment health
+    },
+    moderate: {
+        color: 'yellow', // Yellow for moderate investment health
+    },
+    poor: {
+        color: 'red', // Red for poor investment health
+    },
+    positiveCashFlow: {
+        color: 'green', // Green for positive cash flow
+    },
+    negativeCashFlow: {
+        color: 'red', // Red for negative cash flow
     },
 
 });

@@ -1,82 +1,54 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetail from '../../components/PropertyDetail';
-import useUserDividends from '../../hooks/useUserDividends';
-import useUserHoldings from '../../hooks/useUserHoldings';
+import useUserProperty from '../../hooks/useUserProperty';
+import PropertiesList from '../../components/PropertiesList';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { initializePushNotifications } from '../../utils/notifications';
+import { router } from 'expo-router';
+import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotalsWithAnalysis';
+import { calculateReturns } from '../../utils/calculateReturns';
+import { useCurrency } from '../../context/CurrencyContext';
+import { formatCurrency } from '../../utils/formatCurrency';
+
+
+
+const WelcomeView = () => (
+  <View style={styles.welcomeContainer}>
+    <Text style={styles.welcomeText}>Welcome to Your Portfolio!</Text>
+    <Text style={styles.instructionText}>
+      Start managing your real estate properties today. Tap the "+" button at the bottom right to add your first property!
+    </Text>
+    <TouchableOpacity style={styles.addButton1}>
+      <Text style={styles.addButtonText}>Add Your First Property</Text>
+    </TouchableOpacity>
+  </View>
+);
 
 
 const Home = () => {
   const [selectedItem, setSelectedItem] = useState(null);
-  const [portfolioSum, setPortfolioSum] = useState(0);
-  const [totalReturn, setTotalReturn] = useState(0);
-  const [percentageReturn, setPercentageReturns] = useState(0);
   const [mapType, setMapType] = useState('standard');
   const bottomSheetRef = useRef(null);
-  const [mergedData, setMergedData] = useState([]);
+  const { properties, fetchUserProperties } = useUserProperty();
+  const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
+  const userReturns = calculateReturns(properties)
 
   const [refreshing, setRefreshing] = useState(false);
 
-  const { dividends, fetchDividends } = useUserDividends();
-  const { holdings, fetchUserHoldings } = useUserHoldings();
+  const { currency } = useCurrency();
 
+  const totalInvestment = formatCurrency(userTotalsWithAnalysis.totalInvestment, currency);
+  const totalProfit = formatCurrency(userTotalsWithAnalysis.totalProfit, currency);
 
-
-  const totalPortfolioValue = portfolioSum.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-
+  const handleAddProperty = () => {
+    router.replace('/manage_property');
+  };
 
   useEffect(() => {
     initializePushNotifications();
   }, []);
-
-
-  useEffect(() => {
-    if (!holdings || !dividends) return;
-
-    const dividendMap = dividends.reduce((acc, dividend) => {
-      const projectId = dividend.project.id;
-      if (!acc[projectId]) {
-        acc[projectId] = [];
-      }
-      acc[projectId].push(dividend);
-      return acc;
-    }, {});
-
-    const merged = holdings.map(holding => {
-      const projectId = holding.project.id;
-      const relatedDividends = dividendMap[projectId] || [];
-      return {
-        ...holding,
-        dividends: relatedDividends,
-      };
-    });
-
-    setMergedData(merged);
-
-    const totalInvestment = merged.reduce((sum, item) => sum + parseFloat(item.amount), 0);
-    setPortfolioSum(totalInvestment);
-
-    const totalReturns = merged.reduce(
-      (sum, item) =>
-        sum +
-        item.dividends.reduce(
-          (divSum, div) =>
-            divSum +
-            div.shares.reduce((shareSum, share) => shareSum + parseFloat(share.final_share_amount || 0), 0),
-          0
-        ),
-      0
-    );
-
-    setTotalReturn(totalReturns.toFixed(2));
-    setPercentageReturns(((totalReturns / totalInvestment) * 100).toFixed(2));
-  }, [holdings, dividends]);
-
 
   const openBottomSheet = (item) => {
     setSelectedItem(item);
@@ -88,64 +60,17 @@ const Home = () => {
     setSelectedItem(null);
   };
 
-  const toggleMapType = () => {
-    setMapType((prevType) => (prevType === 'standard' ? 'satellite' : 'standard'));
-  }
-
-
-  const renderItem = useCallback(
-    ({ item }) => {
-      const totalUserShare = item.dividends.reduce((sum, dividend) => {
-        const sharesSum = dividend.shares.reduce(
-          (shareSum, share) => shareSum + parseFloat(share.final_share_amount || 0),
-          0
-        );
-        return sum + sharesSum;
-      }, 0);
-
-      const currentValue = parseFloat(item.amount) + totalUserShare;
-
-      const percentageReturn = ((totalUserShare / parseFloat(item.amount)) * 100).toFixed(2);
-
-      return (
-        <TouchableOpacity style={styles.propertyItem} onPress={() => openBottomSheet(item)}>
-          <Text style={styles.propertyHeadText}>Project: {item.project.name}</Text>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.propertyText}>Initial Investment</Text>
-            <Text style={styles.propertyText}>${item.amount}</Text>
-          </View>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.propertyText}>Current Value</Text>
-            <Text style={styles.propertyText}>${currentValue.toFixed(2)}</Text>
-          </View>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.propertyText}>Percentage Return</Text>
-            {isNaN(percentageReturn) || percentageReturn === null ? (
-              <Text style={styles.propertyText}>0.00%</Text>
-            ) : (
-              <Text style={styles.propertyText}>{percentageReturn}%</Text>
-            )}
-          </View>
-        </TouchableOpacity>
-      );
-    },
-    [mergedData]
-  );
 
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([fetchDividends(), fetchUserHoldings()]);
+      await Promise.all([fetchUserProperties()]);
     } catch (error) {
       console.error('Error refreshing data:', error);
     } finally {
       setRefreshing(false);
     }
   };
-
 
   return (
     <View style={styles.container}>
@@ -154,46 +79,38 @@ const Home = () => {
           <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Investment</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>$ {totalPortfolioValue}</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalInvestment}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Returns</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>$ {totalReturn}</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalProfit}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Percentage Returns</Text>
-            {isNaN(percentageReturn) || percentageReturn === null ? (
+            {userTotalsWithAnalysis.length === 0 ? (
               <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>0.00 %</Text>
             ) : (
-              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{percentageReturn}%</Text>
+              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{userTotalsWithAnalysis.percentageReturn}</Text>
             )}
           </View>
         </View>
       </View>
       <View style={styles.container}>
-        {mergedData.length === 0 ? (
-          <View style={styles.welcomeContainer}>
-            <Text style={styles.welcomeText}>Welcome to Your Portfolio!</Text>
-            <Text style={styles.instructionText}>
-              Start managing your real estate properties today. Tap the "+" button at the bottom right to add your first property!
-            </Text>
-          </View>
+        {properties.length === 0 ? (
+          <WelcomeView />
         ) : (
           <View style={styles.propertiesList}>
-            <FlatList
-              data={mergedData}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id.toString()}
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-              }
+            <PropertiesList
+              properties={userReturns}
+              onPress={openBottomSheet}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
             />
           </View>
         )}
       </View>
 
-      <TouchableOpacity style={styles.addButton} onPress={() => alert('Add Property')}>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddProperty}>
         <Ionicons name="add" size={30} color="white" />
       </TouchableOpacity>
 
@@ -214,7 +131,6 @@ const Home = () => {
           <PropertyDetail
             selectedItem={selectedItem}
             closeBottomSheet={closeBottomSheet}
-            toggleMapType={toggleMapType}
             mapType={mapType}
           />
         </BottomSheetScrollView>
@@ -329,5 +245,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#555',
     paddingHorizontal: 20,
+  },
+  addButton1: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

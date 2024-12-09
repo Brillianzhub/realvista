@@ -5,6 +5,8 @@ import GlobalProvider from '../context/GlobalProvider';
 import { ProjectsProvider } from '../context/ProjectsContext';
 import { InvestmentProvider } from '../context/InvestmentProvider';
 import { NotificationProvider } from '../context/NotificationContext';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { CurrencyProvider } from '../context/CurrencyContext';
 
 const RealVistaLayout = () => {
 
@@ -14,12 +16,16 @@ const RealVistaLayout = () => {
         <InvestmentProvider>
           <ProjectsProvider>
             <NotificationProvider>
-              <Stack>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="(manage)" options={{ headerShown: false }} />
-              </Stack>
+              <PaperProvider>
+                <CurrencyProvider>
+                  <Stack>
+                    <Stack.Screen name="index" options={{ headerShown: false }} />
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(manage)" options={{ headerShown: false }} />
+                  </Stack>
+                </CurrencyProvider>
+              </PaperProvider>
             </NotificationProvider>
           </ProjectsProvider>
         </InvestmentProvider>

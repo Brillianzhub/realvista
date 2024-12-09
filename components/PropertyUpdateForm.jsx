@@ -5,6 +5,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import * as Location from 'expo-location';
 
+
 const propertyTypes = [
     { label: 'Land', value: 'land' },
     { label: 'Private House', value: 'private' },
@@ -18,7 +19,9 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
-const PropertyForm = ({ onSubmit }) => {
+
+
+const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
     const validationSchema = Yup.object({
         title: Yup.string().required('Title is required'),
         address: Yup.string().required('Address is required'),
@@ -34,7 +37,6 @@ const PropertyForm = ({ onSubmit }) => {
     const handlePickCoordinates = async (handleChange) => {
         setIsFetchingLocation(true);
 
-        // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             setIsFetchingLocation(false);
@@ -49,7 +51,6 @@ const PropertyForm = ({ onSubmit }) => {
             const { latitude, longitude } = location.coords;
             const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-            // Set the virtual tour URL in Formik field
             handleChange('virtual_tour_url')(googleMapsURL);
         } catch (error) {
             console.error('Location fetching error:', error);
@@ -59,23 +60,9 @@ const PropertyForm = ({ onSubmit }) => {
         }
     };
 
-
     return (
         <Formik
-            initialValues={{
-                title: '',
-                address: '',
-                location: '',
-                description: '',
-                status: '',
-                property_type: '',
-                year_bought: '',
-                area: '',
-                num_units: '',
-                initial_cost: '',
-                current_value: '',
-                virtual_tour_url: '',
-            }}
+            initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={onSubmit}
         >
@@ -133,10 +120,9 @@ const PropertyForm = ({ onSubmit }) => {
                         onChangeText={handleChange('description')}
                         onBlur={handleBlur('description')}
                         mode="outlined"
-                        style={[styles.input, { height: 120 }]} // Increase height
+                        style={styles.input}
                         multiline
                     />
-
 
                     <View style={styles.radioGroup}>
                         <Text>Status</Text>
@@ -272,28 +258,4 @@ const PropertyForm = ({ onSubmit }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        padding: 20,
-    },
-    input: {
-        marginBottom: 10,
-    },
-    button: {
-        marginVertical: 10,
-        height: 50,
-        backgroundColor: '#FB902E',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 5,
-    },
-    radioGroup: {
-        marginBottom: 15,
-    },
-    radioItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-});
-
-export default PropertyForm;
+export default PropertyUpdateForm;
