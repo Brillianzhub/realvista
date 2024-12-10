@@ -5,7 +5,6 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import * as Location from 'expo-location';
 
-
 const propertyTypes = [
     { label: 'Land', value: 'land' },
     { label: 'Private House', value: 'private' },
@@ -19,9 +18,7 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
-
-
-const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
+const PropertyUpdateForm = ({ property, onSubmit }) => {
     const validationSchema = Yup.object({
         title: Yup.string().required('Title is required'),
         address: Yup.string().required('Address is required'),
@@ -37,6 +34,7 @@ const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
     const handlePickCoordinates = async (handleChange) => {
         setIsFetchingLocation(true);
 
+        // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             setIsFetchingLocation(false);
@@ -51,6 +49,7 @@ const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
             const { latitude, longitude } = location.coords;
             const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
+            // Set the virtual tour URL in Formik field
             handleChange('virtual_tour_url')(googleMapsURL);
         } catch (error) {
             console.error('Location fetching error:', error);
@@ -60,9 +59,25 @@ const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
         }
     };
 
+
     return (
         <Formik
-            initialValues={initialValues}
+            initialValues={{
+                property_id: property?.id || '',
+                title: property?.title || '',
+                address: property?.address || '',
+                location: property?.location || '',
+                description: property?.description || '',
+                status: property?.status || '',
+                property_type: property?.property_type || '',
+                year_bought: property?.year_bought || '',
+                area: property?.area || '',
+                num_units: property?.num_units || '',
+                initial_cost: property?.initial_cost || '',
+                current_value: property?.current_value || '',
+                virtual_tour_url: property?.virtual_tour_url || '',
+            }}
+            enableReinitialize={true}
             validationSchema={validationSchema}
             onSubmit={onSubmit}
         >
@@ -75,7 +90,10 @@ const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
                 touched,
                 setFieldValue,
             }) => (
-                <ScrollView contentContainerStyle={styles.container}>
+                <ScrollView
+                    contentContainerStyle={styles.container}
+                    showsVerticalScrollIndicator={false}
+                >
                     <TextInput
                         label="Title of property"
                         value={values.title}
@@ -120,9 +138,10 @@ const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
                         onChangeText={handleChange('description')}
                         onBlur={handleBlur('description')}
                         mode="outlined"
-                        style={styles.input}
+                        style={[styles.input, { height: 120 }]}
                         multiline
                     />
+
 
                     <View style={styles.radioGroup}>
                         <Text>Status</Text>
@@ -250,12 +269,36 @@ const PropertyUpdateForm = ({ onSubmit, initialValues }) => {
                         {errors.virtual_tour_url}
                     </HelperText>
                     <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
-                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Submit</Text>
+                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Update Property</Text>
                     </Pressable>
                 </ScrollView>
             )}
         </Formik>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        // padding: 20,
+    },
+    input: {
+        marginBottom: 10,
+    },
+    button: {
+        marginVertical: 10,
+        height: 50,
+        backgroundColor: '#FB902E',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 5,
+    },
+    radioGroup: {
+        marginBottom: 15,
+    },
+    radioItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+});
 
 export default PropertyUpdateForm;

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PagerView from 'react-native-pager-view';
 import MapViewer from '../components/MapViewer';
 import { useCurrency } from '../context/CurrencyContext';
 import { formatCurrency } from '../utils/formatCurrency';
+import images from '@/constants/images';
 
 
 const PropertyDetail = ({
@@ -25,7 +26,9 @@ const PropertyDetail = ({
 
     const formattedInitialCost = formatCurrency(selectedItem.initial_cost, currency);
     const formattedCurrentCost = formatCurrency(selectedItem.current_value, currency);
-
+    const formattedTotalExpenses = formatCurrency(selectedItem.totalExpenses, currency);
+    const formattedTotalIncome = formatCurrency(selectedItem.totalIncome, currency);
+    const formattedNetReturn = formatCurrency(selectedItem.netReturn, currency);
 
     const items = [
         {
@@ -52,14 +55,6 @@ const PropertyDetail = ({
     ];
 
 
-    // const items = [
-    //     { label: 'No. of Slots Owned', value: slots },
-    //     { label: 'Cost per Slot', value: `${project?.cost_per_slot}` },
-    //     { label: 'Date Created', value: new Date(selectedItem.created_at).toLocaleDateString() },
-    //     { label: 'Example Item', value: 'Example Value' },
-    // ];
-
-
     return (
         <ScrollView
             nestedScrollEnabled={true}
@@ -77,20 +72,62 @@ const PropertyDetail = ({
                     <>
                         <View style={styles.overview}>
                             <View>
-                                <Text style={styles.modalTitle}>{selectedItem.title}</Text>
-                                <Text style={[styles.modalTitle, { color: '#FB902E' }]}>{selectedItem.location}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                                    <Image
+                                        source={images.house}
+                                        resizeMode='cover'
+                                        height={48}
+                                        width={48}
+                                    />
+                                    <View>
+                                        <Text style={styles.modalTitle}>{selectedItem.title}</Text>
+                                        <Text style={[styles.modalLocation, { color: '#FB902E' }]}>{selectedItem.location}</Text>
+                                    </View>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                                    <Text style={styles.portfolioSummary}>Initial Cost</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{formattedInitialCost}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                    <Text style={styles.portfolioSummary}>Current Value:</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{formattedCurrentCost}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                    <Text style={styles.portfolioSummary}>Appreciation Percentage</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{selectedItem.appreciationPercentage}%</Text>
+                                </View>
                             </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                                <Text style={styles.propertyDetailText}>Initial Investment:</Text>
-                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>{formattedInitialCost}</Text>
+                            <View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                                    <Text style={styles.portfolioSummary}>Total Income</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{formattedTotalIncome}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                    <Text style={styles.portfolioSummary}>Total expenses</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{formattedTotalExpenses}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                    <Text style={styles.portfolioSummary}>Net Income</Text>
+                                    <Text
+                                        style={[
+                                            styles.portfolioSummary,
+                                            { fontWeight: '600', color: selectedItem.netReturn < 0 ? 'red' : 'black' },
+                                        ]}
+                                    >
+                                        {formattedNetReturn}
+                                    </Text>
+                                </View>
+
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                    <Text style={styles.portfolioSummary}>Income Return Percentage</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{selectedItem.incomeReturnPercentage}%</Text>
+                                </View>
                             </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                                <Text style={styles.propertyDetailText}>Current Value:</Text>
-                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>{formattedCurrentCost}</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                                <Text style={styles.propertyDetailText}>Percentage Return:</Text>
-                                <Text style={[styles.propertyDetailText, { fontWeight: '600' }]}>{selectedItem.percentageReturn}%</Text>
+                            <View style={{ marginTop: 20 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                    <Text style={styles.portfolioSummary}>Overall Return Percentage</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{selectedItem.percentageReturn}%</Text>
+                                </View>
                             </View>
                         </View>
 
@@ -122,7 +159,7 @@ const PropertyDetail = ({
                             <TouchableOpacity onPress={toggleExpanded}>
                                 <Text
                                     style={styles.dividendDescription}
-                                    numberOfLines={expanded ? 0 : 2} // 0 removes the limit
+                                    numberOfLines={expanded ? 0 : 2}
                                 >
                                     {selectedItem.description}
                                 </Text>
@@ -133,35 +170,39 @@ const PropertyDetail = ({
                         </View>
                         <View style={styles.dividendsContainer}>
                             <Text style={styles.dividendsHeader}>Revenue received</Text>
-                            {selectedItem.incomes?.map((share, index) => (
+                            {selectedItem.incomes?.map((income, index) => (
                                 <View key={index} style={styles.dividendRow}>
-                                    <Text style={styles.dividendMonth}>{share.date_received}</Text>
-                                    <Text style={styles.dividendShare}>${share.amount}</Text>
+                                    <Text style={styles.dividendMonth}>{income.date_received}</Text>
+                                    <Text style={styles.dividendShare}>
+                                        {formatCurrency(income.amount, currency)}
+                                    </Text>
                                 </View>
                             ))}
                             <View style={styles.dividendRow}>
                                 <Text style={[styles.dividendShare, { color: '#FB902E' }]}>Total</Text>
-                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>{selectedItem.totalIncome}</Text>
+                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>{formattedTotalIncome}</Text>
                             </View>
                         </View>
                         <View style={styles.dividendsContainer}>
                             <Text style={styles.dividendsHeader}>Expenses</Text>
-                            {selectedItem.expenses?.map((share, index) => (
+                            {selectedItem.expenses?.map((expense, index) => (
                                 <View key={index} style={styles.dividendRow}>
-                                    <Text style={styles.dividendMonth}>{share.date_incurred}</Text>
-                                    <Text style={styles.dividendShare}>${share.amount}</Text>
+                                    <Text style={styles.dividendMonth}>{expense.date_incurred}</Text>
+                                    <Text style={styles.dividendShare}>
+                                        {formatCurrency(expense.amount, currency)}
+                                    </Text>
                                 </View>
                             ))}
                             <View style={styles.dividendRow}>
                                 <Text style={[styles.dividendShare, { color: '#FB902E' }]}>Total</Text>
-                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>{selectedItem.totalExpenses}</Text>
+                                <Text style={[styles.dividendShare, { color: '#FB902E' }]}>{formattedTotalExpenses}</Text>
                             </View>
                         </View>
                         <View style={styles.dividendsContainer}>
                             <Text style={styles.dividendsHeader}>Net return</Text>
                             <View style={styles.dividendRow}>
                                 <Text style={styles.dividendMonth}>Total income - Total expenses</Text>
-                                <Text style={styles.dividendShare}>${selectedItem.netReturn}</Text>
+                                <Text style={styles.dividendShare}>{formattedNetReturn}</Text>
                             </View>
                         </View>
                         <View style={styles.dividendsContainer}>
@@ -214,6 +255,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+    modalLocation: {
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
     map: {
         width: '100%',
         height: 200,
@@ -239,10 +284,10 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         right: 20,
-        backgroundColor: '#358B8B', // Set your desired background color
-        width: 60, // Set the width of the circle
-        height: 60, // Set the height of the circle
-        borderRadius: 30, // Make the button circular by setting borderRadius to half the width/height
+        backgroundColor: '#358B8B',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
@@ -281,6 +326,9 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     dividendMonth: {
+        fontSize: 14,
+    },
+    portfolioSummary: {
         fontSize: 14,
     },
     dividendShare: {

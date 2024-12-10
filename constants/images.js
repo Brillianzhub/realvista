@@ -29,6 +29,12 @@ import buyOrder from '../assets/images/buyOrder.png';
 import sellOrder from '../assets/images/sell.png';
 import welcome from '../assets/images/welcome.png';
 
+import house from '../assets/images/house.png';
+import loss from '../assets/images/profit.png';
+import profit from '../assets/images/profit.png';
+
+
+
 
 
 export default {
@@ -59,5 +65,8 @@ export default {
     profile,
     sellOrder,
     buyOrder,
-    welcome
+    welcome,
+    house,
+    loss,
+    profit
 };

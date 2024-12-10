@@ -11,6 +11,20 @@ export function calculateReturns(properties) {
         // Calculate net return (income - expenses)
         const netReturn = totalIncome - totalExpenses;
 
+        const incomeReturnPercentage = initialCost > 0
+            ? (netReturn / initialCost) * 100
+            : 0;
+
+        // Calculate appreciation percentage
+        const appreciationPercentage = initialCost > 0
+            ? ((currentValue - initialCost) / initialCost) * 100
+            : 0;
+
+        // Calculate overall return percentage (includes appreciation + net income)
+        const overallReturnPercentage = initialCost > 0
+            ? appreciationPercentage + ((netReturn / initialCost) * 100)
+            : 0;
+
         // Calculate percentage return based on initial cost and current value
         const percentageReturn = initialCost > 0
             ? ((currentValue - initialCost + netReturn) / initialCost) * 100
@@ -22,6 +36,9 @@ export function calculateReturns(properties) {
             totalIncome: totalIncome.toFixed(2),
             totalExpenses: totalExpenses.toFixed(2),
             percentageReturn: percentageReturn.toFixed(2),
+            incomeReturnPercentage: incomeReturnPercentage.toFixed(2),
+            appreciationPercentage: appreciationPercentage.toFixed(2),
+            overallReturnPercentage: overallReturnPercentage.toFixed(2),
             netReturn: netReturn.toFixed(2),
             analysis: {
                 investmentHealth:

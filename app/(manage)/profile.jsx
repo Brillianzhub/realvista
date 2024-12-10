@@ -42,11 +42,8 @@ const profile = () => {
 
     const { currency } = useCurrency();
 
-    const totalInvestment = formatCurrency(userTotalsWithAnalysis.totalInvestment, currency);
+    const totalInvestment = formatCurrency(userTotalsWithAnalysis.grossValue, currency);
     const totalProfit = formatCurrency(userTotalsWithAnalysis.totalProfit, currency);
-
-    console.log(totalInvestment)
-
 
     useEffect(() => {
         const sum = holdings.reduce((acc, item) => acc + parseFloat(item.amount), 0);

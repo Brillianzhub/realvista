@@ -1,5 +1,6 @@
+import images from '@/constants/images';
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
     if (!properties || properties.length === 0) {
@@ -17,16 +18,23 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
                 style={styles.propertyItem}
                 onPress={() => onPress(item)}
             >
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.subtitle}>{item.address}</Text>
-                <Text
-                    style={[
-                        styles.percentageReturn,
-                        { color: item.percentageReturn < 0 ? 'red' : styles.percentageReturn.color }
-                    ]}
-                >
-                    Return: {item.percentageReturn}%
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View>
+                        <Text style={styles.title}>{item.title}</Text>
+                        <Text style={styles.subtitle}>{item.address}</Text>
+                        <Text
+                            style={[
+                                styles.percentageReturn,
+                                { color: item.percentageReturn < 0 ? 'red' : styles.percentageReturn.color }
+                            ]}
+                        >
+                            Return: {item.percentageReturn}%
+                        </Text>
+                    </View>
+                    <View>
+                        <Image source={images.profit} />
+                    </View>
+                </View>
             </TouchableOpacity>
         );
 
@@ -41,6 +49,7 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
             refreshing={refreshing}
             onRefresh={onRefresh}
             contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
         />
     );
 };

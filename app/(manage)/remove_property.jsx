@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
-import { Menu, Button, HelperText } from 'react-native-paper';
+import { Button, HelperText } from 'react-native-paper';
+import { Picker } from '@react-native-picker/picker';
 import useUserProperty from '../../hooks/useUserProperty';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
 const RemoveProperty = () => {
     const { properties, fetchUserProperties, isLoading } = useUserProperty();
-    const [selectedProperty, setSelectedProperty] = useState(null);
-    const [menuVisible, setMenuVisible] = useState(false);
+    const [selectedProperty, setSelectedProperty] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleDeleteProperty = async () => {
@@ -20,7 +20,7 @@ const RemoveProperty = () => {
         const token = await AsyncStorage.getItem('authToken');
 
         if (!token) {
-            Alert.alert('Error', 'User token required to complete this operation')
+            Alert.alert('Error', 'User token required to complete this operation');
             return;
         }
 
@@ -33,16 +33,16 @@ const RemoveProperty = () => {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Token ${token}`, // Replace with actual token or auth mechanism
+                        Authorization: `Token ${token}`,
                     },
                 }
             );
 
             if (response.ok) {
                 Alert.alert('Success', 'Property has been deleted successfully.');
-                setSelectedProperty(null);
+                setSelectedProperty('');
                 fetchUserProperties();
-                router.replace('/manage_property')
+                router.replace('/manage_property');
             } else {
                 const error = await response.json();
                 Alert.alert('Error', error.error || 'Failed to delete property.');
@@ -79,34 +79,18 @@ const RemoveProperty = () => {
                 Select a property to delete. All information linked with the property will not be recovered after deletion.
             </Text>
 
-            {/* Dropdown for Property Selection */}
-            <View style={styles.dropdownContainer}>
-                <Menu
-                    visible={menuVisible}
-                    onDismiss={() => setMenuVisible(false)}
-                    anchor={
-                        <Button
-                            mode="outlined"
-                            onPress={() => setMenuVisible(true)}
-                            style={styles.dropdownButton}
-                        >
-                            {selectedProperty
-                                ? properties.find((p) => p.id === selectedProperty)?.title || 'Select Property'
-                                : 'Select Property'}
-                        </Button>
-                    }
+            {/* Property Selection with Picker */}
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={selectedProperty}
+                    onValueChange={(itemValue) => setSelectedProperty(itemValue)}
+                    style={styles.picker}
                 >
+                    <Picker.Item label="Select Property" value="" />
                     {properties.map((property) => (
-                        <Menu.Item
-                            key={property.id}
-                            title={property.title}
-                            onPress={() => {
-                                setSelectedProperty(property.id);
-                                setMenuVisible(false);
-                            }}
-                        />
+                        <Picker.Item key={property.id} label={property.title} value={property.id} />
                     ))}
-                </Menu>
+                </Picker>
                 <HelperText type="error" visible={!selectedProperty}>
                     {selectedProperty ? '' : 'You must select a property.'}
                 </HelperText>
@@ -141,7 +125,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#f7f7f7',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     header: {
         fontSize: 24,
@@ -156,16 +140,16 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         color: '#666',
     },
-    dropdownContainer: {
+    pickerContainer: {
         marginVertical: 20,
-    },
-    dropdownButton: {
-        width: '100%',
-        justifyContent: 'center',
         borderWidth: 1,
         borderColor: '#ccc',
-        padding: 10,
         borderRadius: 5,
+        backgroundColor: 'white',
+    },
+    picker: {
+        height: 50,
+        width: '100%',
     },
     deleteButton: {
         marginTop: 30,

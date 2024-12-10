@@ -4,9 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const CurrencyContext = createContext();
 
 export const CurrencyProvider = ({ children }) => {
-    const [currency, setCurrency] = useState('USD');
+    const [currency, setCurrency] = useState('NGN');
 
-    // Load the currency from AsyncStorage when the app starts
     useEffect(() => {
         const loadCurrency = async () => {
             try {
@@ -21,11 +20,10 @@ export const CurrencyProvider = ({ children }) => {
         loadCurrency();
     }, []);
 
-    // Save the currency to AsyncStorage whenever it changes
     const updateCurrency = async (newCurrency) => {
         try {
-            setCurrency(newCurrency); // Update state
-            await AsyncStorage.setItem('defaultCurrency', newCurrency); // Persist to AsyncStorage
+            setCurrency(newCurrency);
+            await AsyncStorage.setItem('defaultCurrency', newCurrency);
         } catch (error) {
             console.error('Failed to save currency to storage:', error);
         }

@@ -13,12 +13,20 @@ export function calculateUserTotalsWithAnalysis(properties) {
     // Calculate derived metrics
     const totalProfit =
         (totals.totalCurrentValue + totals.totalIncome) -
-        (totals.totalInvestment + totals.totalExpenses); 
-    const percentageReturn = totals.totalInvestment
-        ? (totalProfit / totals.totalInvestment) * 100
-        : 0; // Percentage return based on total profit and investment
+        (totals.totalInvestment + totals.totalExpenses);
 
-    const netIncome = totals.totalIncome - totals.totalExpenses; 
+
+    const grossValue = totals.totalCurrentValue + totals.totalIncome;
+
+    const grossInvestment = totals.totalInvestment + totals.totalExpenses
+
+    const percentageReturn = totals.totalInvestment
+        ? (totalProfit / (totals.totalInvestment + totals.totalExpenses)) * 100
+        : 0;
+
+    const netIncome = totals.totalIncome - totals.totalExpenses;
+
+
 
     return {
         totalInvestment: totals.totalInvestment.toFixed(2),
@@ -28,6 +36,8 @@ export function calculateUserTotalsWithAnalysis(properties) {
         totalProfit: totalProfit.toFixed(2),
         percentageReturn: percentageReturn.toFixed(2) + "%",
         netIncome: netIncome.toFixed(2),
+        grossInvestment: grossInvestment.toFixed(2),
+        grossValue: grossValue.toFixed(2),
         analysis: {
             investmentHealth:
                 percentageReturn >= 50
