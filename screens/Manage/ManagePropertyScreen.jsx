@@ -1,17 +1,21 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
 import React from 'react';
 import { router } from 'expo-router';
+import { useNavigation } from 'expo-router';
 
 const ManageProperty = () => {
+
+    const navigation = useNavigation();
+
     const actions = [
-        { id: '1', label: 'Add Property', onPress: () => router.replace('/add_property') },
-        { id: '2', label: 'Add Income', onPress: () => router.replace('/add_income') },
-        { id: '3', label: 'Add Expenses', onPress: () => router.replace('/add_expenses') },
-        { id: '4', label: 'Remove Property', onPress: () => router.replace('/remove_property') },
-        { id: '5', label: 'Update Property', onPress: () => router.replace('/edit_property') },
-        { id: '6', label: 'ROI and Cash Flow Analysis', onPress: () => router.replace('/compare_properties') },
-        { id: '7', label: 'Invest in Crowd Funding', onPress: () => router.replace('/mutual_invest') },
-        { id: '8', label: 'Publish Property for Sale', onPress: () => router.replace('/sale_property') },
+        { id: '1', label: 'Add Property', onPress: () => navigation.navigate('AddProperty') },
+        { id: '2', label: 'Add Income', onPress: () => navigation.navigate('AddPropertyIncome') },
+        { id: '3', label: 'Add Expenses', onPress: () => navigation.navigate('AddPropertyExpenses') },
+        { id: '4', label: 'Remove Property', onPress: () => navigation.navigate('RemoveProperty') },
+        { id: '5', label: 'Update Property', onPress: () => navigation.navigate('UpdateProperty') },
+        { id: '6', label: 'ROI and Cash Flow Analysis', onPress: () => navigation.navigate('/compare_properties') },
+        { id: '7', label: 'Invest in Crowd Funding', onPress: () => navigation.navigate('/mutual_invest') },
+        { id: '8', label: 'Publish Property for Sale', onPress: () => navigation.navigate('SaleProperty') },
     ];
 
     const renderAction = ({ item }) => (

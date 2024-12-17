@@ -1,17 +1,16 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetail from '../../components/PropertyDetail';
 import useUserProperty from '../../hooks/useUserProperty';
 import PropertiesList from '../../components/PropertiesList';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { initializePushNotifications } from '../../utils/notifications';
 import { router } from 'expo-router';
 import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotalsWithAnalysis';
 import { calculateReturns } from '../../utils/calculateReturns';
 import { useCurrency } from '../../context/CurrencyContext';
 import { formatCurrency } from '../../utils/formatCurrency';
-
+import { usePushNotifications } from '@/usePushNotifications';
 
 
 const WelcomeView = () => (
@@ -31,7 +30,7 @@ const Home = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [mapType, setMapType] = useState('standard');
   const bottomSheetRef = useRef(null);
-  const { properties, fetchUserProperties } = useUserProperty();
+  const { properties, fetchUserProperties, loading } = useUserProperty();
   const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
   const userReturns = calculateReturns(properties)
 
@@ -39,16 +38,14 @@ const Home = () => {
 
   const { currency } = useCurrency();
 
-  const totalInvestment = formatCurrency(userTotalsWithAnalysis.totalInvestment, currency);
-  const totalProfit = formatCurrency(userTotalsWithAnalysis.totalProfit, currency);
+  const totalInvestment = formatCurrency(userTotalsWithAnalysis.grossInvestment, currency);
+  const totalCurrentValue = formatCurrency(userTotalsWithAnalysis.grossValue, currency);
+  const { enableNotifications, disableNotifications, getNotificationStatus } = usePushNotifications();
+
 
   const handleAddProperty = () => {
     router.replace('/manage_property');
   };
-
-  useEffect(() => {
-    initializePushNotifications();
-  }, []);
 
   const openBottomSheet = (item) => {
     setSelectedItem(item);
@@ -72,18 +69,27 @@ const Home = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#358B8B" />
+      </View>
+    );
+  }
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.summaryContainer}>
           <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Investment</Text>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Investments + Expenses</Text>
             <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalInvestment}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Total Returns</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalProfit}</Text>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Current Values + Incomes</Text>
+            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Percentage Returns</Text>

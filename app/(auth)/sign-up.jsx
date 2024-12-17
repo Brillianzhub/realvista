@@ -79,12 +79,9 @@ const RegistrationForm = () => {
         const validation = validateForm(form);
 
         if (!validation.valid) {
-            alert(validation.message); // Display error message
+            alert(validation.message);
             return;
         }
-
-        // // Proceed with form submission
-        // console.log("Form submitted successfully:", form);
 
         setIsSubmitting(true);
 

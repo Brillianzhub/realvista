@@ -5,6 +5,7 @@ import { StatusBar, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './Home';
 import MarketScreen from './market';
+import HomeMenu from './HomeMenu';
 import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
@@ -23,20 +24,27 @@ const RealVistaTabs = () => {
       screenOptions={{
         lazy: true,
         tabBarStyle: {
-          backgroundColor: '#358B8B'
+          backgroundColor: '#358B8B',
+          paddingHorizontal: 10,
         },
-        tabBarLabelStyle: { fontSize: 16, fontWeight: 'bold' },
+        tabBarLabelStyle: {
+          fontSize: 14,
+          fontWeight: 'bold',
+          textAlign: 'center',
+        },
         tabBarIndicatorStyle: { backgroundColor: '#FB902E' },
         tabBarActiveTintColor: '#FB902E',
         tabBarInactiveTintColor: 'white',
       }}
     >
+      <Tab.Screen name="Home" component={HomeMenu} />
       <Tab.Screen name="Portfolio" component={HomeScreen} />
-      <Tab.Screen name="Investment" component={Investment} />
+      <Tab.Screen name="Invest" component={Investment} />
       <Tab.Screen name="Market" component={MarketScreen} />
     </Tab.Navigator>
   );
 };
+
 
 const RealVistaStack = () => {
   const drawerRef = useRef(null);
@@ -51,11 +59,11 @@ const RealVistaStack = () => {
   };
 
   const handleNav = () => {
-    router.replace('/profile')
+    router.replace('General')
   }
 
   const handleNavNot = () => {
-    router.replace('/notifications')
+    router.replace('Notifications')
   }
 
   return (

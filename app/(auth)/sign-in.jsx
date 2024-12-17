@@ -19,6 +19,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import FingerprintAuth from '../../components/FingerprintAuth';
+
+
 
 
 const signIn = async (email, password) => {
@@ -82,9 +85,8 @@ const signIn = async (email, password) => {
 };
 
 
-
 const SignIn = () => {
-    const { setUser, setIsLogged } = useGlobalContext();
+    const { setUser, isLogged, setIsLogged } = useGlobalContext();
 
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -94,20 +96,43 @@ const SignIn = () => {
         password: ''
     });
 
+    console.log(isLogged)
 
-    useEffect(() => {
-        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-            setKeyboardVisible(true);
-        });
-        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardVisible(false);
-        });
+    const fetchUserData = async () => {
+        try {
+            const token = await AsyncStorage.getItem('authToken')
 
-        return () => {
-            showSubscription.remove();
-            hideSubscription.remove();
-        };
-    }, []);
+            if (!token) {
+                console.log('Use password')
+                return;
+            }
+
+            const response = await fetch('https://www.realvistamanagement.com/accounts/current-user/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch user data');
+            }
+
+            const userData = await response.json();
+            router.replace('/Home', { user: userData });
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            Alert.alert('Error', 'Failed to fetch user data.');
+        }
+    };
+
+
+    const { authenticate } = FingerprintAuth({
+        onSuccess: fetchUserData,
+        onFailure: () => console.log('Fingerprint authentication failed!'),
+    });
+
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -185,9 +210,22 @@ const SignIn = () => {
                                 Forgot your password ?
                             </Link>
 
-                            <Pressable style={styles.button} onPress={handleSubmit}>
-                                <Text style={styles.buttonText}>Login</Text>
-                            </Pressable>
+                            {isLogged ? (
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5 }}>
+                                    <Pressable style={[styles.button, { flex: 5 }]} onPress={handleSubmit}>
+                                        <Text style={styles.buttonText}>Login</Text>
+                                    </Pressable>
+                                    <Pressable style={[styles.button, { flex: 1 }]} onPress={authenticate}>
+                                        <Image
+                                            source={images.fingerprint}
+                                        />
+                                    </Pressable>
+                                </View>
+                            ) : (
+                                <Pressable style={[styles.button]} onPress={handleSubmit}>
+                                    <Text style={styles.buttonText}>Login</Text>
+                                </Pressable>
+                            )}
 
                             <View style={styles.footer}>
                                 <Text style={styles.footerText}>Have an account already?</Text>

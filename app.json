@@ -39,7 +39,9 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-local-authentication",
+      "react-native-video"
     ],
     "experiments": {
       "typedRoutes": true

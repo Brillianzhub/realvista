@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, Linking } from 'react-native';
 import React from 'react';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import images from '../constants/images';
 
 
@@ -9,6 +9,8 @@ const NavigationView = () => {
     const navigateTo = (route) => {
         router.replace(route);
     };
+
+    const navigation = useNavigation()
 
     return (
         <View style={styles.container}>
@@ -20,7 +22,7 @@ const NavigationView = () => {
                 />
             </View>
             <TouchableOpacity
-                onPress={() => router.push('/manage_property')}
+                onPress={() => router.push('Manage')}
                 style={styles.menuItem}
             >
                 <Image
@@ -31,7 +33,7 @@ const NavigationView = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={() => router.push('/profile')}
+                onPress={() => router.push('General')}
                 style={styles.menuItem}
             >
                 <Image
@@ -42,7 +44,7 @@ const NavigationView = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={() => router.push('/settings')}
+                onPress={() => navigation.navigate('Settings')}
                 style={styles.menuItem}
             >
                 <Image

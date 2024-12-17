@@ -4,7 +4,7 @@ import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images'
 import { TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import TransactionDetail from '../../components/TransactionDetail';
 import useUserOrders from "../../hooks/useUserOrders";
 import useUserHoldings from "../../hooks/useUserHoldings";
@@ -23,7 +23,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 
 
 
-const profile = () => {
+const Profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
     const [selectedItem, setSelectedItem] = useState(null);
     const bottomSheetRef = useRef(null);
@@ -103,7 +103,6 @@ const profile = () => {
                 return false;
             }
         } catch (error) {
-            // console.error("Logout Error: ", error);
             Alert.alert('Logout Error', 'Failed to logout. Please try again.');
             return false;
         }
@@ -187,6 +186,7 @@ const profile = () => {
 
     const sortedOrders = orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
+    const navigation = useNavigation();
 
     return (
         <ScrollView>
@@ -285,8 +285,20 @@ const profile = () => {
                         <Text style={styles.portfolioNetText}>Custom settings</Text>
                     </View>
                     <View style={styles.portfolioItem}>
-                        <TouchableOpacity onPress={() => router.replace('/settings')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
                             <Text style={[styles.portfolioItemText]}>Set currency</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* If I have a group */}
+                <View style={styles.portfolioSummary}>
+                    <View style={styles.portfolioNet}>
+                        <Text style={styles.portfolioNetText}>My Corporate Groups</Text>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <TouchableOpacity onPress={() => router.replace('/enterprise')}>
+                            <Text style={[styles.portfolioItemText]}>Example Group</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -340,7 +352,7 @@ const profile = () => {
     )
 }
 
-export default profile
+export default Profile
 
 const styles = StyleSheet.create({
     container: {

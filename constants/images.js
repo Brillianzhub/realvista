@@ -32,12 +32,29 @@ import welcome from '../assets/images/welcome.png';
 import house from '../assets/images/house.png';
 import loss from '../assets/images/profit.png';
 import profit from '../assets/images/profit.png';
+import fingerprint from '../assets/images/fingerprint.png';
+import portfolio from '../assets/images/portfolio.png';
+import market from '../assets/images/market.png';
+import invest from '../assets/images/invest.png';
+import calculator from '../assets/images/calculator.png';
+import complete from '../assets/images/complete.gif';
+import pass from '../assets/images/pass.png';
+import fail from '../assets/images/fail.png';
 
-
+import team from '../assets/images/team.png';
+import learn from '../assets/images/learn.png';
 
 
 
 export default {
+    learn,
+    team,
+    pass,
+    fail,
+    complete,
+    calculator,
+    market,
+    invest,
     landing,
     landing2,
     landing3,
@@ -68,5 +85,7 @@ export default {
     welcome,
     house,
     loss,
-    profit
+    profit,
+    fingerprint,
+    portfolio
 };

@@ -1,29 +1,14 @@
 import { StyleSheet, Text, View, Pressable, ImageBackground } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
-
 import images from '../constants/images';
-import { useGlobalContext } from '@/context/GlobalProvider';
-import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 
 const Index = () => {
-
-  SystemNavigationBar.setNavigationColor('#358B8B');
-
-
-  const { isLogged } = useGlobalContext();
-
   const router = useRouter();
-
   const handleNavigation = () => {
-    if (isLogged) {
-      router.replace('/Home');
-    } else {
-      router.replace('/sign-in');
-    }
+    router.replace('/sign-in');
   };
-
 
   return (
     <ImageBackground

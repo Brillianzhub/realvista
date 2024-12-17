@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "146750123716",
-    "project_id": "realvista-fe7d9",
-    "storage_bucket": "realvista-fe7d9.firebasestorage.app"
+    "project_number": "249644969622",
+    "project_id": "realvista-b8724",
+    "storage_bucket": "realvista-b8724.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:146750123716:android:5ba5f2a00c0d00ffc92391",
+        "mobilesdk_app_id": "1:249644969622:android:585e148a39bba0fcad5cb7",
         "android_client_info": {
           "package_name": "com.brillianzhub.realvista"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyACX83gc06yiTJ990JtyZ0Cw8yPQ11v0L8"
+          "current_key": "AIzaSyCcYzACRrTH74yVaWiEmTu3zRrha6POOcE"
         }
       ],
       "services": {

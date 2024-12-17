@@ -1,38 +1,23 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import useFetchProperties from "../hooks/useFetchProperties";
+import { useCurrency } from '../context/CurrencyContext';
+import { formatCurrency } from '../utils/formatCurrency';
+
 
 const MarketScreen = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [priceFilter, setPriceFilter] = useState('');
     const [locationFilter, setLocationFilter] = useState('');
-
+    const { properties, loading, error } = useFetchProperties();
+    const { currency } = useCurrency();
     const navigation = useNavigation();
 
-    const [properties, setProperties] = useState([
-        {
-            id: 1,
-            title: 'Luxury Apartment',
-            location: 'New York',
-            price: '500,000',
-            image: 'https://via.placeholder.com/150',
-            seller: 'John Doe',
-            contact: 'johndoe@example.com',
-        },
-        {
-            id: 2,
-            title: 'Beachfront Villa',
-            location: 'Miami',
-            price: '1,200,000',
-            image: 'https://via.placeholder.com/150',
-            seller: 'Jane Smith',
-            contact: 'janesmith@example.com',
-        },
-    ]);
 
     const filteredProperties = properties.filter((property) => {
         const matchesLocation = locationFilter
-            ? property.location.toLowerCase().includes(locationFilter.toLowerCase())
+            ? property.city.toLowerCase().includes(locationFilter.toLowerCase())
             : true;
         const matchesPrice = priceFilter ? parseInt(property.price.replace(/,/g, '')) <= parseInt(priceFilter) : true;
         const matchesSearch = searchQuery
@@ -41,33 +26,46 @@ const MarketScreen = () => {
         return matchesLocation && matchesPrice && matchesSearch;
     });
 
-    const handleContactSeller = (sellerContact) => {
-        // Logic to contact the seller, e.g., navigate to an email form
-        alert(`Contact seller at: ${sellerContact}`);
-    };
 
+    if (loading) {
+        return (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color="#358B8B" />
+            </View>
+        );
+    }
 
+    if (error) {
+        return (
+            <View style={styles.center}>
+                <Text style={styles.errorText}>{error}</Text>
+            </View>
+        );
+    }
 
     const renderProperty = ({ item }) => (
         <View style={styles.propertyCard}>
-            <Image source={{ uri: item.image }} style={styles.propertyImage} />
+            <Image
+                source={{ uri: item.image || 'https://via.placeholder.com/150' }}
+                style={styles.propertyImage}
+            />
             <View style={styles.propertyInfo}>
                 <Text style={styles.propertyTitle}>{item.title}</Text>
-                <Text style={styles.propertyDetails}>Location: {item.location}</Text>
-                <Text style={styles.propertyDetails}>Price: ${item.price}</Text>
+                <Text style={styles.propertyDetails}>Location: {item.city}, {item.state}</Text>
+                <Text style={styles.propertyDetails}>Price: {formatCurrency(item.price, currency)}</Text>
                 <TouchableOpacity
                     style={styles.contactButton}
-                    onPress={() => navigation.navigate('PropertyDetail', { propertyId: item.id, propertyName: item.title })}
+                    onPress={() => navigation.navigate('PropertyDetail', { property: item })}
                 >
-                    <Text style={styles.contactButtonText}>Contact Seller</Text>
+                    <Text style={styles.contactButtonText}>View Details</Text>
                 </TouchableOpacity>
             </View>
         </View>
     );
+    
 
     return (
         <View style={styles.container}>
-            {/* Search Section */}
             <TextInput
                 style={styles.searchInput}
                 placeholder="Search by title"
@@ -75,7 +73,6 @@ const MarketScreen = () => {
                 onChangeText={setSearchQuery}
             />
 
-            {/* Filter Section */}
             <View style={styles.filtersContainer}>
                 <TextInput
                     style={styles.filterInput}
@@ -92,12 +89,12 @@ const MarketScreen = () => {
                 />
             </View>
 
-            {/* Property List */}
             <FlatList
                 data={filteredProperties}
                 renderItem={renderProperty}
                 keyExtractor={(item) => item.id}
                 style={styles.propertiesList}
+                showsVerticalScrollIndicator={false}
                 ListEmptyComponent={<Text style={styles.emptyText}>No properties found</Text>}
             />
         </View>
