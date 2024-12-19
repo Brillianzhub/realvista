@@ -43,10 +43,15 @@ import fail from '../assets/images/fail.png';
 
 import team from '../assets/images/team.png';
 import learn from '../assets/images/learn.png';
-
+import chatMenu from '../assets/images/menu-chat.png';
+import userOnline from '../assets/images/user-online.png';
+import userOffline from '../assets/images/user-offline.png';
 
 
 export default {
+    userOnline,
+    userOffline,
+    chatMenu,
     learn,
     team,
     pass,

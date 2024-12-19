@@ -1,62 +1,105 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-export default function ManageMembersScreen() {
-    const [members, setMembers] = useState([
-        { id: 1, email: 'admin@example.com', role: 'Admin' },
-        { id: 2, email: 'user1@example.com', role: 'Member' },
-        { id: 3, email: 'user2@example.com', role: 'Member' },
-    ]);
+export default function ManageMembersScreen({ route }) {
+    const { groupId, role } = route.params; // Group ID and role passed from navigation
+    const [members, setMembers] = useState([]);
     const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleAddMember = () => {
-        if (!email) {
-            alert('Please enter an email.');
-            return;
+    // Fetch members of the group
+    const fetchGroupMembers = async () => {
+        setLoading(true);
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            const response = await axios.get(`https://www.realvistamanagement.com/enterprise/group/${groupId}/members`, {
+                headers: {
+                    Authorization: `Token ${token}`,
+                },
+            });
+            setMembers(response.data);
+        } catch (error) {
+            console.error('Error fetching group members:', error);
+            Alert.alert('Error', 'Failed to fetch group members.');
+        } finally {
+            setLoading(false);
         }
-
-        // Check if email already exists
-        if (members.some((member) => member.email === email)) {
-            alert('This member is already added.');
-            return;
-        }
-
-        // Add new member to the list
-        const newMember = {
-            id: members.length + 1, // Generate a new ID
-            email: email,
-            role: 'Member',
-        };
-
-        setMembers((prevMembers) => [...prevMembers, newMember]);
-        setEmail(''); // Clear input field
-        alert('Member Added');
     };
+
+
+    const handleAddMember = async () => {
+        if (!email.trim()) {
+            Alert.alert('Validation Error', 'Please enter a valid email.');
+            return;
+        }
+
+        // Check if the member already exists
+        if (members.some((member) => member.email === email)) {
+            Alert.alert('Duplicate Member', 'This member is already added.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            const response = await axios.post(
+                `https://www.realvistamanagement.com/enterprise/group/${groupId}/add-member/`,
+                { email },
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+
+            Alert.alert('Success', 'Invitation sent successfully.');
+            setEmail('');
+        } catch (error) {
+            console.error('Error inviting member:', error);
+            Alert.alert('Error', 'Failed to send invitation. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    useEffect(() => {
+        fetchGroupMembers();
+    }, []);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Manage Members</Text>
+            <Text style={styles.title}>Group Members</Text>
 
-            {/* Member List */}
-            <FlatList
-                data={members}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.memberItem}>
-                        <Text style={styles.memberEmail}>{item.email}</Text>
-                        <Text style={styles.memberRole}>{item.role}</Text>
-                    </View>
-                )}
-            />
+            {loading ? (
+                <Text>Loading...</Text>
+            ) : (
+                <FlatList
+                    data={members}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <View style={styles.memberItem}>
+                            <Text style={styles.memberEmail}>{item.email}</Text>
+                            <Text style={styles.memberRole}>Role: {item.role}</Text>
+                        </View>
+                    )}
+                />
+            )}
 
-            {/* Add Member */}
-            <TextInput
-                style={styles.input}
-                placeholder="Enter Member Email"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <Button title="Add Member" onPress={handleAddMember} />
+            {/* Show Add Member functionality only for Admins */}
+            {role === 'ADMIN' && (
+                <>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter Member Email"
+                        value={email}
+                        onChangeText={setEmail}
+                    />
+                    <Button title="Add Member" onPress={handleAddMember} disabled={loading} />
+                </>
+            )}
         </View>
     );
 }

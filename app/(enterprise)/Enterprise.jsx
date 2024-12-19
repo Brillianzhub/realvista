@@ -4,11 +4,18 @@ import ManageMembersScreen from '../../screens/Enterprise/ManageMembersScreen';
 import PropertyListScreen from '../../screens/Enterprise/PropertiesListScreen';
 import GroupDashboardScreen from '../../screens/Enterprise/GroupDashboardScreen';
 import EnterpriseHomeScreen from '../../screens/Enterprise/EnterpriseHomeScreen';
-
+import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 
 const Stack = createStackNavigator();
 
 export default function EnterpriseNavigator() {
+
+    const handleBackPress = () => {
+        router.replace('Home');
+    };
+
     return (
         <Stack.Navigator initialRouteName='EnterpriseHomeScreen'>
             <Stack.Screen
@@ -16,10 +23,15 @@ export default function EnterpriseNavigator() {
                 component={EnterpriseHomeScreen}
                 options={{
                     headerShown: true,
-                    title: "Enterprise Home Screen",
+                    title: "My Groups",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={handleBackPress} style={{ paddingLeft: 10 }}>
+                            <Ionicons name="arrow-back" size={24} color="#fff" />
+                        </TouchableOpacity>
+                    ),
                 }}
             />
             <Stack.Screen
@@ -27,7 +39,7 @@ export default function EnterpriseNavigator() {
                 component={GroupDashboardScreen}
                 options={{
                     headerShown: true,
-                    title: "Dashboard",
+                    title: "Group Information",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',
@@ -36,6 +48,13 @@ export default function EnterpriseNavigator() {
             <Stack.Screen
                 name="CreateEnterprise"
                 component={CreateEnterpriseScreen}
+                options={{
+                    headerShown: true,
+                    title: "Create New Group",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: '#358B8B' },
+                    headerTintColor: '#fff',
+                }}
             />
             <Stack.Screen
                 name="ManageMembers"

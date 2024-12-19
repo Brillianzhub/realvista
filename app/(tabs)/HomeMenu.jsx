@@ -2,18 +2,22 @@ import { Image, StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'rea
 import React from 'react';
 import images from '../../constants/images';
 import { router, useNavigation } from 'expo-router';
+import { usePushNotifications } from '@/usePushNotifications';
+
 
 const HomeMenu = () => {
     const navigation = useNavigation();
+    const { enableNotifications, disableNotifications, getNotificationStatus } = usePushNotifications();
+
 
     const menuItems = [
         { id: 1, title: 'My Portfolio', image: images.portfolio, route: 'Portfolio' },
         { id: 2, title: 'Investment', image: images.invest },
         { id: 3, title: 'Market', image: images.market },
-        { id: 4, title: 'Corporate Account', image: images.portfolio, route: 'Enterprise' },
-        { id: 5, title: 'Learn', image: images.invest, route: 'Learn' },
+        { id: 4, title: 'Mutual Investment', image: images.team, route: 'Enterprise' },
+        { id: 5, title: 'Learn', image: images.learn, route: 'Learn' },
         { id: 6, title: 'Calculator', image: images.calculator },
-        { id: 7, title: 'Manage', image: images.market, route: 'Manage' },
+        { id: 7, title: 'Manage Portfolio', image: images.manage, route: 'Manage' },
         { id: 8, title: 'Settings', image: images.calculator },
         { id: 9, title: 'Help Center', image: images.invest },
         { id: 10, title: 'Feedback', image: images.portfolio },
@@ -62,6 +66,14 @@ const HomeMenu = () => {
                     </TouchableOpacity>
                 ))}
             </ScrollView>
+
+            <View style={styles.bottomImageContainer}>
+                <Image
+                    source={require('../../assets/images/project-image.png')}
+                    style={styles.bottomImage}
+                    resizeMode="contain"
+                />
+            </View>
         </ScrollView>
     );
 };
@@ -87,8 +99,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     image: {
-        width: 50,
-        height: 50,
+        width: 24,
+        height: 24,
         marginBottom: 10,
         resizeMode: 'contain',
     },
@@ -111,5 +123,17 @@ const styles = StyleSheet.create({
     carousel: {
         flexDirection: 'row',
         marginVertical: 20,
+    },
+
+    bottomImageContainer: {
+        alignItems: 'center',
+        marginTop: 20,
+        marginBottom: 10,
+        backgroundColor: 'gray',
+        borderRadius: 10
+    },
+    bottomImage: {
+        width: '100%',
+        height: 200,
     },
 });

@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import images from '../../constants/images';
 import Video from 'react-native-video';
+// import { Video } from 'expo-av';
 
 
 const LessonDetail = ({ route, navigation }) => {
@@ -63,9 +64,12 @@ const LessonDetail = ({ route, navigation }) => {
                             <Video
                                 source={{ uri: lesson.video_url }}
                                 style={styles.videoFrame}
-                                controls={true}
+                                useNativeControls
                                 resizeMode="contain"
+                                isLooping
+                                onError={(e) => console.error('Video Error:', e)} // Debugging video errors
                             />
+
                         )}
 
                         <Text style={styles.lessonContent}>

@@ -93,9 +93,6 @@ const RealVistaStack = () => {
               ),
               headerRight: () => (
                 <View style={{ flexDirection: 'row', marginRight: 15 }}>
-                  {/* <TouchableOpacity onPress={handleNavNot}>
-                    <Ionicons name="notifications" size={30} color="white" style={{ marginHorizontal: 10 }} />
-                  </TouchableOpacity> */}
                   <TouchableOpacity onPress={handleNavNot}>
                     <View style={styles.notificationWrapper}>
                       <Ionicons name="notifications" size={30} color="white" style={{ marginHorizontal: 10 }} />
