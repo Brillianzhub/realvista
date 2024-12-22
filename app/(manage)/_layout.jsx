@@ -68,8 +68,23 @@ const ManageLayout = () => {
                         ),
                     }}
                 />
+                <Stack.Screen
+                    name="Settings"
+                    options={{
+                        headerShown: true,
+                        title: "Settings",
+                        headerTitleAlign: "center",
+                        headerStyle: { backgroundColor: "#358B8B" },
+                        headerTintColor: "#fff",
+                        headerBackVisible: false,
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#fff" />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
             </Stack>
-
             <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
         </>
     );

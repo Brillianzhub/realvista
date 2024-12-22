@@ -48,10 +48,19 @@ import userOnline from '../assets/images/user-online.png';
 import userOffline from '../assets/images/user-offline.png';
 import trends from '../assets/images/trends.png';
 import target from '../assets/images/target.png';
-
+import menuSettings from '../assets/images/menusettings.png';
+import carouselOne from '../assets/images/carousel-one.png';
+import carouselTwo from '../assets/images/carousel-two.png';
+import carouselThree from '../assets/images/carousel-three.png';
+import carouselFour from '../assets/images/carousel-four.png';
 
 
 export default {
+    menuSettings,
+    carouselOne,
+    carouselTwo,
+    carouselThree,
+    carouselFour,
     target,
     trends,
     userOnline,

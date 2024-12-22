@@ -1,86 +1,135 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
-import React, { useCallback } from 'react';
+import {
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ScrollView,
+    Linking,
+    SafeAreaView,
+} from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
 import images from '../../constants/images';
-import { router } from 'expo-router';
-import { usePushNotifications } from '@/usePushNotifications';
 import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
+import PagerView from 'react-native-pager-view';
+
+
+const ROUTES = {
+    PORTFOLIO: 'Portfolio',
+    INVESTMENT: 'Investment',
+    MARKET: 'Market',
+    TRENDS: 'Market',
+    ANALYSIS: 'Analysis',
+    LEARN: 'Learn',
+    MUTUAL: 'Enterprise',
+    MANAGER: 'Manage',
+    SETTINGS: 'Settings',
+};
+
+const FAQ_URL = 'https://www.realvistaproperties.com/frequently-asked-questions';
+
+const MenuItem = ({ onPress, imageSource, text }) => (
+    <TouchableOpacity style={styles.mainMenuItem} onPress={onPress} accessible={true} accessibilityLabel={`Navigate to ${text}`}>
+        <Image source={imageSource} style={styles.mainMenuImage} />
+        <Text style={styles.menuText}>{text}</Text>
+    </TouchableOpacity>
+);
 
 const HomeMenu = () => {
     const navigation = useNavigation();
-    const { enableNotifications, disableNotifications, getNotificationStatus } = usePushNotifications();
+    const [currentPage, setCurrentPage] = useState(0);
+    const pagerRef = useRef(null);
+    const totalPages = 4;
+    const autoSlideInterval = 3000;
 
-    const menuItems = [
-        { id: 1, title: 'Portfolio', image: images.portfolio, route: 'Portfolio' },
-        { id: 2, title: 'Investment', image: images.invest, route: 'Investment' },
-        { id: 3, title: 'Market', image: images.market, route: 'Market' },
-        { id: 4, title: 'Mutual Investment', image: images.team, route: 'Enterprise' },
-        { id: 5, title: 'Learn', image: images.learn, route: 'Learn' },
-        { id: 6, title: 'Calculator', image: images.calculator, route: 'Analysis' },
-        { id: 7, title: 'Manager', image: images.manage, route: 'Manage' },
-        { id: 8, title: 'Trends', image: images.trends },
-        { id: 9, title: 'Settings', image: images.trends },
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentPage((prevPage) => {
+                const nextPage = (prevPage + 1) % totalPages;
+                if (pagerRef.current) {
+                    pagerRef.current.setPage(nextPage);
+                }
+                return nextPage;
+            });
+        }, autoSlideInterval);
 
-    ];
-
-    const handlePress = useCallback(
-        (route) => {
-            if (route) {
-                ['Learn', 'Manage', 'Enterprise', 'Analysis'].includes(route)
-                    ? router.replace(route)
-                    : navigation.navigate(route);
-            } else {
-                alert('This feature is not available yet!');
-            }
-        },
-        [navigation, router]
-    );
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <View style={styles.row}>
-                {menuItems.slice(0, 3).map((item) => (
-                    <TouchableOpacity
-                        key={item.id}
-                        style={[styles.menuCard, styles.rowStyle1]}
-                        onPress={() => handlePress(item.route)}
-                    >
-                        <Image source={item.image} style={styles.image} />
-                        <Text style={styles.menuText}>{item.title}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-            <View style={[styles.row, styles.rowStyle2]}>
-                {menuItems.slice(3, 6).map((item) => (
-                    <TouchableOpacity
-                        key={item.id}
-                        style={[styles.menuCard, styles.rowStyle2]}
-                        onPress={() => handlePress(item.route)}
-                    >
-                        <Image source={item.image} style={styles.image} />
-                        <Text style={styles.menuText}>{item.title}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-            <View style={[styles.row, styles.rowStyle3]}>
-                {menuItems.slice(6).map((item) => (
-                    <TouchableOpacity
-                        key={item.id}
-                        style={[styles.menuCard, styles.rowStyle3]}
-                        onPress={() => handlePress(item.route)}
-                    >
-                        <Image source={item.image} style={styles.image} />
-                        <Text style={styles.menuText}>{item.title}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-            <View style={styles.bottomImageContainer}>
-                <Image
-                    source={require('../../assets/images/project-image.png')}
-                    style={styles.bottomImage}
-                    resizeMode="contain"
-                />
-            </View>
-        </ScrollView>
+        <SafeAreaView style={{ flex: 1 }}>
+            <ScrollView
+                contentContainerStyle={styles.container}
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.mainMenu}>
+                    <MenuItem onPress={() => navigation.navigate(ROUTES.PORTFOLIO)} imageSource={images.portfolio} text="Portfolio" />
+                    <MenuItem onPress={() => navigation.navigate(ROUTES.INVESTMENT)} imageSource={images.invest} text="Investment" />
+                    <MenuItem onPress={() => navigation.navigate(ROUTES.MARKET)} imageSource={images.market} text="Market" />
+                </View>
+
+                <View style={styles.auxiliaryMenu}>
+                    <View style={styles.menuRow}>
+                        <MenuItem onPress={() => navigation.navigate(ROUTES.PORTFOLIO)} imageSource={images.trends} text="Trends" />
+                        <MenuItem onPress={() => router.replace(ROUTES.ANALYSIS)} imageSource={images.calculator} text="Calculator" />
+                        <MenuItem onPress={() => router.replace(ROUTES.LEARN)} imageSource={images.learn} text="Learn" />
+                    </View>
+                    <View style={styles.menuRow}>
+                        <MenuItem onPress={() => router.replace(ROUTES.MUTUAL)} imageSource={images.team} text="Mutual" />
+                        <MenuItem onPress={() => router.replace(ROUTES.MANAGER)} imageSource={images.invest} text="Manager" />
+                        <MenuItem onPress={() => router.replace(ROUTES.SETTINGS)} imageSource={images.menuSettings} text="Settings" />
+                    </View>
+                </View>
+
+                <View style={styles.faqSection}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 20 }}>
+                        Need Help? Check Our{' '}
+                        <Text style={styles.link} onPress={() => Linking.openURL(FAQ_URL)}>
+                            FAQs
+                        </Text>
+                    </Text>
+                </View>
+                <PagerView
+                    style={styles.pagerView}
+                    initialPage={0}
+                    ref={pagerRef}
+                    onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
+                >
+                    <View key="1">
+                        <View style={styles.pageImageWrapper}>
+                            <Image source={images.carouselOne} style={styles.pageImage} />
+                        </View>
+                    </View>
+                    <View key="2">
+                        <View style={styles.pageImageWrapper}>
+                            <Image source={images.carouselTwo} style={styles.pageImage} />
+                        </View>
+                    </View>
+                    <View key="3">
+                        <View style={styles.pageImageWrapper}>
+                            <Image source={images.carouselThree} style={styles.pageImage} />
+                        </View>
+                    </View>
+                    <View key="4">
+                        <View style={styles.pageImageWrapper}>
+                            <Image source={images.carouselFour} style={styles.pageImage} />
+                        </View>
+                    </View>
+                </PagerView>
+                <View style={styles.progressDots}>
+                    {[...Array(totalPages)].map((_, index) => (
+                        <View
+                            key={index}
+                            style={[
+                                styles.dot,
+                                currentPage === index && styles.activeDot,
+                            ]}
+                        />
+                    ))}
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
@@ -88,58 +137,82 @@ export default HomeMenu;
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        padding: 16,
         backgroundColor: '#f5f5f5',
     },
-    row: {
+    mainMenu: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    menuCard: {
-        backgroundColor: 'rgba(53, 139, 139, 0.2)',
-        borderRadius: 12,
-        padding: 20,
         alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 5,
+        padding: 20,
+        backgroundColor: '#358B8B0D',
+        borderRadius: 12,
     },
-    image: {
-        width: 24,
-        height: 24,
-        marginBottom: 10,
-        resizeMode: 'contain',
+    mainMenuItem: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 12,
+    },
+    mainMenuImage: {
+        height: 50,
+        width: 50,
     },
     menuText: {
-        fontSize: 14,
         fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center',
+        fontSize: 16,
     },
-    rowStyle1: {
-        // width: '30%', // 3 items per row
+    auxiliaryMenu: {
+        padding: 20,
+        backgroundColor: '#358B8B0D',
+        marginVertical: 15,
+        borderRadius: 12,
     },
-    rowStyle2: {
-        // width: '100%', 
-    },
-    rowStyle3: {
-        width: 120,
-        marginHorizontal: 10,
-    },
-    carousel: {
+    menuRow: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 10,
+    },
+    faqSection: {
+        padding: 10,
+    },
+    link: {
+        color: '#358B8B',
+        textDecorationLine: 'underline',
+    },
+    pagerView: {
+        height: 200,
+        padding: 10,
+    },
+    pageImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    pageImageWrapper: {
+        marginTop: 10,
+        borderRadius: 12, // Adjust as needed
+        overflow: 'hidden', // Ensures content respects the border radius
+        backgroundColor: '#fff', // Optional: Background color to handle transparency in images
+    },
+    progressDots: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
         marginVertical: 20,
     },
-
-    bottomImageContainer: {
-        alignItems: 'center',
-        marginTop: 20,
-        marginBottom: 10,
-        backgroundColor: 'gray',
-        borderRadius: 10
+    dot: {
+        width: 8,
+        height: 8,
+        borderRadius: 50,
+        backgroundColor: '#CCC',
+        marginHorizontal: 5,
     },
-    bottomImage: {
-        width: '100%',
-        height: 200,
+    activeDot: {
+        backgroundColor: 'rgba(53, 139, 139, 1)',
+        width: 25,
+        height: 8,
+        borderRadius: 50,
     },
 });

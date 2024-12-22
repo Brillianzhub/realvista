@@ -285,7 +285,7 @@ const Profile = () => {
                         <Text style={styles.portfolioNetText}>Custom settings</Text>
                     </View>
                     <View style={styles.portfolioItem}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                        <TouchableOpacity onPress={() => router.replace('Settings')}>
                             <Text style={[styles.portfolioItemText]}>Set currency</Text>
                         </TouchableOpacity>
                     </View>

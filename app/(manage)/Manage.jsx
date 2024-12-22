@@ -84,7 +84,6 @@ const ManageNavigator = () => {
                     headerTintColor: '#fff',
                 }}
             />
-
             <Stack.Screen
                 name="RemoveProperty"
                 component={RemovePropertyScreen}

@@ -1,7 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../../screens/General/ProfileScreen';
 import AboutUsScreen from '../../screens/General/AboutUsScreen';
-import SettingScreen from '../../screens/General/SettingScreen';
 
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
@@ -45,18 +44,6 @@ const GeneralNavigator = () => {
                     headerTintColor: '#fff',
                 }}
             />
-            <Stack.Screen
-                name="Settings"
-                component={SettingScreen}
-                options={{
-                    headerShown: true,
-                    title: "Settings",
-                    headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
-                }}
-            />
-
         </Stack.Navigator>
     );
 };

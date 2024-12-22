@@ -9,7 +9,7 @@ const CourseList = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(0); // Track the current page in PagerView
     const pagerRef = useRef(null); // Ref for PagerView
-    const totalPages = 3; // Total number of pages in the PagerView
+    const totalPages = 3; 
     const autoSlideInterval = 3000; // Auto-slide interval in milliseconds
 
     const fetchCourses = async () => {
