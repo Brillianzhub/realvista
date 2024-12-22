@@ -239,7 +239,7 @@ const Profile = () => {
 
                     <View style={{ marginVertical: 10, paddingLeft: 10 }}>
                         <TouchableOpacity
-                            onPress={() => router.replace('/transactions')}
+                            onPress={() => router.replace('Transactions')}
                         >
                             <Text style={{ fontWeight: '600', color: '#358B8B', fontSize: 16 }}>View all</Text>
                         </TouchableOpacity>

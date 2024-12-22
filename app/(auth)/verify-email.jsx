@@ -116,7 +116,7 @@ const VerifyEmail = () => {
 
     const handleContinue = () => {
         setModalVisible(false);
-        router.replace('/Home');
+        router.replace('/HomeScreen');
     };
 
     return (

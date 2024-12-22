@@ -1,11 +1,12 @@
 import { Stack } from "expo-router";
 import { StatusBar, TouchableOpacity, Image } from "react-native";
 import { router } from "expo-router";
+import { Ionicons } from '@expo/vector-icons';
 
 const ManageLayout = () => {
 
     const handleBackPress = () => {
-        router.replace('/Home');
+        router.replace('/HomeScreen');
     };
 
     return (
@@ -20,6 +21,7 @@ const ManageLayout = () => {
                         headerStyle: { backgroundColor: "#358B8B" },
                         headerTintColor: "#fff",
                         headerLeft: () => null,
+                        headerBackVisible: false
                     }}
                 />
                 <Stack.Screen
@@ -31,22 +33,37 @@ const ManageLayout = () => {
                         headerStyle: { backgroundColor: "#358B8B" },
                         headerTintColor: "#fff",
                         headerLeft: () => null,
+                        headerBackVisible: false
                     }}
                 />
-                
                 <Stack.Screen
-                    name="transactions"
+                    name="Transactions"
                     options={{
                         headerShown: true,
                         title: "Transactions",
                         headerTitleAlign: 'center',
+                        headerStyle: { backgroundColor: "#358B8B" },
+                        headerTintColor: "#fff",
+                        headerBackVisible: false,
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Image
-                                    source={require('../../assets/images/backArrow.png')}
-                                    style={{ width: 35, height: 35 }}
-                                    resizeMode='contain'
-                                />
+                                <Ionicons name="arrow-back" size={24} color="#fff" />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
+                    name="Notifications"
+                    options={{
+                        headerShown: true,
+                        title: "Notifications",
+                        headerTitleAlign: "center",
+                        headerStyle: { backgroundColor: "#358B8B" },
+                        headerTintColor: "#fff",
+                        headerBackVisible: false,
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#fff" />
                             </TouchableOpacity>
                         ),
                     }}

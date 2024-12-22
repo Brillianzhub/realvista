@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 export default function ManageMembersScreen({ route }) {
-    const { groupId, role } = route.params; // Group ID and role passed from navigation
+    const { groupId, role } = route.params;
     const [members, setMembers] = useState([]);
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Fetch members of the group
     const fetchGroupMembers = async () => {
         setLoading(true);
         try {
@@ -35,7 +34,6 @@ export default function ManageMembersScreen({ route }) {
             return;
         }
 
-        // Check if the member already exists
         if (members.some((member) => member.email === email)) {
             Alert.alert('Duplicate Member', 'This member is already added.');
             return;
@@ -88,7 +86,6 @@ export default function ManageMembersScreen({ route }) {
                 />
             )}
 
-            {/* Show Add Member functionality only for Admins */}
             {role === 'ADMIN' && (
                 <>
                     <TextInput
@@ -97,7 +94,9 @@ export default function ManageMembersScreen({ route }) {
                         value={email}
                         onChangeText={setEmail}
                     />
-                    <Button title="Add Member" onPress={handleAddMember} disabled={loading} />
+                    <TouchableOpacity style={styles.addMemberButton} onPress={handleAddMember} disabled={loading}>
+                        <Text style={styles.addMemberButtonText}>Invite new member</Text>
+                    </TouchableOpacity>
                 </>
             )}
         </View>
@@ -134,5 +133,16 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         marginBottom: 10,
+    },
+    addMemberButton: {
+        backgroundColor: '#FB902E',
+        padding: 15,
+        borderRadius: 5,
+    },
+    addMemberButtonText: {
+        textAlign: 'center',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });

@@ -3,14 +3,14 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import HomeScreen from './Home';
+import Portfolio from './Portfolio';
 import MarketScreen from './market';
-import HomeMenu from './HomeMenu';
+import HomeScreen from './HomeScreen';
 import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
-import Investment from './invest';
-import { router } from 'expo-router';
+import Investment from './Investment';
+import { router, useNavigation } from 'expo-router';
 import { useNotifications } from '../../context/NotificationContext';
 
 const Tab = createMaterialTopTabNavigator();
@@ -28,7 +28,7 @@ const RealVistaTabs = () => {
           paddingHorizontal: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 14,
+          fontSize: 16,
           fontWeight: 'bold',
           textAlign: 'center',
         },
@@ -37,9 +37,9 @@ const RealVistaTabs = () => {
         tabBarInactiveTintColor: 'white',
       }}
     >
-      <Tab.Screen name="Home" component={HomeMenu} />
-      <Tab.Screen name="Portfolio" component={HomeScreen} />
-      <Tab.Screen name="Invest" component={Investment} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Portfolio" component={Portfolio} />
+      {/* <Tab.Screen name="Invest" component={Investment} /> */}
       <Tab.Screen name="Market" component={MarketScreen} />
     </Tab.Navigator>
   );
@@ -51,6 +51,7 @@ const RealVistaStack = () => {
   const navigationView = NavigationView();
   const { hasUnread } = useNotifications();
 
+  const navigation = useNavigation();
 
   const openDrawer = () => {
     if (drawerRef.current) {
@@ -112,6 +113,18 @@ const RealVistaStack = () => {
                 color: 'white',
                 fontWeight: 'bold',
               },
+            }}
+          />
+
+          <Stack.Screen
+            name="Investment"
+            component={Investment}
+            options={{
+              headerShown: true,
+              title: "Investment",
+              headerTitleAlign: 'center',
+              headerStyle: { backgroundColor: '#358B8B' },
+              headerTintColor: '#fff',
             }}
           />
         </Stack.Navigator>

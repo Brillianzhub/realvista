@@ -2,12 +2,10 @@ import React, { useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useNotifications } from '../../context/NotificationContext';
 
-
 const Notifications = () => {
     const { notifications, markNotificationsAsRead } = useNotifications();
 
     useEffect(() => {
-        // Mark notifications as read when this screen is opened
         markNotificationsAsRead();
     }, []);
 
@@ -15,14 +13,17 @@ const Notifications = () => {
         <View style={styles.container}>
             <Text style={styles.header}>Notifications</Text>
             <FlatList
-                data={notifications}
-                keyExtractor={(item) => item.id}
+                data={notifications || []} // Ensure notifications is never null
+                keyExtractor={(item, index) => item?.id?.toString() || index.toString()} // Fallback to index if id is missing
                 renderItem={({ item }) => (
                     <View style={styles.notification}>
                         <Text style={styles.title}>{item.title}</Text>
                         <Text style={styles.body}>{item.body}</Text>
                     </View>
                 )}
+                ListEmptyComponent={
+                    <Text style={styles.emptyText}>No notifications to show</Text>
+                } // Render this if notifications is empty
             />
         </View>
     );
@@ -50,6 +51,12 @@ const styles = StyleSheet.create({
     },
     body: {
         fontSize: 14,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: '#999',
+        textAlign: 'center',
+        marginTop: 20,
     },
 });
 

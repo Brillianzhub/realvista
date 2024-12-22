@@ -52,7 +52,6 @@ const PropertyIncomeForm = ({ onSubmit }) => {
                 setFieldValue,
             }) => (
                 <ScrollView contentContainerStyle={styles.container}>
-                    {/* Property Dropdown */}
                     <View style={styles.dropdownContainer}>
                         <Menu
                             visible={menuVisible}
@@ -69,7 +68,7 @@ const PropertyIncomeForm = ({ onSubmit }) => {
                                 </Button>
                             }
                         >
-                            {properties.map((property) => (
+                            455555555593*{properties.map((property) => (
                                 <Menu.Item
                                     key={property.id}
                                     title={property.title}
@@ -100,9 +99,9 @@ const PropertyIncomeForm = ({ onSubmit }) => {
                         {errors.amount}
                     </HelperText>
 
-                    {/* Description Input */}
-                    <TextInput
-                        label="Description"
+                    {/* Descri
+                    |"ption Input */}
+                    <TextInput                      label="Description"
                         value={values.description}
                         onChangeText={handleChange('description')}
                         onBlur={handleBlur('description')}

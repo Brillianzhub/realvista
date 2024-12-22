@@ -7,7 +7,7 @@ import TransactionDetail from '../../components/TransactionDetail';
 import BottomSheet from '@gorhom/bottom-sheet';
 
 
-const transactions = () => {
+const Transactions = () => {
     const { orders, fetchUserOrders } = useUserOrders()
     const sortedOrders = orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     const [selectedItem, setSelectedItem] = useState(null);
@@ -85,7 +85,7 @@ const transactions = () => {
     )
 }
 
-export default transactions
+export default Transactions;
 
 const styles = StyleSheet.create({
     container: {

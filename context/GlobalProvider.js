@@ -10,23 +10,28 @@ const GlobalProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Fetch user and groups function
+    const fetchGroups = async () => {
+        setLoading(true); // Optional: show loading state
+        try {
+            const res = await getCurrentUser();
+            if (res) {
+                setIsLogged(true);
+                setUser(res); // Update user and groups
+            } else {
+                setIsLogged(false);
+                setUser(null);
+            }
+        } catch (error) {
+            console.error("Error fetching groups:", error);
+        } finally {
+            setLoading(false); // End loading state
+        }
+    };
+
+    // Initial fetch on mount
     useEffect(() => {
-        getCurrentUser()
-            .then((res) => {
-                if (res) {
-                    setIsLogged(true);
-                    setUser(res);
-                } else {
-                    setIsLogged(false);
-                    setUser(null);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        fetchGroups();
     }, []);
 
     return (
@@ -37,6 +42,7 @@ const GlobalProvider = ({ children }) => {
                 user,
                 setUser,
                 loading,
+                fetchGroups, // Provide fetchGroups in context
             }}
         >
             {children}

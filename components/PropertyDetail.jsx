@@ -217,7 +217,6 @@ const PropertyDetail = ({
                     </>
                 )}
             </View>
-            {/* </View> */}
         </ScrollView>
     );
 };
@@ -379,22 +378,22 @@ const styles = StyleSheet.create({
     },
 
     excellent: {
-        color: 'green', // Green for excellent investment health
+        color: 'green',
     },
     good: {
-        color: 'orange', // Orange for good investment health
+        color: 'orange',
     },
     moderate: {
-        color: 'yellow', // Yellow for moderate investment health
+        color: 'yellow',
     },
     poor: {
-        color: 'red', // Red for poor investment health
+        color: 'red',
     },
     positiveCashFlow: {
-        color: 'green', // Green for positive cash flow
+        color: 'green',
     },
     negativeCashFlow: {
-        color: 'red', // Red for negative cash flow
+        color: 'red',
     },
 
 });

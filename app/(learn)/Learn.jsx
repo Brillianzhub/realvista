@@ -13,9 +13,8 @@ const Stack = createStackNavigator();
 
 const LearnNavigator = () => {
 
-
   const handleBackPress = () => {
-    router.replace('Home');
+    router.replace('HomeScreen');
   };
 
   return (

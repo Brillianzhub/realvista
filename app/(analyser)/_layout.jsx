@@ -1,15 +1,22 @@
 import { Stack } from "expo-router";
-import { StatusBar } from "react-native";
+import { StatusBar, TouchableOpacity, Image } from "react-native";
+import { router } from "expo-router";
+import { Ionicons } from '@expo/vector-icons';
 
-const EnterpriseLayout = () => {
+const AnalysisLayout = () => {
+
+    const handleBackPress = () => {
+        router.replace('/HomeScreen');
+    };
+
     return (
         <>
             <Stack>
                 <Stack.Screen
-                    name="Enterprise"
+                    name="Analysis"
                     options={{
                         headerShown: true,
-                        title: "Enterprise Account",
+                        title: "Analysis",
                         headerTitleAlign: "center",
                         headerStyle: { backgroundColor: "#358B8B" },
                         headerTintColor: "#fff",
@@ -24,4 +31,4 @@ const EnterpriseLayout = () => {
     );
 };
 
-export default EnterpriseLayout;
+export default AnalysisLayout;

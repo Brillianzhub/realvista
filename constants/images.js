@@ -46,9 +46,14 @@ import learn from '../assets/images/learn.png';
 import chatMenu from '../assets/images/menu-chat.png';
 import userOnline from '../assets/images/user-online.png';
 import userOffline from '../assets/images/user-offline.png';
+import trends from '../assets/images/trends.png';
+import target from '../assets/images/target.png';
+
 
 
 export default {
+    target,
+    trends,
     userOnline,
     userOffline,
     chatMenu,

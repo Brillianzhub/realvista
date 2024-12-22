@@ -14,6 +14,7 @@ const LearnLayout = () => {
                         headerStyle: { backgroundColor: "#358B8B" },
                         headerTintColor: "#fff",
                         headerLeft: () => null, 
+                        headerBackVisible: false
                     }}
                 />
             </Stack>

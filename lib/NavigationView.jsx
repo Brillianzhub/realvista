@@ -44,16 +44,6 @@ const NavigationView = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={() => navigation.navigate('Settings')}
-                style={styles.menuItem}
-            >
-                <Image
-                    source={images.settings}
-                    style={styles.menuImg}
-                />
-                <Text style={styles.menuText}>Settings</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
                 onPress={() =>
                     Linking.openURL('https://www.realvistaproperties.com/frequently-asked-questions')
                 }

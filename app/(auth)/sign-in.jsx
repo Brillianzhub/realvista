@@ -120,7 +120,7 @@ const SignIn = () => {
             }
 
             const userData = await response.json();
-            router.replace('/Home', { user: userData });
+            router.replace('/HomeScreen', { user: userData });
         } catch (error) {
             console.error('Error fetching user data:', error);
             Alert.alert('Error', 'Failed to fetch user data.');
@@ -154,7 +154,7 @@ const SignIn = () => {
                     authProvider: 'email',
                 });
                 setIsLogged(true);
-                router.replace('/Home');
+                router.replace('/HomeScreen');
             }
         } catch (error) {
             Alert.alert('Error', 'Failed to sign in. Please try again.');

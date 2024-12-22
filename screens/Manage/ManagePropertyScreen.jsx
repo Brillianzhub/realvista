@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
 import React from 'react';
-import { router } from 'expo-router';
 import { useNavigation } from 'expo-router';
 
 const ManageProperty = () => {

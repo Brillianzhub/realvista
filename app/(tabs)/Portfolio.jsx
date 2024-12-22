@@ -10,7 +10,6 @@ import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotals
 import { calculateReturns } from '../../utils/calculateReturns';
 import { useCurrency } from '../../context/CurrencyContext';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { usePushNotifications } from '@/usePushNotifications';
 
 
 const WelcomeView = () => (
@@ -26,7 +25,7 @@ const WelcomeView = () => (
 );
 
 
-const Home = () => {
+const Portfolio = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [mapType, setMapType] = useState('standard');
   const bottomSheetRef = useRef(null);
@@ -40,11 +39,10 @@ const Home = () => {
 
   const totalInvestment = formatCurrency(userTotalsWithAnalysis.grossInvestment, currency);
   const totalCurrentValue = formatCurrency(userTotalsWithAnalysis.grossValue, currency);
-  const { enableNotifications, disableNotifications, getNotificationStatus } = usePushNotifications();
 
 
   const handleAddProperty = () => {
-    router.replace('/manage_property');
+    router.replace('/Manage');
   };
 
   const openBottomSheet = (item) => {
@@ -145,7 +143,7 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Portfolio;
 
 const styles = StyleSheet.create({
   container: {

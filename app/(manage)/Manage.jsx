@@ -18,7 +18,7 @@ const ManageNavigator = () => {
 
 
     const handleBackPress = () => {
-        router.replace('Home');
+        router.replace('HomeScreen');
     };
 
     return (

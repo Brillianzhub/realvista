@@ -13,7 +13,7 @@ const Stack = createStackNavigator();
 export default function EnterpriseNavigator() {
 
     const handleBackPress = () => {
-        router.replace('Home');
+        router.replace('HomeScreen');
     };
 
     return (

@@ -25,6 +25,7 @@ const RealVistaLayout = () => {
                     <Stack.Screen name="(manage)" options={{ headerShown: false }} />
                     <Stack.Screen name="(learn)" options={{ headerShown: false }} />
                     <Stack.Screen name="(enterprise)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(analyser)" options={{ headerShown: false }} />
                   </Stack>
                 </CurrencyProvider>
               </PaperProvider>

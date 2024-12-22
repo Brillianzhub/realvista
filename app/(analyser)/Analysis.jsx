@@ -1,8 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import ProfileScreen from '../../screens/General/ProfileScreen';
-import AboutUsScreen from '../../screens/General/AboutUsScreen';
-import SettingScreen from '../../screens/General/SettingScreen';
-
+import FinancialAnalysisScreen from '../../screens/Analysis/FinancialAnalysisScreen';
+import FinancialTarget from '../../screens/Analysis/FinancialTargetScreen';
+import TargetList from '../../screens/Analysis/TargetListScreen'
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
@@ -10,20 +9,20 @@ import { router } from 'expo-router';
 
 const Stack = createStackNavigator();
 
-const GeneralNavigator = () => {
+const AnalysisNavigator = () => {
 
     const handleBackPress = () => {
         router.replace('HomeScreen');
     };
 
     return (
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="FinancialAnalysisScreen">
             <Stack.Screen
-                name="Profile"
-                component={ProfileScreen}
+                name="FinancialAnalysisScreen"
+                component={FinancialAnalysisScreen}
                 options={{
                     headerShown: true,
-                    title: "Profile",
+                    title: "Manage Property",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',
@@ -35,30 +34,29 @@ const GeneralNavigator = () => {
                 }}
             />
             <Stack.Screen
-                name="AboutUs"
-                component={AboutUsScreen}
+                name="FinancialTarget"
+                component={FinancialTarget}
                 options={{
                     headerShown: true,
-                    title: "Add Property",
+                    title: "Financial Target",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',
                 }}
             />
             <Stack.Screen
-                name="Settings"
-                component={SettingScreen}
+                name="TargetList"
+                component={TargetList}
                 options={{
                     headerShown: true,
-                    title: "Settings",
+                    title: "Target List",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',
                 }}
             />
-
         </Stack.Navigator>
     );
 };
 
-export default GeneralNavigator;
+export default AnalysisNavigator;
