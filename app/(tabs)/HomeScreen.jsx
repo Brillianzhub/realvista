@@ -76,7 +76,7 @@ const HomeMenu = () => {
                         <MenuItem onPress={() => router.replace(ROUTES.LEARN)} imageSource={images.learn} text="Learn" />
                     </View>
                     <View style={styles.menuRow}>
-                        <MenuItem onPress={() => router.replace(ROUTES.MUTUAL)} imageSource={images.team} text="Mutual" />
+                        <MenuItem onPress={() => router.replace(ROUTES.MUTUAL)} imageSource={images.team} text="P Invest" />
                         <MenuItem onPress={() => router.replace(ROUTES.MANAGER)} imageSource={images.invest} text="Manager" />
                         <MenuItem onPress={() => router.replace(ROUTES.SETTINGS)} imageSource={images.menuSettings} text="Settings" />
                     </View>

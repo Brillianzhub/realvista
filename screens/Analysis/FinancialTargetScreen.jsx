@@ -32,8 +32,8 @@ const FinancialTargetScreen = () => {
             return;
         }
 
-        const periods = years * 12; // Convert years to months
-        const monthlyRate = annualRate / 12; // Convert annual rate to monthly
+        const periods = years * 12; 
+        const monthlyRate = annualRate / 12; 
 
         // Compound interest formula: FV = PV * (1 + r)^n + PMT * [(1 + r)^n - 1] / r
         const futureValue = target - current * Math.pow(1 + monthlyRate, periods);

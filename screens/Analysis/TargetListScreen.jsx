@@ -1,22 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-
 import { useNavigation } from '@react-navigation/native';
-
 import TargetDetail from './TargetDetail';
 
 const TargetListScreen = () => {
     const [targets, setTargets] = useState([]);
     const [selectedTarget, setSelectedTarget] = useState(null);
-    const bottomSheetModalRef = useRef(null); // Ref for BottomSheet
-    const navigation = useNavigation();
     const bottomSheetRef = useRef(null);
-
-
+    const navigation = useNavigation();
 
     useEffect(() => {
         fetchTargets();
@@ -53,11 +48,6 @@ const TargetListScreen = () => {
         }
     };
 
-    const handleTargetPress = (target) => {
-        setSelectedTarget(target);
-        bottomSheetModalRef.current?.present();
-    };
-
     const renderTarget = ({ item }) => (
         <TouchableOpacity style={styles.targetItem} onPress={() => openBottomSheet(item)}>
             <Text style={styles.targetName}>{item.target_name}</Text>
@@ -68,8 +58,8 @@ const TargetListScreen = () => {
     );
 
     return (
-        <View style={styles.container}>
-            <View style={styles.container}>
+        <View style={styles.outerContainer}>
+            <View style={styles.contentContainer}>
                 <Text style={styles.header}>Financial Targets</Text>
                 <FlatList
                     data={targets}
@@ -83,27 +73,27 @@ const TargetListScreen = () => {
                 >
                     <Ionicons name="add" size={30} color="white" />
                 </TouchableOpacity>
-
-                <BottomSheet
-                    ref={bottomSheetRef}
-                    index={-1}
-                    snapPoints={['25%', '50%', '100%']}
-                    onClose={closeBottomSheet}
-                    style={{ backgroundColor: '#f0f0f0' }}
-                    handleStyle={styles.handleContainer}
-                    handleIndicatorStyle={styles.handleIndicator}
-                >
-                    <BottomSheetScrollView
-                        contentContainerStyle={styles.contentContainer}
-                        showsVerticalScrollIndicator={false}
-                    >
-                        <TargetDetail
-                            selectedTarget={selectedTarget}
-                            closeBottomSheet={closeBottomSheet}
-                        />
-                    </BottomSheetScrollView>
-                </BottomSheet>
             </View>
+
+            <BottomSheet
+                ref={bottomSheetRef}
+                index={-1}
+                snapPoints={['25%', '50%', '100%']}
+                onClose={closeBottomSheet}
+                style={styles.bottomSheet}
+                handleStyle={styles.handleContainer}
+                handleIndicatorStyle={styles.handleIndicator}
+            >
+                <BottomSheetScrollView
+                    contentContainerStyle={styles.bottomSheetContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <TargetDetail
+                        selectedTarget={selectedTarget}
+                        closeBottomSheet={closeBottomSheet}
+                    />
+                </BottomSheetScrollView>
+            </BottomSheet>
         </View>
     );
 };
@@ -111,20 +101,23 @@ const TargetListScreen = () => {
 export default TargetListScreen;
 
 const styles = StyleSheet.create({
-    container: {
+    outerContainer: {
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
-    scrollViewContent: {
-        paddingBottom: 24,
+    contentContainer: {
+        flex: 1,
+        padding: 16,
     },
     header: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 10,
+        color: '#358B8B',
+        marginBottom: 20,
+        textAlign: 'center',
     },
     listContainer: {
-        paddingBottom: 80,
+        paddingBottom: 100,
     },
     targetItem: {
         backgroundColor: 'white',
@@ -132,6 +125,10 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 10,
         elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     targetName: {
         fontSize: 18,
@@ -145,8 +142,8 @@ const styles = StyleSheet.create({
     },
     addButton: {
         position: 'absolute',
-        bottom: 20,
-        right: 20,
+        bottom: 30,
+        right: 30,
         backgroundColor: '#358B8B',
         width: 60,
         height: 60,
@@ -154,19 +151,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
-
-    handleIndicator: {
-        backgroundColor: '#136e8b',
-        width: 50,
-        height: 5,
-        borderRadius: 3,
+    bottomSheet: {
+        backgroundColor: '#f0f0f0',
     },
     handleContainer: {
         backgroundColor: '#358B8B1A',
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
     },
-
+    handleIndicator: {
+        backgroundColor: '#136e8b',
+        width: 50,
+        height: 5,
+        borderRadius: 3,
+    },
 
 });
