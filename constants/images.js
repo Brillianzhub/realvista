@@ -22,6 +22,8 @@ import termsUse from '../assets/images/terms-use.png';
 import whatsapp from '../assets/images/whatsapp.png';
 
 import manage from '../assets/images/manage.png';
+import manager from '../assets/images/manager.png';
+
 import settings from '../assets/images/settings.png';
 import profile from '../assets/images/profile.png';
 
@@ -53,14 +55,18 @@ import carouselOne from '../assets/images/carousel-one.png';
 import carouselTwo from '../assets/images/carousel-two.png';
 import carouselThree from '../assets/images/carousel-three.png';
 import carouselFour from '../assets/images/carousel-four.png';
+import carouselFive from '../assets/images/carousel-five.png';
+
 
 
 export default {
+    manager,
     menuSettings,
     carouselOne,
     carouselTwo,
     carouselThree,
     carouselFour,
+    carouselFive,
     target,
     trends,
     userOnline,

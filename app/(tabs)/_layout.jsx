@@ -39,7 +39,6 @@ const RealVistaTabs = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Portfolio" component={Portfolio} />
-      {/* <Tab.Screen name="Invest" component={Investment} /> */}
       <Tab.Screen name="Market" component={MarketScreen} />
     </Tab.Navigator>
   );

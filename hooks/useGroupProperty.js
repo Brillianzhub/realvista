@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const useGroupProperties = ({ groupId }) => {
+const useGroupProperties = ({ uniqueGroupId }) => {
     const [loading, setLoading] = useState(false);
     const [properties, setProperties] = useState([]);
 
     const fetchGroupProperties = async () => {
         setLoading(true);
+
         try {
             const token = await AsyncStorage.getItem('authToken');
             if (!token) {
@@ -15,14 +16,22 @@ const useGroupProperties = ({ groupId }) => {
                 return;
             }
 
-            const response = await axios.get(`https://www.realvistamanagement.com/portfolio/properties/`, {
-                headers: {
-                    Authorization: `Token ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+            if (!uniqueGroupId) {
+                console.error("Group ID is required to fetch properties.");
+                return;
+            }
 
-            setProperties(response.data); 
+            const response = await axios.get(
+                `https://www.realvistamanagement.com/enterprise/groups/${uniqueGroupId}/properties/`,
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            setProperties(response.data);
         } catch (error) {
             console.error("Error fetching group properties:", error.response?.data || error.message);
         } finally {
@@ -31,8 +40,10 @@ const useGroupProperties = ({ groupId }) => {
     };
 
     useEffect(() => {
-        fetchGroupProperties();
-    }, []);
+        if (uniqueGroupId) {
+            fetchGroupProperties();
+        }
+    }, [uniqueGroupId]);
 
     return { properties, loading, fetchGroupProperties };
 };

@@ -1,15 +1,12 @@
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import PropertyDetail from '../../components/PropertyDetail';
-import useUserProperty from '../../hooks/useUserProperty';
-import PropertiesList from '../../components/PropertiesList';
+import useGroupProperty from '../../hooks/useGroupProperty';
+import PropertyListingDetail from '../Order/PropertyListingView';
+import GroupPropertiesList from './GroupPropertyListing';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { router } from 'expo-router';
-import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotalsWithAnalysis';
 import { calculateReturns } from '../../utils/calculateReturns';
-import { useCurrency } from '../../context/CurrencyContext';
-import { formatCurrency } from '../../utils/formatCurrency';
 
 
 const WelcomeView = () => (
@@ -22,23 +19,16 @@ const WelcomeView = () => (
 );
 
 
-const PropertyListScreen = ({ route }) => {
+const PropertyListScreen = ({ route, navigation }) => {
+    const { groupId, uniqueGroupId, role } = route.params;
+
     const [selectedItem, setSelectedItem] = useState(null);
     const [mapType, setMapType] = useState('standard');
     const bottomSheetRef = useRef(null);
-    const { properties, fetchUserProperties, loading } = useUserProperty();
-    const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
+    const { properties, fetchGroupProperties, loading } = useGroupProperty({ uniqueGroupId });
     const userReturns = calculateReturns(properties)
 
     const [refreshing, setRefreshing] = useState(false);
-
-    const { currency } = useCurrency();
-
-    const {groupId, role  } = route.params;
-
-    const totalInvestment = formatCurrency(userTotalsWithAnalysis.grossInvestment, currency);
-    const totalCurrentValue = formatCurrency(userTotalsWithAnalysis.grossValue, currency);
-
 
     const handleAddProperty = () => {
         router.replace('/Manage');
@@ -54,11 +44,10 @@ const PropertyListScreen = ({ route }) => {
         setSelectedItem(null);
     };
 
-
     const onRefresh = async () => {
         setRefreshing(true);
         try {
-            await Promise.all([fetchUserProperties()]);
+            await Promise.all([fetchGroupProperties()]);
         } catch (error) {
             console.error('Error refreshing data:', error);
         } finally {
@@ -74,36 +63,15 @@ const PropertyListScreen = ({ route }) => {
         );
     }
 
-
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.summaryContainer}>
-                    <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Investments + Expenses</Text>
-                        <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalInvestment}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Current Values + Incomes</Text>
-                        <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Percentage Returns</Text>
-                        {userTotalsWithAnalysis.length === 0 ? (
-                            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>0.00 %</Text>
-                        ) : (
-                            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{userTotalsWithAnalysis.percentageReturn}</Text>
-                        )}
-                    </View>
-                </View>
-            </View>
+
             <View style={styles.container}>
                 {properties.length === 0 ? (
                     <WelcomeView />
                 ) : (
                     <View style={styles.propertiesList}>
-                        <PropertiesList
+                        <GroupPropertiesList
                             properties={userReturns}
                             onPress={openBottomSheet}
                             refreshing={refreshing}
@@ -131,10 +99,12 @@ const PropertyListScreen = ({ route }) => {
                     contentContainerStyle={styles.contentContainer}
                     showsVerticalScrollIndicator={false}
                 >
-                    <PropertyDetail
+                    <PropertyListingDetail
                         selectedItem={selectedItem}
                         closeBottomSheet={closeBottomSheet}
                         mapType={mapType}
+                        role={role}
+                        navigation={navigation}
                     />
                 </BottomSheetScrollView>
             </BottomSheet>
@@ -149,42 +119,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
-    header: {
-        alignItems: 'center',
-        marginBottom: 10,
-        backgroundColor: '#358B8B'
-    },
-    headerText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'white',
-        textAlign: 'left',
-        marginTop: 15
-    },
-    summaryContainer: {
-        backgroundColor: '#fff',
-        width: '90%',
-        padding: 15,
-        margin: 20,
-        borderRadius: 10,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    summaryTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 10,
-    },
-    summaryText: {
-        fontSize: 16,
-        color: '#555',
-        marginBottom: 5,
-    },
+
     propertiesList: {
         flex: 1,
         padding: 10,

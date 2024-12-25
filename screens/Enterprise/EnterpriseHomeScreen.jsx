@@ -168,6 +168,7 @@ const StoryFeature = () => {
                             onPress={() =>
                                 navigation.navigate('GroupDashboard', {
                                     groupId: item.group.id,
+                                    uniqueGroupId: item.group.group_id,
                                     role: item.role,
                                 })
                             }

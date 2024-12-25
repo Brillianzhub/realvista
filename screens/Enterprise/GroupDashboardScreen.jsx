@@ -8,7 +8,7 @@ import ManageMembersScreen from '../Enterprise/ManageMembersScreen';
 const Tab = createMaterialTopTabNavigator();
 
 const GroupDashboardScreen = ({ route, navigation }) => {
-    const { groupId, role } = route.params;
+    const { uniqueGroupId, groupId, role } = route.params;
 
     return (
         <Tab.Navigator
@@ -23,7 +23,7 @@ const GroupDashboardScreen = ({ route, navigation }) => {
                 tabBarInactiveTintColor: 'white',
             }}
         >
-            <Tab.Screen name="Properties" component={PropertiesListScreen} initialParams={{ groupId, role }} />
+            <Tab.Screen name="Properties" component={PropertiesListScreen} initialParams={{ groupId, uniqueGroupId, role }} />
             <Tab.Screen name="Members" component={ManageMembersScreen} initialParams={{ groupId, role }} />
             <Tab.Screen name="Chat" component={ChatScreen} initialParams={{ groupId }} />
         </Tab.Navigator>

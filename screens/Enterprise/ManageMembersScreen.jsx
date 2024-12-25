@@ -13,7 +13,7 @@ export default function ManageMembersScreen({ route }) {
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem('authToken');
-            const response = await axios.get(`https://www.realvistamanagement.com/enterprise/group/${groupId}/members`, {
+            const response = await axios.get(`https://www.realvistamanagement.com/enterprise/groups/${groupId}/members`, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
@@ -43,7 +43,7 @@ export default function ManageMembersScreen({ route }) {
         try {
             const token = await AsyncStorage.getItem('authToken');
             const response = await axios.post(
-                `https://www.realvistamanagement.com/enterprise/group/${groupId}/add-member/`,
+                `https://www.realvistamanagement.com/enterprise/groups/${groupId}/add-member/`,
                 { email },
                 {
                     headers: {

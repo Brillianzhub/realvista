@@ -146,11 +146,10 @@ const Chat = () => {
     };
 
     const handleLongPress = (message) => {
-        // Toggle the selected message
         if (selectedMessage && selectedMessage.id === message.id) {
-            setSelectedMessage(null); // Deselect if the same message is tapped again
+            setSelectedMessage(null); 
         } else {
-            setSelectedMessage(message); // Select the new message
+            setSelectedMessage(message); 
         }
     };
 
@@ -192,7 +191,6 @@ const Chat = () => {
                     padding: 10,
                     borderRadius: 5,
                     marginBottom: 10,
-                    // height: 50,
                     alignItems: 'center',
                     maxHeight: 120,
                 }}

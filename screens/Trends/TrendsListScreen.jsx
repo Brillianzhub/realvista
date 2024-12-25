@@ -1,65 +1,61 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CourseList = ({ navigation }) => {
-    const [courses, setCourses] = useState([]);
+const TrendsListScreen = ({ navigation }) => {
+    const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(0); // Track the current page in PagerView
-    const pagerRef = useRef(null); // Ref for PagerView
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const pagerRef = useRef(null);
     const totalPages = 3;
-    const autoSlideInterval = 3000; // Auto-slide interval in milliseconds
+    const autoSlideInterval = 3000;
 
-    const fetchCourses = async () => {
-        try {
-            const token = await AsyncStorage.getItem('authToken');
-            if (!token) {
-                return;
-            }
-            setLoading(true);
-            const response = await axios.get(`https://www.realvistamanagement.com/courses/courses/`, {
-                headers: {
-                    Authorization: `Token ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            setCourses(response.data);
-        } catch (error) {
-            console.error('Error', error.response?.data || error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Fetch reports from the API
     useEffect(() => {
-        fetchCourses();
+        axios
+            .get('https://www.realvistamanagement.com/trends/public-reports/')
+            .then((response) => {
+                setReports(response.data.reports);
+                setLoading(false);
+            })
+            .catch((err) => {
+                setError('Failed to fetch reports');
+                setLoading(false);
+            });
     }, []);
 
+    // Auto-slide functionality
     useEffect(() => {
-        // Auto-slide functionality
         const interval = setInterval(() => {
             setCurrentPage((prevPage) => {
                 const nextPage = (prevPage + 1) % totalPages;
                 if (pagerRef.current) {
-                    pagerRef.current.setPage(nextPage); // Programmatically set the page
+                    pagerRef.current.setPage(nextPage);
                 }
                 return nextPage;
             });
         }, autoSlideInterval);
 
-        return () => clearInterval(interval); // Cleanup interval on component unmount
+        return () => clearInterval(interval);
     }, []);
+
+    const handleReportPress = (report) => {
+        navigation.navigate('TrendDetails', { report });
+    };
 
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#358B8B" />
-                <Text style={styles.loadingText}>Loading Courses...</Text>
+                <Text style={styles.loadingText}>Loading Trends...</Text>
             </View>
         );
+    }
+
+    if (error) {
+        return <Text style={styles.errorText}>{error}</Text>;
     }
 
     return (
@@ -70,21 +66,14 @@ const CourseList = ({ navigation }) => {
                 ref={pagerRef}
                 onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
             >
-
                 <View key="1" style={[styles.page, { backgroundColor: 'rgba(53, 139, 139, 0.2)' }]}>
-                    <Text style={styles.pageText}>
-                        Learn the fundamentals of investment and real estate portfolio management.
-                    </Text>
+                    <Text style={styles.pageText}>Explore the latest real estate trends and insights.</Text>
                 </View>
                 <View key="2" style={[styles.page, { backgroundColor: 'rgb(254 243 199)' }]}>
-                    <Text style={styles.pageText}>
-                        Understand strategies for long-term wealth building and financial security.
-                    </Text>
+                    <Text style={styles.pageText}>Stay updated on property values and market dynamics.</Text>
                 </View>
                 <View key="3" style={[styles.page, { backgroundColor: 'rgb(255 237 213)' }]}>
-                    <Text style={styles.pageText}>
-                        Gain insights tailored for beginners and professionals alike.
-                    </Text>
+                    <Text style={styles.pageText}>Gain actionable knowledge for smarter investments.</Text>
                 </View>
             </PagerView>
 
@@ -101,14 +90,18 @@ const CourseList = ({ navigation }) => {
             </View>
 
             <FlatList
-                data={courses}
-                keyExtractor={(item) => item.id.toString()}
+                data={reports}
+                keyExtractor={(item) => item.generated_date}
                 renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.courseCard}
-                        onPress={() => navigation.navigate('CourseDetail', { courseId: item.id })}
-                    >
-                        <Text style={styles.courseTitle}>{item.title}</Text>
+                    <TouchableOpacity onPress={() => handleReportPress(item)}>
+                        <View style={styles.reportItem}>
+                            <Text style={styles.reportTitle}>
+                                {item.location} - {item.property_type}
+                            </Text>
+                            <Text style={styles.reportDate}>
+                                {new Date(item.generated_date).toLocaleDateString()}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 )}
             />
@@ -116,11 +109,13 @@ const CourseList = ({ navigation }) => {
     );
 };
 
+export default TrendsListScreen;
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F9F9F9',
-        padding: 16
+        padding: 16,
     },
     pagerView: {
         height: 150,
@@ -130,13 +125,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
         borderRadius: 10,
-        marginTop: 10
+        marginTop: 10,
     },
     pageText: {
         fontSize: 18,
         color: '#555',
         textAlign: 'center',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     progressDots: {
         flexDirection: 'row',
@@ -157,21 +152,24 @@ const styles = StyleSheet.create({
         height: 10,
         borderRadius: 50,
     },
-    courseCard: {
+    reportItem: {
         backgroundColor: '#FFF',
         padding: 15,
         borderRadius: 8,
         marginBottom: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        // shadowColor: '#000',
+        // shadowOffset: { width: 0, height: 2 },
+        // shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
     },
-    courseTitle: {
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#358B8B',
+    reportTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    reportDate: {
+        color: '#888',
     },
     loadingContainer: {
         flex: 1,
@@ -184,6 +182,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#555',
     },
+    errorText: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: 'red',
+        marginTop: 20,
+    },
 });
-
-export default CourseList;

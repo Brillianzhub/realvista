@@ -19,7 +19,7 @@ const ROUTES = {
     PORTFOLIO: 'Portfolio',
     INVESTMENT: 'Investment',
     MARKET: 'Market',
-    TRENDS: 'Market',
+    TRENDS: 'Trends',
     ANALYSIS: 'Analysis',
     LEARN: 'Learn',
     MUTUAL: 'Enterprise',
@@ -40,8 +40,8 @@ const HomeMenu = () => {
     const navigation = useNavigation();
     const [currentPage, setCurrentPage] = useState(0);
     const pagerRef = useRef(null);
-    const totalPages = 4;
-    const autoSlideInterval = 3000;
+    const totalPages = 5;
+    const autoSlideInterval = 4000;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -71,13 +71,13 @@ const HomeMenu = () => {
 
                 <View style={styles.auxiliaryMenu}>
                     <View style={styles.menuRow}>
-                        <MenuItem onPress={() => navigation.navigate(ROUTES.PORTFOLIO)} imageSource={images.trends} text="Trends" />
+                        <MenuItem onPress={() => router.replace(ROUTES.TRENDS)} imageSource={images.trends} text="Trends" />
                         <MenuItem onPress={() => router.replace(ROUTES.ANALYSIS)} imageSource={images.calculator} text="Calculator" />
                         <MenuItem onPress={() => router.replace(ROUTES.LEARN)} imageSource={images.learn} text="Learn" />
                     </View>
                     <View style={styles.menuRow}>
-                        <MenuItem onPress={() => router.replace(ROUTES.MUTUAL)} imageSource={images.team} text="P Invest" />
-                        <MenuItem onPress={() => router.replace(ROUTES.MANAGER)} imageSource={images.invest} text="Manager" />
+                        <MenuItem onPress={() => router.replace(ROUTES.MUTUAL)} imageSource={images.team} text="Mutual Invest" />
+                        <MenuItem onPress={() => router.replace(ROUTES.MANAGER)} imageSource={images.manager} text="Manager" />
                         <MenuItem onPress={() => router.replace(ROUTES.SETTINGS)} imageSource={images.menuSettings} text="Settings" />
                     </View>
                 </View>
@@ -114,6 +114,11 @@ const HomeMenu = () => {
                     <View key="4">
                         <View style={styles.pageImageWrapper}>
                             <Image source={images.carouselFour} style={styles.pageImage} />
+                        </View>
+                    </View>
+                    <View key="5">
+                        <View style={styles.pageImageWrapper}>
+                            <Image source={images.carouselFive} style={styles.pageImage} />
                         </View>
                     </View>
                 </PagerView>
@@ -192,9 +197,9 @@ const styles = StyleSheet.create({
     },
     pageImageWrapper: {
         marginTop: 10,
-        borderRadius: 12, // Adjust as needed
-        overflow: 'hidden', // Ensures content respects the border radius
-        backgroundColor: '#fff', // Optional: Background color to handle transparency in images
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: '#fff',
     },
     progressDots: {
         flexDirection: 'row',

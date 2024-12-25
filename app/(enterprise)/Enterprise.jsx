@@ -4,6 +4,7 @@ import ManageMembersScreen from '../../screens/Enterprise/ManageMembersScreen';
 import PropertyListScreen from '../../screens/Enterprise/PropertiesListScreen';
 import GroupDashboardScreen from '../../screens/Enterprise/GroupDashboardScreen';
 import EnterpriseHomeScreen from '../../screens/Enterprise/EnterpriseHomeScreen';
+import ManageBooking from '../../screens/Enterprise/ManageBooking';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
@@ -63,6 +64,17 @@ export default function EnterpriseNavigator() {
             <Stack.Screen
                 name="PropertyList"
                 component={PropertyListScreen}
+            />
+            <Stack.Screen
+                name="ManageBooking"
+                component={ManageBooking}
+                options={{
+                    headerShown: true,
+                    title: "Members Booking",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: '#358B8B' },
+                    headerTintColor: '#fff',
+                }}
             />
         </Stack.Navigator>
     );

@@ -8,7 +8,7 @@ const LearnLayout = () => {
                 <Stack.Screen
                     name="Learn"
                     options={{
-                        headerShown: true,
+                        headerShown: false,
                         title: "Expert Learn",
                         headerTitleAlign: "center",
                         headerStyle: { backgroundColor: "#358B8B" },
