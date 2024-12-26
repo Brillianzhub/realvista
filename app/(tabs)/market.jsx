@@ -3,17 +3,13 @@ import MarketScreen from '../../screens/MarketScreen';
 import PropertyDetailScreen from '../../screens/PropertyDetailScreen';
 import ChatScreen from '../../screens/ChatScreen';
 import { Image, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
 import { useNavigation } from 'expo-router';
 
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
-
     const navigation = useNavigation();
-
-
     const handleBackPress = () => {
         navigation.navigate('MarketScreen');
     };
@@ -37,7 +33,7 @@ const AppNavigator = () => {
                     headerLeft: () => (
                         <TouchableOpacity
                             onPress={handleBackPress}
-                            style={{ paddingLeft: 15 }} // Add padding to the left
+                            style={{ paddingLeft: 15 }}
                         >
                             <Image
                                 source={require('../../assets/images/backArrow.png')}
@@ -58,7 +54,7 @@ const AppNavigator = () => {
                     headerLeft: () => (
                         <TouchableOpacity
                             onPress={handleBackPress}
-                            style={{ paddingLeft: 15 }} // Add padding to the left
+                            style={{ paddingLeft: 15 }}
                         >
                             <Image
                                 source={require('../../assets/images/backArrow.png')}

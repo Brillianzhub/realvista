@@ -8,7 +8,7 @@ const EnterpriseLayout = () => {
                 <Stack.Screen
                     name="Enterprise"
                     options={{
-                        headerShown: true,
+                        headerShown: false,
                         title: "Enterprise Account",
                         headerTitleAlign: "center",
                         headerStyle: { backgroundColor: "#358B8B" },

@@ -22,7 +22,7 @@ const AnalysisNavigator = () => {
                 component={FinancialAnalysisScreen}
                 options={{
                     headerShown: true,
-                    title: "Manage Property",
+                    title: "Calculator",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',

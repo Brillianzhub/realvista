@@ -117,10 +117,10 @@ const PropertyDetail = ({
                             virtual_tour_url={selectedItem.virtual_tour_url}
                         />
 
-                        {role === "ADMIN" && <View style={styles.dividendsContainer}>
+                        {role === "ADMIN" && <View style={[styles.dividendsContainer, {marginBottom: 20}]}>
                             <Text style={styles.dividendsHeader}>Manage Bookings</Text>
                             <TouchableOpacity
-                                onPress={() => navigation.navigate('ManageBooking')}
+                                onPress={() => navigation.navigate('ManageBooking', { propertyId: selectedItem.id })}
                             >
                                 <Text
                                     style={styles.dividendDescription}

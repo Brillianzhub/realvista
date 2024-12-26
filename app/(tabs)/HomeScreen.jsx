@@ -65,7 +65,7 @@ const HomeMenu = () => {
             >
                 <View style={styles.mainMenu}>
                     <MenuItem onPress={() => navigation.navigate(ROUTES.PORTFOLIO)} imageSource={images.portfolio} text="Portfolio" />
-                    <MenuItem onPress={() => navigation.navigate(ROUTES.INVESTMENT)} imageSource={images.invest} text="Investment" />
+                    <MenuItem onPress={() => navigation.navigate(ROUTES.INVESTMENT)} imageSource={images.invest} text="WeInvest" />
                     <MenuItem onPress={() => navigation.navigate(ROUTES.MARKET)} imageSource={images.market} text="Market" />
                 </View>
 

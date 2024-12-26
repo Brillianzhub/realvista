@@ -18,7 +18,7 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
-const PropertyForm = ({ onSubmit }) => {
+const GroupPropertyForm = ({ onSubmit }) => {
     const validationSchema = Yup.object({
         title: Yup.string().required('Title is required'),
         address: Yup.string().required('Address is required'),
@@ -26,6 +26,8 @@ const PropertyForm = ({ onSubmit }) => {
         num_units: Yup.number().required('Number of units is required').min(1, 'Must be at least 1'),
         initial_cost: Yup.number().required('Initial cost is required').positive('Must be positive'),
         current_value: Yup.number().required('Current value is required').positive('Must be positive'),
+        slot_price: Yup.number().required('Slot price is required').positive('Must be positive'),
+        total_slots: Yup.number().required('Total slots is required').min(1, 'Must be at least 1'),
         virtual_tour_url: Yup.string().url('Invalid URL').optional(),
     });
 
@@ -34,7 +36,6 @@ const PropertyForm = ({ onSubmit }) => {
     const handlePickCoordinates = async (handleChange) => {
         setIsFetchingLocation(true);
 
-        // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             setIsFetchingLocation(false);
@@ -71,6 +72,8 @@ const PropertyForm = ({ onSubmit }) => {
                 year_bought: '',
                 area: '',
                 num_units: '',
+                slot_price: '',
+                total_slots: '',
                 initial_cost: '',
                 current_value: '',
                 virtual_tour_url: '',
@@ -112,7 +115,6 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.address && errors.address}>
                         {errors.address}
                     </HelperText>
-
                     <TextInput
                         label="Location"
                         value={values.location}
@@ -125,7 +127,6 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.location && errors.location}>
                         {errors.location}
                     </HelperText>
-
                     <TextInput
                         label="Description (Optional)"
                         value={values.description}
@@ -233,6 +234,33 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.current_value && errors.current_value}>
                         {errors.current_value}
                     </HelperText>
+
+                    <TextInput
+                        label="Slot Price"
+                        value={values.slot_price}
+                        onChangeText={handleChange('slot_price')}
+                        onBlur={handleBlur('slot_price')}
+                        mode="outlined"
+                        style={styles.input}
+                        keyboardType="numeric"
+                        error={touched.slot_price && errors.slot_price}
+                    />
+                    <HelperText type="error" visible={touched.slot_price && errors.slot_price}>
+                        {errors.slot_price}
+                    </HelperText>
+                    <TextInput
+                        label="Total Slots"
+                        value={values.total_slots}
+                        onChangeText={handleChange('total_slots')}
+                        onBlur={handleBlur('total_slots')}
+                        mode="outlined"
+                        style={styles.input}
+                        keyboardType="numeric"
+                        error={touched.total_slots && errors.total_slots}
+                    />
+                    <HelperText type="error" visible={touched.total_slots && errors.total_slots}>
+                        {errors.total_slots}
+                    </HelperText>
                     <TextInput
                         label="Virtual Tour URL (Google Coordinates - Optional)"
                         value={values.virtual_tour_url}
@@ -291,4 +319,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PropertyForm;
+export default GroupPropertyForm;

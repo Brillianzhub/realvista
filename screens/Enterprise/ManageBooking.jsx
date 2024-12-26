@@ -13,7 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCurrency } from '../../context/CurrencyContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 
-const ManageBooking = () => {
+const ManageBooking = ({ route }) => {
+    const { propertyId } = route.params;
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -30,8 +31,7 @@ const ManageBooking = () => {
                 setLoading(false);
                 return;
             }
-
-            const response = await axios.get('https://www.realvistamanagement.com/enterprise/property/bookings/', {
+            const response = await axios.get(`https://www.realvistamanagement.com/enterprise/property/bookings/${propertyId}`, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },

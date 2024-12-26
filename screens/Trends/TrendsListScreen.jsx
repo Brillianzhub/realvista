@@ -88,7 +88,6 @@ const TrendsListScreen = ({ navigation }) => {
                     />
                 ))}
             </View>
-
             <FlatList
                 data={reports}
                 keyExtractor={(item) => item.generated_date}
@@ -104,6 +103,7 @@ const TrendsListScreen = ({ navigation }) => {
                         </View>
                     </TouchableOpacity>
                 )}
+                showsVerticalScrollIndicator={false}
             />
         </View>
     );

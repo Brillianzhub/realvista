@@ -114,13 +114,12 @@ const RealVistaStack = () => {
               },
             }}
           />
-
           <Stack.Screen
             name="Investment"
             component={Investment}
             options={{
               headerShown: true,
-              title: "Investment",
+              title: "WeInvest",
               headerTitleAlign: 'center',
               headerStyle: { backgroundColor: '#358B8B' },
               headerTintColor: '#fff',

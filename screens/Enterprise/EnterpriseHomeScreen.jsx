@@ -9,7 +9,6 @@ import {
     TouchableOpacity,
     ScrollView,
     RefreshControl,
-
     TextInput,
     Modal,
     Linking,
@@ -64,6 +63,20 @@ const StoryFeature = () => {
     const [token, setToken] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const handleContactPress = () => {
+        const contactEmail = 'weinvest@realvistaproperties.com';
+        const subject = 'Interest in WeInvest Program';
+        const body = 'Hello, I am interested in learning more about the WeInvest program.';
+        const mailto = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        Linking.openURL(mailto).catch((err) => {
+            console.error('An error occurred', err);
+            Alert.alert(
+                'Error',
+                'Unable to open email client. Please ensure you have a mail application installed on your device.'
+            );
+        });
+    };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -96,17 +109,13 @@ const StoryFeature = () => {
             Alert.alert('Error', 'Please paste a valid token.');
             return;
         }
-
         setLoading(true);
-
         try {
-
             const authToken = await AsyncStorage.getItem('authToken')
             if (!authToken.trim()) {
                 Alert.alert('Error', 'Please paste a valid token.');
                 return;
             }
-
             const response = await fetch('https://www.realvistamanagement.com/enterprise/group/join/', {
                 method: 'POST',
                 headers: {
@@ -160,7 +169,7 @@ const StoryFeature = () => {
                 />
             </View>
             <View style={styles.groupContainer}>
-                {groups?.length > 0 ? (
+                {groups?.length > 0 && (
                     groups.map((item) => (
                         <TouchableOpacity
                             key={item.group.id}
@@ -177,34 +186,24 @@ const StoryFeature = () => {
                             <Text style={styles.groupDescription}>{item.group.description}</Text>
                         </TouchableOpacity>
                     ))
-                ) : (
-                    <View style={styles.noGroupContainer}>
-                        <Text style={styles.noGroupText}>
-                            You don't belong to any groups yet. Explore group investment plans and
-                            learn how you can start your journey toward shared success.
-                        </Text>
-                        <TouchableOpacity
-                            style={styles.contactButton}
-                            onPress={() => navigation.navigate('Contact')}
-                        >
-                            <Text style={styles.contactButtonText}>Contact Us to Learn More</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.createGroupButton}
-                            onPress={() => navigation.navigate('CreateEnterprise')}
-                        >
-                            <Text style={styles.createGroupButtonText}>Create a Group</Text>
-                        </TouchableOpacity>
-                    </View>
                 )}
             </View>
-
-            {/* Join Group Button */}
-            <TouchableOpacity style={styles.joinGroupButton} onPress={() => setModalVisible(true)}>
-                <Text style={styles.joinGroupButtonText}>Join a Group</Text>
-            </TouchableOpacity>
-
-            {/* Join Group Modal */}
+            <View style={styles.actionBtns}>
+                <TouchableOpacity style={styles.joinGroupButton} onPress={() => setModalVisible(true)}>
+                    <Text style={styles.joinGroupButtonText}>Join a Group</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.joinGroupButton} onPress={() => navigation.navigate('CreateEnterprise')}>
+                    <Text style={styles.joinGroupButtonText}>Create a Group</Text>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.contactBtn}>
+                <Text style={{ fontSize: 16 }}>
+                    Do you wish to be part of Realvista Investment Group? Click the button to find out more...
+                </Text>
+                <TouchableOpacity style={styles.btn} onPress={handleContactPress}>
+                    <Text style={[styles.buttonText, { textAlign: 'center' }]}>Contact Us</Text>
+                </TouchableOpacity>
+            </View>
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -214,7 +213,6 @@ const StoryFeature = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Join a Group</Text>
-
                         <TextInput
                             style={styles.modalInput}
                             value={token}
@@ -223,7 +221,6 @@ const StoryFeature = () => {
                             autoCapitalize="none"
                             autoCorrect={false}
                         />
-
                         <Text style={styles.modalMessage}>
                             Before you join the group, make sure you read and understand our{' '}
                             <Text style={styles.link} onPress={() => Linking.openURL('https://www.realvistaproperties.com/terms-of-use')}>
@@ -234,7 +231,6 @@ const StoryFeature = () => {
                                 Policies
                             </Text>.
                         </Text>
-
                         <View style={styles.buttonRow}>
                             <TouchableOpacity
                                 style={[styles.button, styles.joinButton]}
@@ -253,7 +249,6 @@ const StoryFeature = () => {
                     </View>
                 </View>
             </Modal>
-
         </ScrollView>
     );
 };
@@ -295,19 +290,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
     },
-    actionButton: {
-        backgroundColor: '#007bff',
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        alignSelf: 'center',
-        marginTop: 20,
-    },
-    actionButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     groupContainer: {
         padding: 16
     },
@@ -325,7 +307,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ddd',
     },
-
+    actionBtns: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        margin: 20
+    },
     groupName: {
         fontSize: 16,
         color: '#333',
@@ -335,45 +321,31 @@ const styles = StyleSheet.create({
         color: '#666',
         marginTop: 5,
     },
-    noGroupContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 20,
-    },
-    noGroupText: {
-        fontSize: 16,
-        color: '#555',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    contactButton: {
-        backgroundColor: '#007bff',
+    contactBtn: {
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 5,
         marginBottom: 10,
+    },
+    btn: {
+        backgroundColor: '#FB902E',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 10,
+    },
+    buttonText: {
+        color: 'white',
+        textAlign: 'center',
     },
     contactButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
     },
-    createGroupButton: {
-        backgroundColor: '#FB902E',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-    },
-    createGroupButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-
     joinGroupButton: {
+        flex: 1,
         backgroundColor: '#FB902E',
         padding: 15,
-        margin: 20,
+        margin: 10,
         borderRadius: 5,
     },
     joinGroupButtonText: {
@@ -447,6 +419,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
-
 });
 

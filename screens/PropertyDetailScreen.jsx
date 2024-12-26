@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity, Linking, Alert } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrency } from '../context/CurrencyContext';
@@ -14,7 +14,6 @@ const PropertyDetailScreen = ({ route }) => {
     const navigation = useNavigation();
 
     const { user } = useGlobalContext()
-    // Placeholder image if no images are provided
     const placeholderImage = "https://via.placeholder.com/400x200?text=No+Image";
     const images = property.images && property.images.length > 0
         ? property.images
@@ -23,9 +22,35 @@ const PropertyDetailScreen = ({ route }) => {
     const [activeIndex, setActiveIndex] = useState(0);
 
 
+    const contactPropertyOwner = () => {
+        if (!property || !property.owner || !user || !user.name || !user.email) {
+            Alert.alert('Error', 'Property or user information is missing.');
+            return;
+        }
+
+        const ownerEmail = property.owner;
+        const propertyName = property.title;
+        const propertyLocation = property.address;
+        const propertyType = property.property_type;
+        const userName = user.name;
+        const userEmail = user.email;
+
+        const subject = `Interest in Your Property Listing: ${propertyName}`;
+        const body = `Hello,\n\nI am ${userName} (${userEmail}), and I am interested in your property titled "${propertyName}" (${propertyType}) located at ${propertyLocation}. I came across this listing on Realvista platform and would like to learn more about the property, including any additional details, availability, and pricing.\n\nPlease let me know how I can proceed or reach out for further discussions. Looking forward to your response.\n\nBest regards,\n${userName}`;
+        const mailto = `mailto:${ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        Linking.openURL(mailto).catch((err) => {
+            console.error('An error occurred', err);
+            Alert.alert(
+                'Error',
+                'Unable to open email client. Please ensure you have a mail application installed on your device.'
+            );
+        });
+    };
+
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            {/* Image Slider */}
             <View style={styles.imageSlider}>
                 <PagerView
                     style={styles.pagerView}
@@ -49,11 +74,7 @@ const PropertyDetailScreen = ({ route }) => {
                     ))}
                 </View>
             </View>
-
-            {/* Property Details */}
-
             <Text style={styles.title}>{property.title}</Text>
-
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={styles.price}>Price</Text>
                 <Text style={styles.price}>{formatCurrency(property.price, currency)}</Text>
@@ -84,9 +105,9 @@ const PropertyDetailScreen = ({ route }) => {
 
             <TouchableOpacity
                 style={styles.contactButton}
-                onPress={() => navigation.navigate('ChatScreen', { roomId: property.id, userId: user.id })}
+                onPress={contactPropertyOwner}
             >
-                <Text style={{ textAlign: 'center', color: 'white', fontSize: 16, fontWeight: 'bold' }}>Chat with Owner</Text>
+                <Text style={{ textAlign: 'center', color: 'white', fontSize: 16, fontWeight: 'bold' }}>Contact the Owner</Text>
             </TouchableOpacity>
         </ScrollView>
     );

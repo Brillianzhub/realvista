@@ -15,7 +15,7 @@ const ManageLayout = () => {
                 <Stack.Screen
                     name="Manage"
                     options={{
-                        headerShown: true,
+                        headerShown: false,
                         title: "Manage Portfolio",
                         headerTitleAlign: "center",
                         headerStyle: { backgroundColor: "#358B8B" },
@@ -27,7 +27,7 @@ const ManageLayout = () => {
                 <Stack.Screen
                     name="General"
                     options={{
-                        headerShown: true,
+                        headerShown: false,
                         title: "General",
                         headerTitleAlign: "center",
                         headerStyle: { backgroundColor: "#358B8B" },

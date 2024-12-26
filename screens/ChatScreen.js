@@ -1,150 +1,305 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, FlatList, StyleSheet, ActivityIndicator } from "react-native";
-import { io } from "socket.io-client";
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { io } from 'socket.io-client';
+import { useGlobalContext } from '../context/GlobalProvider';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const ChatRoom = ({ userId }) => {
-    const [socket, setSocket] = useState(null);
-    const [message, setMessage] = useState("");
-    const [chat, setChat] = useState([]);
-    const [isConnected, setIsConnected] = useState(false); // Track connection status
-    const [loading, setLoading] = useState(true); // Show loading indicator while connecting
+const socket = io('https://www.realvistaproperties.com');
+
+const Chat = () => {
+    const [messages, setMessages] = useState([]);
+    const [replyTo, setReplyTo] = useState(null);
+    const [input, setInput] = useState('');
+    const [selectedMessage, setSelectedMessage] = useState(null);
+    const { user } = useGlobalContext();
 
     useEffect(() => {
-        // Initialize socket connection
-        const newSocket = io("http://localhost:3000", {
-            transports: ["websocket"], // Ensure WebSocket transport is used
-            path: "/socket.io", // Use the correct socket.io path
+        socket.on('receive_message', (message) => {
+            const newMessage = { ...message, id: Date.now().toString() };
+            setMessages((prev) => [...prev, newMessage]);
         });
 
-        setSocket(newSocket);
-
-        // Handle socket events
-        newSocket.on("connect", () => {
-            console.log("Connected to WebSocket server");
-            setIsConnected(true);
-            setLoading(false);
-            newSocket.emit("join", { userId });
+        socket.on('delete_message', (messageId) => {
+            setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
         });
 
-        newSocket.on("disconnect", () => {
-            console.log("Disconnected from WebSocket server");
-            setIsConnected(false);
+        socket.on('receive_reply', (replyData) => {
+            setMessages((prev) => {
+                const updatedMessages = [...prev];
+                const messageIndex = updatedMessages.findIndex((msg) => msg.id === replyData.replyTo.id);
+                if (messageIndex !== -1) {
+                    updatedMessages.splice(messageIndex + 1, 0, replyData);
+                }
+                return updatedMessages;
+            });
         });
 
-        newSocket.on("receive_message", (data) => {
-            setChat((prevChat) => [...prevChat, data]);
-        });
-
-        newSocket.on("error", (error) => {
-            console.error("WebSocket error:", error);
-        });
-
-        newSocket.on("connect_error", (error) => {
-            console.error("Connection error:", error);
-            setIsConnected(false);
-            setLoading(false);
-        });
-
-        // Cleanup on component unmount
         return () => {
-            newSocket.disconnect();
+            socket.off('receive_message');
+            socket.off('delete_message');
+            socket.off('receive_reply');
         };
-    }, [userId]);
+    }, []);
+
 
     const sendMessage = () => {
-        if (socket && message.trim()) {
-            const recipientId = "recipient-id"; // Replace with actual recipient logic
-            const newMessage = {
-                senderId: userId,
-                recipientId,
-                message,
-            };
+        if (input.trim() === '') return;
 
-            socket.emit("send_message", newMessage);
-            setChat((prevChat) => [...prevChat, newMessage]); // Add sent message to local chat
-            setMessage("");
+        const timestamp = new Date().toISOString();
+        const message = {
+            text: input,
+            sender: user.name,
+            timestamp,
+            id: Date.now().toString(),
+            replyTo: replyTo ? { id: replyTo.id, text: replyTo.text, sender: replyTo.sender } : null,
+        };
+        socket.emit('send_message', message);
+        setMessages((prev) => [...prev, message]);
+        setInput('');
+        setReplyTo(null);
+    };
+
+    const handleReply = (message) => {
+        setReplyTo(message);
+        setSelectedMessage(null);
+    };
+
+    const handleDelete = (messageId) => {
+        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+        socket.emit('delete_message', { id: messageId });
+        setSelectedMessage(null);
+    };
+
+    const formatTime = (isoDate) => {
+        const date = new Date(isoDate);
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
+    const formatDateHeader = (isoDate) => {
+        const date = new Date(isoDate);
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+            return 'Today';
+        }
+        return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
+    const deleteMessage = (messageId) => {
+        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+        socket.emit('delete_message', { id: messageId });
+    };
+
+    const renderMessage = ({ item, index }) => {
+        const isUserMessage = item.sender === user.name;
+
+        const senderInitial = item.sender.charAt(0).toUpperCase();
+        const showDateHeader =
+            index === 0 ||
+            new Date(messages[index].timestamp).toDateString() !==
+            new Date(messages[index - 1]?.timestamp).toDateString();
+
+        return (
+            <>
+                {showDateHeader && (
+                    <Text style={styles.dateHeader}>
+                        {formatDateHeader(item.timestamp)}
+                    </Text>
+                )}
+                <View style={styles.messageContainer}>
+                    <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>{senderInitial}</Text>
+                    </View>
+                    <View style={styles.messageContent}>
+                        <Text style={styles.senderName}>{item.sender}</Text>
+                        <Text style={styles.messageText}>{item.text}</Text>
+                        <Text style={styles.timestamp}>{formatTime(item.timestamp)}</Text>
+
+                        {item.replyTo && (
+                            <View style={styles.replyContainer}>
+                                <Text style={styles.replyText}>
+                                    Replying to {item.replyTo.sender}: {item.replyTo.text}
+                                </Text>
+                            </View>
+                        )}
+
+                        {selectedMessage && selectedMessage.id === item.id && (
+                            <View style={styles.toolbar}>
+                                <TouchableOpacity onPress={() => handleReply(item)} style={styles.toolbarButton}>
+                                    <Icon name="reply" size={20} color="#358B8B" />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.toolbarButton}>
+                                    <Icon name="trash" size={20} color="#d32f2f" />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
+                </View>
+            </>
+        );
+    };
+
+    const handleLongPress = (message) => {
+        if (selectedMessage && selectedMessage.id === message.id) {
+            setSelectedMessage(null); 
+        } else {
+            setSelectedMessage(message); 
         }
     };
 
-    // Show a loading spinner while connecting
-    if (loading) {
-        return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text>Connecting to chat server...</Text>
-            </View>
-        );
-    }
-
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Chat Room</Text>
-            <Text style={isConnected ? styles.status : styles.statusError}>
-                {isConnected ? "Connected to server" : "Disconnected from server"}
-            </Text>
+        <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
+            {replyTo && (
+                <View style={styles.replyBox}>
+                    <Text style={styles.replyText}>
+                        Replying to {replyTo.sender}: {replyTo.text}
+                    </Text>
+                    <TouchableOpacity onPress={() => setReplyTo(null)} style={styles.cancelButton}>
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
             <FlatList
-                data={chat}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.message}>
-                        <Text style={styles.sender}>{item.senderId}: </Text>
-                        <Text style={styles.text}>{item.message}</Text>
-                    </View>
+                data={messages}
+                keyExtractor={(item) => item.id} 
+                renderItem={({ item, index }) => (
+                    <TouchableOpacity
+                        onLongPress={() => handleLongPress(item)}
+                    >
+                        {renderMessage({ item, index })}
+                    </TouchableOpacity>
                 )}
+                style={{ flex: 1, marginBottom: 10 }}
+                showsVerticalScrollIndicator={false}
             />
             <TextInput
-                style={styles.input}
-                value={message}
-                onChangeText={setMessage}
-                placeholder="Type your message..."
+                placeholder="Type a message..."
+                value={input}
+                onChangeText={setInput}
+                multiline={true}
+                textAlignVertical="center"
+                style={{
+                    borderWidth: 1,
+                    borderColor: '#ddd',
+                    padding: 10,
+                    borderRadius: 5,
+                    marginBottom: 10,
+                    alignItems: 'center',
+                    maxHeight: 120,
+                }}
+                onSubmitEditing={(event) => {
+                    setInput((prev) => `${prev}\n`);
+                }}
+                blurOnSubmit={false}
             />
-            <Button title="Send" onPress={sendMessage} />
+
+            <TouchableOpacity
+                onPress={sendMessage}
+                style={styles.sendBtn}
+            >
+                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>
+                    Send
+                </Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    dateHeader: {
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#555',
+        marginVertical: 10,
+    },
+    messageContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#358B8B',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    avatarText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16
+    },
+    messageContent: {
         flex: 1,
+        backgroundColor: 'rgba(53, 139, 139, 0.15)',
         padding: 10,
-        backgroundColor: "#f9f9f9",
+        borderRadius: 10,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 10,
-        textAlign: "center",
+    senderName: {
+        fontWeight: 'bold',
+        marginBottom: 2,
     },
-    status: {
-        color: "green",
-        textAlign: "center",
-        marginBottom: 10,
+    messageText: {
+        marginBottom: 2,
     },
-    statusError: {
-        color: "red",
-        textAlign: "center",
-        marginBottom: 10,
+    timestamp: {
+        fontSize: 10,
+        color: '#aaa',
+        textAlign: 'right',
     },
-    message: {
-        flexDirection: "row",
-        marginBottom: 5,
+    replyContainer: {
+        marginTop: 5,
+        marginLeft: 20,
+        backgroundColor: 'white',
         padding: 5,
-        backgroundColor: "#e1e1e1",
         borderRadius: 5,
     },
-    sender: {
-        fontWeight: "bold",
+    replyText: {
+        fontSize: 12,
+        color: '#555',
+        fontStyle: 'italic',
     },
-    text: {
-        flex: 1,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
+    replyBox: {
         padding: 10,
-        borderRadius: 5,
+        backgroundColor: '#f0f0f0',
+        borderLeftWidth: 4,
+        borderLeftColor: '#007bff',
         marginBottom: 10,
     },
+    cancelButton: {
+        marginTop: 5,
+        alignItems: 'flex-end',
+    },
+    cancelButtonText: {
+        color: '#007bff',
+    },
+    toolbar: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: 5,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        marginTop: 5,
+    },
+    toolbarButton: {
+        padding: 5,
+    },
+    sendBtn: {
+        backgroundColor: '#FB902E',
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center'
+    }
 });
 
-export default ChatRoom;
+export default Chat;

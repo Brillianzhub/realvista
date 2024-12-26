@@ -15,7 +15,7 @@ const AnalysisLayout = () => {
                 <Stack.Screen
                     name="Analysis"
                     options={{
-                        headerShown: true,
+                        headerShown: false,
                         title: "Analysis",
                         headerTitleAlign: "center",
                         headerStyle: { backgroundColor: "#358B8B" },

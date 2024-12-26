@@ -5,7 +5,6 @@ import useGroupProperty from '../../hooks/useGroupProperty';
 import PropertyListingDetail from '../Order/PropertyListingView';
 import GroupPropertiesList from './GroupPropertyListing';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { router } from 'expo-router';
 import { calculateReturns } from '../../utils/calculateReturns';
 
 
@@ -21,7 +20,6 @@ const WelcomeView = () => (
 
 const PropertyListScreen = ({ route, navigation }) => {
     const { groupId, uniqueGroupId, role } = route.params;
-
     const [selectedItem, setSelectedItem] = useState(null);
     const [mapType, setMapType] = useState('standard');
     const bottomSheetRef = useRef(null);
@@ -31,7 +29,7 @@ const PropertyListScreen = ({ route, navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
 
     const handleAddProperty = () => {
-        router.replace('/Manage');
+        navigation.navigate('ManageGroupProperty', { uniqueGroupId: uniqueGroupId });
     };
 
     const openBottomSheet = (item) => {
@@ -81,10 +79,11 @@ const PropertyListScreen = ({ route, navigation }) => {
                 )}
             </View>
 
-            <TouchableOpacity style={styles.addButton} onPress={handleAddProperty}>
-                <Ionicons name="add" size={30} color="white" />
-            </TouchableOpacity>
-
+            {role === 'ADMIN' && (
+                <TouchableOpacity style={styles.addButton} onPress={handleAddProperty}>
+                    <Ionicons name="add" size={30} color="white" />
+                </TouchableOpacity>
+            )}
             <BottomSheet
                 ref={bottomSheetRef}
                 index={-1}

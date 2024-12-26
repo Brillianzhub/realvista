@@ -168,10 +168,10 @@ const Chat = () => {
 
             <FlatList
                 data={messages}
-                keyExtractor={(item) => item.id} // Use id as key
+                keyExtractor={(item) => item.id} 
                 renderItem={({ item, index }) => (
                     <TouchableOpacity
-                        onLongPress={() => handleLongPress(item)} // Long press to toggle selection
+                        onLongPress={() => handleLongPress(item)}
                     >
                         {renderMessage({ item, index })}
                     </TouchableOpacity>

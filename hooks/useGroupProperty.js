@@ -45,7 +45,7 @@ const useGroupProperties = ({ uniqueGroupId }) => {
         }
     }, [uniqueGroupId]);
 
-    return { properties, loading, fetchGroupProperties };
+    return { properties, loading, setLoading, fetchGroupProperties };
 };
 
 export default useGroupProperties;
