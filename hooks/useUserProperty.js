@@ -31,10 +31,10 @@ const useUserProperties = () => {
     };
 
     useEffect(() => {
-        fetchUserProperties(); // Fetch properties when the component using this hook mounts
+        fetchUserProperties();
     }, []);
 
-    return { properties, loading, fetchUserProperties };
+    return { properties, setLoading, loading, fetchUserProperties };
 };
 
 export default useUserProperties;

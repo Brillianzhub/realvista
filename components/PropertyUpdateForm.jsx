@@ -18,15 +18,52 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
+const currencyTypes = [
+    { label: 'Nigerian Naira', value: 'NGN' },
+    { label: 'US Dollar', value: 'USD' },
+    { label: 'Euro', value: 'EUR' },
+    { label: 'British Pound', value: 'GBP' },
+];
+
 const PropertyUpdateForm = ({ property, onSubmit }) => {
     const validationSchema = Yup.object({
-        title: Yup.string().required('Title is required'),
-        address: Yup.string().required('Address is required'),
-        location: Yup.string().required('Location is required'),
-        num_units: Yup.number().required('Number of units is required').min(1, 'Must be at least 1'),
-        initial_cost: Yup.number().required('Initial cost is required').positive('Must be positive'),
-        current_value: Yup.number().required('Current value is required').positive('Must be positive'),
-        virtual_tour_url: Yup.string().url('Invalid URL').optional(),
+        title: Yup.string()
+            .required('Title is required'),
+        address: Yup.string()
+            .required('Address is required'),
+        location: Yup.string()
+            .required('Location is required'),
+        description: Yup.string()
+            .optional(),
+        status: Yup.string()
+            .oneOf(['available', 'occupied', 'under_maintenance'], 'Invalid status')
+            .required('Status is required'),
+        property_type: Yup.string()
+            .oneOf(['land', 'private', 'commercial', 'residential'], 'Invalid property type')
+            .required('Property type is required'),
+        year_bought: Yup.number()
+            .integer('Year must be an integer')
+            .min(1900, 'Year must be no earlier than 1900')
+            .max(new Date().getFullYear(), `Year can't be in the future`)
+            .optional(),
+        area: Yup.number()
+            .positive('Area must be positive')
+            .optional(),
+        num_units: Yup.number()
+            .required('Number of units is required')
+            .min(1, 'Must be at least 1'),
+        initial_cost: Yup.number()
+            .required('Initial cost is required')
+            .positive('Must be positive'),
+        current_value: Yup.number()
+            .required('Current value is required')
+            .positive('Must be positive'),
+        currency: Yup.string()
+            .oneOf(['USD', 'EUR', 'GBP', 'JPY', 'NGN'], 'Invalid currency')
+            .required('Currency is required'),
+        virtual_tour_url: Yup.string()
+            .url('Invalid URL')
+            .optional(),
     });
 
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
@@ -34,7 +71,6 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
     const handlePickCoordinates = async (handleChange) => {
         setIsFetchingLocation(true);
 
-        // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             setIsFetchingLocation(false);
@@ -49,7 +85,6 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
             const { latitude, longitude } = location.coords;
             const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-            // Set the virtual tour URL in Formik field
             handleChange('virtual_tour_url')(googleMapsURL);
         } catch (error) {
             console.error('Location fetching error:', error);
@@ -58,7 +93,6 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
             setIsFetchingLocation(false);
         }
     };
-
 
     return (
         <Formik
@@ -70,12 +104,17 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
                 description: property?.description || '',
                 status: property?.status || '',
                 property_type: property?.property_type || '',
-                year_bought: property?.year_bought || '',
-                area: property?.area || '',
-                num_units: property?.num_units || '',
-                initial_cost: property?.initial_cost || '',
-                current_value: property?.current_value || '',
+                year_bought: property?.year_bought?.toString() || '',
+                area: property?.area?.toString() || '',
+                num_units: property?.num_units?.toString() || '',
+                initial_cost: property?.initial_cost?.toString() || '',
+                current_value: property?.current_value?.toString() || '',
+                currency: property?.currency || '',
                 virtual_tour_url: property?.virtual_tour_url || '',
+                slot_price: null,
+                slot_price_current: null,
+                total_slots: null,
+                user_slots: 0,
             }}
             enableReinitialize={true}
             validationSchema={validationSchema}
@@ -165,6 +204,20 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
                             value={values.property_type}
                         >
                             {propertyTypes.map((type) => (
+                                <View key={type.value} style={styles.radioItem}>
+                                    <RadioButton value={type.value} />
+                                    <Text>{type.label}</Text>
+                                </View>
+                            ))}
+                        </RadioButton.Group>
+                    </View>
+                    <View style={styles.radioGroup}>
+                        <Text>Currency</Text>
+                        <RadioButton.Group
+                            onValueChange={(value) => setFieldValue('currency', value)}
+                            value={values.currency}
+                        >
+                            {currencyTypes.map((type) => (
                                 <View key={type.value} style={styles.radioItem}>
                                     <RadioButton value={type.value} />
                                     <Text>{type.label}</Text>

@@ -18,16 +18,54 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
+const currencyTypes = [
+    { label: 'Nigerian Naira', value: 'NGN' },
+    { label: 'US Dollar', value: 'USD' },
+    { label: 'Euro', value: 'EUR' },
+    { label: 'British Pound', value: 'GBP' },
+];
+
 const PropertyForm = ({ onSubmit }) => {
     const validationSchema = Yup.object({
-        title: Yup.string().required('Title is required'),
-        address: Yup.string().required('Address is required'),
-        location: Yup.string().required('Location is required'),
-        num_units: Yup.number().required('Number of units is required').min(1, 'Must be at least 1'),
-        initial_cost: Yup.number().required('Initial cost is required').positive('Must be positive'),
-        current_value: Yup.number().required('Current value is required').positive('Must be positive'),
-        virtual_tour_url: Yup.string().url('Invalid URL').optional(),
+        title: Yup.string()
+            .required('Title is required'),
+        address: Yup.string()
+            .required('Address is required'),
+        location: Yup.string()
+            .required('Location is required'),
+        description: Yup.string()
+            .optional(),
+        status: Yup.string()
+            .oneOf(['available', 'occupied', 'under_maintenance'], 'Invalid status')
+            .required('Status is required'),
+        property_type: Yup.string()
+            .oneOf(['land', 'private', 'commercial', 'residential'], 'Invalid property type')
+            .required('Property type is required'),
+        year_bought: Yup.number()
+            .integer('Year must be an integer')
+            .min(1900, 'Year must be no earlier than 1900')
+            .max(new Date().getFullYear(), `Year can't be in the future`)
+            .optional(),
+        area: Yup.number()
+            .positive('Area must be positive')
+            .optional(),
+        num_units: Yup.number()
+            .required('Number of units is required')
+            .min(1, 'Must be at least 1'),
+        initial_cost: Yup.number()
+            .required('Initial cost is required')
+            .positive('Must be positive'),
+        current_value: Yup.number()
+            .required('Current value is required')
+            .positive('Must be positive'),
+        currency: Yup.string()
+            .oneOf(['USD', 'EUR', 'GBP', 'JPY', 'NGN'], 'Invalid currency')
+            .required('Currency is required'),
+        virtual_tour_url: Yup.string()
+            .url('Invalid URL')
+            .optional(),
     });
+
 
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
 
@@ -70,10 +108,15 @@ const PropertyForm = ({ onSubmit }) => {
                 property_type: '',
                 year_bought: '',
                 area: '',
-                num_units: '',
+                num_units: 1,
                 initial_cost: '',
                 current_value: '',
+                currency: '',
                 virtual_tour_url: '',
+                slot_price: null,
+                slot_price_current: null,
+                total_slots: null,
+                user_slots: 0,
             }}
             validationSchema={validationSchema}
             onSubmit={onSubmit}
@@ -163,7 +206,20 @@ const PropertyForm = ({ onSubmit }) => {
                             ))}
                         </RadioButton.Group>
                     </View>
-
+                    <View style={styles.radioGroup}>
+                        <Text>Currency</Text>
+                        <RadioButton.Group
+                            onValueChange={(value) => setFieldValue('currency', value)}
+                            value={values.currency}
+                        >
+                            {currencyTypes.map((type) => (
+                                <View key={type.value} style={styles.radioItem}>
+                                    <RadioButton value={type.value} />
+                                    <Text>{type.label}</Text>
+                                </View>
+                            ))}
+                        </RadioButton.Group>
+                    </View>
                     <TextInput
                         label="Year Bought"
                         value={values.year_bought}
@@ -177,7 +233,6 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.year_bought && errors.year_bought}>
                         {errors.year_bought}
                     </HelperText>
-
                     <TextInput
                         label="Area (sqm)"
                         value={values.area}
@@ -191,7 +246,6 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.area && errors.area}>
                         {errors.area}
                     </HelperText>
-
                     <TextInput
                         label="Number of Units"
                         value={values.num_units}
@@ -205,7 +259,6 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.num_units && errors.num_units}>
                         {errors.num_units}
                     </HelperText>
-
                     <TextInput
                         label="Initial Cost"
                         value={values.initial_cost}
@@ -219,7 +272,6 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.initial_cost && errors.initial_cost}>
                         {errors.initial_cost}
                     </HelperText>
-
                     <TextInput
                         label="Current Value"
                         value={values.current_value}

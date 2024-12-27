@@ -4,13 +4,12 @@ import PropertyForm from '../../components/PropertyForm';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
 
 
-const AddPropertyScreen = () => {
+const AddPropertyScreen = ({ navigation }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFormSubmit = async (values, navigation) => {
+    const handleFormSubmit = async (values) => {
         const token = await AsyncStorage.getItem('authToken');
 
         if (!token) {
@@ -34,7 +33,7 @@ const AddPropertyScreen = () => {
 
             Alert.alert('Success', 'Property added successfully!');
 
-            router.replace('/manage_property');
+            navigation.goBack();
             return response.data;
         } catch (error) {
             console.error('Error adding property:', error.response?.data || error.message);

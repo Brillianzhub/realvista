@@ -10,12 +10,12 @@ const RemoveGroupProperty = ({ navigation, route }) => {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const { properties, fetchGroupProperties, setLoading, loading } = useGroupProperty({ uniqueGroupId });
 
+
     const handleDeleteProperty = async () => {
         if (!selectedProperty) {
             Alert.alert('Error', 'Please select a property to delete.');
             return;
         }
-
         try {
             setLoading(true);
 

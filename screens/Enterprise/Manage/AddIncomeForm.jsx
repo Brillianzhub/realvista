@@ -17,8 +17,6 @@ const AddIncomeForm = ({ property, onSubmit }) => {
             .matches(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
     });
 
-    console.log(property)
-
     const [date, setDate] = useState(new Date());
 
     return (

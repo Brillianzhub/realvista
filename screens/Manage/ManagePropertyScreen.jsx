@@ -12,9 +12,7 @@ const ManageProperty = () => {
         { id: '3', label: 'Add Expenses', onPress: () => navigation.navigate('AddPropertyExpenses') },
         { id: '4', label: 'Remove Property', onPress: () => navigation.navigate('RemoveProperty') },
         { id: '5', label: 'Update Property', onPress: () => navigation.navigate('UpdateProperty') },
-        { id: '6', label: 'ROI and Cash Flow Analysis', onPress: () => navigation.navigate('/compare_properties') },
-        { id: '7', label: 'Invest in Crowd Funding', onPress: () => navigation.navigate('/mutual_invest') },
-        { id: '8', label: 'Publish Property for Sale', onPress: () => navigation.navigate('SaleProperty') },
+        { id: '6', label: 'Publish Property for Sale', onPress: () => navigation.navigate('SaleProperty') },
     ];
 
     const renderAction = ({ item }) => (

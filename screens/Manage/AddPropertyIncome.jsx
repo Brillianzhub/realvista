@@ -4,10 +4,13 @@ import PropertyIncomeForm from '../../components/PropertyIncomeForm';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
+import useUserProperty from '../../hooks/useUserProperty';
+import { Picker } from '@react-native-picker/picker';
 
 
-const AddPropertyIncome = () => {
+const AddPropertyIncome = ({ navigation }) => {
+    const { properties } = useUserProperty();
+    const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
 
@@ -23,7 +26,7 @@ const AddPropertyIncome = () => {
 
         try {
             const response = await axios.post(
-                `https://www.realvistamanagement.com/portfolio/property/add-income/`,
+                `https://www.realvistamanagement.com/portfolio/user-property/add-income/`,
                 values,
                 {
                     headers: {
@@ -33,41 +36,86 @@ const AddPropertyIncome = () => {
                 }
             );
 
-            Alert.alert('Success', 'Property added successfully!');
-
-            router.replace('/manage_property');
+            Alert.alert('Success', 'Income added successfully!');
+            navigation.goBack();
             return response.data;
         } catch (error) {
-            console.error('Error adding property:', error.response?.data || error.message);
-            Alert.alert('Error', 'Failed to add property. Please try again.');
+            console.error('Error adding income:', error.response?.data || error.message);
+            Alert.alert('Error', 'Failed to add income. Please try again.');
             throw error;
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    const selectedProperty = properties.find((property) => property.id === selectedPropertyId);
+
     return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
             {isSubmitting ? (
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
+                <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#358B8B" />
-                    <Text style={{ textAlign: 'center', marginTop: 10 }}>
-                        Wait while we add your income...
-                    </Text>
+                    <Text style={styles.loadingText}>Wait while we add your income...</Text>
                 </View>
             ) : (
-                <PropertyIncomeForm onSubmit={handleFormSubmit} />
+                <>
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            selectedValue={selectedPropertyId}
+                            onValueChange={(itemValue) => setSelectedPropertyId(itemValue)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Select property" value={null} />
+                            {properties.map((property) => (
+                                <Picker.Item key={property.id} label={property.title} value={property.id} />
+                            ))}
+                        </Picker>
+                    </View>
+
+                    {selectedProperty ? (
+                        <PropertyIncomeForm property={selectedProperty} onSubmit={handleFormSubmit} />
+                    ) : (
+                        <Text style={styles.infoText}>Please select a property to add income.</Text>
+                    )}
+                </>
             )}
         </View>
     );
 };
 
-const styles = StyleSheet.create({});
-
 export default AddPropertyIncome;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#fff',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        textAlign: 'center',
+        marginTop: 10,
+        color: '#555',
+    },
+    pickerContainer: {
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    picker: {
+        height: 50,
+        width: '100%',
+    },
+    infoText: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#888',
+        marginTop: 16,
+    },
+});

@@ -9,7 +9,7 @@ import axios from 'axios';
 import { router } from 'expo-router';
 
 
-const UpdateProperty = () => {
+const UpdateProperty = ({ navigation }) => {
     const { properties } = useUserProperty();
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,8 +38,7 @@ const UpdateProperty = () => {
             );
 
             Alert.alert('Success', 'Property updated successfully!');
-
-            router.replace('/manage_property');
+            navigation.goBack();
             return response.data;
         } catch (error) {
             console.error('Error adding property:', error.response?.data || error.message);

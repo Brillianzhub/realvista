@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { TextInput, HelperText, Text, Menu, Button } from 'react-native-paper';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { TextInput, HelperText, Text, Button } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import useUserProperty from '../hooks/useUserProperty';
-import { Picker } from '@react-native-picker/picker';
 
 
-const PropertyExpensesForm = ({ onSubmit }) => {
-    const { properties, fetchUserProperties, isLoading } = useUserProperty();
-    const [menuVisible, setMenuVisible] = useState(false);
+const AddExpenseForm = ({ property, onSubmit }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
-
     const validationSchema = Yup.object({
-        property_id: Yup.string().required('Property is required'),
+        property: Yup.string().required('Property is required'),
         amount: Yup.number().required('Amount is required').positive('Must be positive'),
         description: Yup.string().required('Description is required'),
         date_incurred: Yup.string()
@@ -22,27 +17,18 @@ const PropertyExpensesForm = ({ onSubmit }) => {
             .matches(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
     });
 
-
-    const [date, setDate] = useState(new Date()); // Add date state
-
-    if (isLoading) {
-        return <Text>Loading properties...</Text>;
-    }
-
-    if (!properties.length) {
-        return <Text>No properties available. Please add a property first.</Text>;
-    }
+    const [date, setDate] = useState(new Date());
 
     return (
         <Formik
             initialValues={{
-                property_id: '',
+                property: property?.id || '',
                 amount: '',
                 description: '',
                 date_incurred: '',
             }}
             validationSchema={validationSchema}
-            onSubmit={onSubmit}
+            onSubmit={(values) => onSubmit({ ...values, property: property.id })}
         >
             {({
                 handleChange,
@@ -54,40 +40,9 @@ const PropertyExpensesForm = ({ onSubmit }) => {
                 setFieldValue,
             }) => (
                 <ScrollView contentContainerStyle={styles.container}>
-                    {/* Property Dropdown */}
-                    <View style={styles.dropdownContainer}>
-                        <Menu
-                            visible={menuVisible}
-                            onDismiss={() => setMenuVisible(false)}
-                            anchor={
-                                <Button
-                                    mode="outlined"
-                                    onPress={() => setMenuVisible(true)}
-                                    style={styles.dropdownButton}
-                                >
-                                    {values.property_id
-                                        ? properties.find((p) => p.id === values.property_id)?.title || 'Select Property'
-                                        : 'Select Property'}
-                                </Button>
-                            }
-                        >
-                            {properties.map((property) => (
-                                <Menu.Item
-                                    key={property.id}
-                                    title={property.title}
-                                    onPress={() => {
-                                        setFieldValue('property_id', property.id);
-                                        setMenuVisible(false);
-                                    }}
-                                />
-                            ))}
-                        </Menu>
-                    </View>
-                    <HelperText type="error" visible={touched.property_id && errors.property_id}>
-                        {errors.property_id}
+                    <HelperText type="error" visible={touched.property && errors.property}>
+                        {errors.property}
                     </HelperText>
-
-                    {/* Amount Input */}
                     <TextInput
                         label="Amount"
                         value={values.amount}
@@ -102,9 +57,7 @@ const PropertyExpensesForm = ({ onSubmit }) => {
                         {errors.amount}
                     </HelperText>
 
-                    {/* Description Input */}
-                    <TextInput
-                        label="Description"
+                    <TextInput label="Description"
                         value={values.description}
                         onChangeText={handleChange('description')}
                         onBlur={handleBlur('description')}
@@ -116,7 +69,6 @@ const PropertyExpensesForm = ({ onSubmit }) => {
                         {errors.description}
                     </HelperText>
 
-                    {/* Date Picker */}
                     <Button
                         mode="outlined"
                         onPress={() => setShowDatePicker(true)}
@@ -143,8 +95,6 @@ const PropertyExpensesForm = ({ onSubmit }) => {
                             }}
                         />
                     )}
-
-                    {/* Submit Button */}
                     <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
                         <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Submit</Text>
                     </Pressable>
@@ -156,7 +106,7 @@ const PropertyExpensesForm = ({ onSubmit }) => {
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        // padding: 20,
     },
     input: {
         marginBottom: 10,
@@ -185,4 +135,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PropertyExpensesForm;
+export default AddExpenseForm;
