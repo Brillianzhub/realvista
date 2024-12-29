@@ -21,8 +21,8 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <View>
                         <Text style={styles.title}>{item.title}
-                            {item.user_slots ? (
-                                <Text style={{ fontWeight: '400', fontSize: 12, fontStyle: 'italic' }}>{' '}({item.user_slots} Slots)</Text>
+                            {item.user_slots && item.group_owner_name ? (
+                                <Text style={{ fontWeight: '400', fontSize: 12, fontStyle: 'italic' }}>{' '}({item.group_owner_name} - {item.user_slots} Slots)</Text>
                             ) : (
                                 <Text style={{ fontWeight: '400', fontSize: 12, fontStyle: 'italic' }}>{' '}(Personal Property)</Text>
                             )}

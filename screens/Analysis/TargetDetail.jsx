@@ -1,22 +1,27 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native';
-import React from 'react';
-import { useCurrency } from '../../context/CurrencyContext';
+import React, { useState } from 'react';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { Ionicons } from '@expo/vector-icons';
-import images from '../../constants/images'
+import images from '../../constants/images';
+import AddContributionModal from '../Analysis/AddContributionModal';
+
 
 
 const TargetDetail = ({ selectedTarget, closeBottomSheet }) => {
-
-    const { currency } = useCurrency();
-
+    const [modalVisible, setModalVisible] = useState(false);
+    const targetId = selectedTarget?.id;
     let color = 'green';
 
     if (selectedTarget?.progress_percentage > 100) {
         color = 'red';
     } else if (selectedTarget?.progress_percentage <= 10) {
-        color = 'orange'; // You can adjust this color as needed
+        color = 'orange';
     }
+
+    const handleContributionSuccess = () => {
+        // Reload data or update state
+        console.log('Contribution added successfully');
+    };
 
     return (
         <ScrollView
@@ -50,7 +55,7 @@ const TargetDetail = ({ selectedTarget, closeBottomSheet }) => {
                                     Target Amount
                                 </Text>
                                 <Text style={[styles.sheetDetails, { fontWeight: 'bold' }]}>
-                                    {formatCurrency(selectedTarget.target_amount, currency)}
+                                    {formatCurrency(selectedTarget.target_amount, selectedTarget.currency)}
                                 </Text>
                             </View>
                             <View style={styles.detailItem}>
@@ -58,7 +63,7 @@ const TargetDetail = ({ selectedTarget, closeBottomSheet }) => {
                                     Current Savings
                                 </Text>
                                 <Text style={[styles.sheetDetails, { fontWeight: 'bold' }]}>
-                                    {formatCurrency(selectedTarget.current_savings, currency)}
+                                    {formatCurrency(selectedTarget.current_savings, selectedTarget.currency)}
                                 </Text>
                             </View>
                             <View style={styles.detailItem}>
@@ -74,7 +79,7 @@ const TargetDetail = ({ selectedTarget, closeBottomSheet }) => {
                                     Remaining Amount
                                 </Text>
                                 <Text style={[styles.sheetDetails, { fontWeight: 'bold' }]}>
-                                    {formatCurrency(selectedTarget.remaining_amount, currency)}
+                                    {formatCurrency(selectedTarget.remaining_amount, selectedTarget.currency)}
                                 </Text>
                             </View>
                             <View style={styles.detailItem}>
@@ -90,7 +95,7 @@ const TargetDetail = ({ selectedTarget, closeBottomSheet }) => {
                                     Minimum Monthly Contribution
                                 </Text>
                                 <Text style={[styles.sheetDetails, { fontWeight: 'bold' }]}>
-                                    {formatCurrency(selectedTarget.minimum_monthly_contribution, currency)}
+                                    {formatCurrency(selectedTarget.minimum_monthly_contribution, selectedTarget.currency)}
                                 </Text>
                             </View>
                             <View style={styles.detailItem}>
@@ -128,7 +133,7 @@ const TargetDetail = ({ selectedTarget, closeBottomSheet }) => {
                                         </Text>
                                     </View>
                                     <Text style={[styles.contributionDetails, { fontWeight: 'bold' }]}>
-                                        {formatCurrency(contribution.amount, currency)}
+                                        {formatCurrency(contribution.amount, selectedTarget.currency)}
                                     </Text>
                                 </View>
                             ))
@@ -139,7 +144,21 @@ const TargetDetail = ({ selectedTarget, closeBottomSheet }) => {
                 ) : (
                     <Text>Loading...</Text>
                 )}
+
+
             </View>
+            <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => setModalVisible(true)}
+            >
+                <Ionicons name="add" size={30} color="white" />
+            </TouchableOpacity>
+            <AddContributionModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                targetId={targetId}
+                onSuccess={handleContributionSuccess}
+            />
         </ScrollView>
     )
 }
@@ -156,7 +175,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#358B8B1A',
     },
     detailItem: {
-        
+
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -168,7 +187,7 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     sheetDetails: {
-        
+
         fontSize: 16,
         marginVertical: 4,
     },
@@ -179,7 +198,6 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     contributionItem: {
-        
         marginVertical: 4,
         padding: 8,
         backgroundColor: '#fff',
@@ -193,7 +211,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     header: {
-        
         backgroundColor: '#358B8B1A',
         paddingVertical: 12,
         paddingHorizontal: 16,
@@ -202,7 +219,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerTitle: {
-        
+
         fontSize: 18,
         color: '#358B8B',
         fontWeight: 'bold',
@@ -213,5 +230,21 @@ const styles = StyleSheet.create({
     divider: {
         height: 1,
         backgroundColor: '#ddd',
+    },
+    addButton: {
+        position: 'absolute',
+        bottom: 30,
+        right: 30,
+        backgroundColor: '#FB902E',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
 })

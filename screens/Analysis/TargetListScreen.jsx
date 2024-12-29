@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useNavigation } from '@react-navigation/native';
 import TargetDetail from './TargetDetail';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 const TargetListScreen = () => {
     const [targets, setTargets] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [selectedTarget, setSelectedTarget] = useState(null);
     const bottomSheetRef = useRef(null);
     const navigation = useNavigation();
@@ -28,6 +31,7 @@ const TargetListScreen = () => {
     };
 
     const fetchTargets = async () => {
+        setLoading(true);
         try {
             const token = await AsyncStorage.getItem('authToken');
             if (!token) {
@@ -45,28 +49,63 @@ const TargetListScreen = () => {
             setTargets(response.data);
         } catch (error) {
             console.error('Error fetching financial targets:', error.response ? error.response.data : error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const renderTarget = ({ item }) => (
-        <TouchableOpacity style={styles.targetItem} onPress={() => openBottomSheet(item)}>
-            <Text style={styles.targetName}>{item.target_name}</Text>
-            <Text style={styles.targetDetails}>Target: {item.target_amount} Naira</Text>
-            <Text style={styles.targetDetails}>Savings: {item.current_savings} Naira</Text>
-            <Text style={styles.targetDetails}>Progress: {item.progress_percentage.toFixed(2)}%</Text>
-        </TouchableOpacity>
-    );
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await fetchTargets();
+        setRefreshing(false);
+    };
+
+    const renderTarget = ({ item }) => {
+        const progress = Math.min(item.progress_percentage, 100);
+
+        return (
+            <TouchableOpacity style={styles.targetItem} onPress={() => openBottomSheet(item)}>
+                <Text style={styles.targetName}>{item.target_name}</Text>
+                <View style={styles.progressBarContainer}>
+                    <View style={[styles.progressBar, { width: `${progress}%` }]} />
+                </View>
+                <Text style={styles.progressText}>{progress.toFixed(2)}% Progress</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={styles.targetDetails}>Target</Text>
+                    <Text style={[styles.targetDetails, { fontWeight: '600' }]}>{formatCurrency(item.target_amount, item.currency)}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={styles.targetDetails}>Savings</Text>
+                    <Text style={[styles.targetDetails, { fontWeight: '600' }]}>{formatCurrency(item.current_savings, item.currency)}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={styles.outerContainer}>
             <View style={styles.contentContainer}>
                 <Text style={styles.header}>Financial Targets</Text>
-                <FlatList
-                    data={targets}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderTarget}
-                    contentContainerStyle={styles.listContainer}
-                />
+
+                {loading ? (
+                    <ActivityIndicator size="large" color="#358B8B" style={styles.activityIndicator} />
+                ) : (
+                    <FlatList
+                        data={targets}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={renderTarget}
+                        contentContainerStyle={styles.listContainer}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={handleRefresh}
+                                colors={['#358B8B']}
+                            />
+                        }
+                        showsVerticalScrollIndicator={false}
+                    />
+                )}
+
                 <TouchableOpacity
                     style={styles.addButton}
                     onPress={() => navigation.navigate('FinancialTarget')}
@@ -136,15 +175,15 @@ const styles = StyleSheet.create({
         color: '#358B8B',
     },
     targetDetails: {
-        fontSize: 14,
-        color: '#555',
+        fontSize: 16,
+        // color: '#555',
         marginTop: 5,
     },
     addButton: {
         position: 'absolute',
         bottom: 30,
         right: 30,
-        backgroundColor: '#358B8B',
+        backgroundColor: '#FB902E',
         width: 60,
         height: 60,
         borderRadius: 30,
@@ -170,5 +209,23 @@ const styles = StyleSheet.create({
         height: 5,
         borderRadius: 3,
     },
-
+    progressBarContainer: {
+        height: 5,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 5,
+        marginVertical: 8,
+        overflow: 'hidden',
+    },
+    progressBar: {
+        height: '100%',
+        backgroundColor: '#358B8B',
+    },
+    progressText: {
+        fontSize: 12,
+        color: '#555',
+        marginBottom: 8,
+    },
+    activityIndicator: {
+        marginTop: 20,
+    },
 });
