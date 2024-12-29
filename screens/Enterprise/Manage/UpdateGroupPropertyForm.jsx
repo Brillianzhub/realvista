@@ -18,17 +18,35 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
+const currencyTypes = [
+    { label: 'Nigerian Naira', value: 'NGN' },
+    { label: 'US Dollar', value: 'USD' },
+    { label: 'Euro', value: 'EUR' },
+    { label: 'British Pound', value: 'GBP' },
+];
+
 const GroupPropertyUpdateForm = ({ property, onSubmit }) => {
+
+
     const validationSchema = Yup.object({
         title: Yup.string().required('Title is required'),
         address: Yup.string().required('Address is required'),
         location: Yup.string().required('Location is required'),
-        num_units: Yup.number().required('Number of units is required').min(1, 'Must be at least 1'),
-        initial_cost: Yup.number().required('Initial cost is required').positive('Must be positive'),
-        current_value: Yup.number().required('Current value is required').positive('Must be positive'),
-        slot_price: Yup.number().required('Slot price is required').positive('Must be positive'),
-        total_slots: Yup.number().required('Total slots is required').min(1, 'Must be at least 1'),
-        virtual_tour_url: Yup.string().url('Invalid URL').optional(),
+        num_units: Yup.number()
+            .required('Number of units is required')
+            .min(1, 'Must be at least 1'),
+        initial_cost: Yup.number()
+            .required('Initial cost is required')
+            .positive('Must be positive'),
+        current_value: Yup.number()
+            .required('Current value is required')
+            .positive('Must be positive'),
+        total_slots: Yup.number()
+            .nullable()
+            .min(1, 'Must be at least 1'),
+        virtual_tour_url: Yup.string().url('Invalid URL').nullable(),
+        property_type: Yup.string().required('Property type is required'),
+        status: Yup.string().required('Status is required'),
     });
 
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
@@ -71,6 +89,7 @@ const GroupPropertyUpdateForm = ({ property, onSubmit }) => {
                 description: property?.description || '',
                 status: property?.status || '',
                 property_type: property?.property_type || '',
+                currency: property?.currency || '',
                 year_bought: property?.year_bought?.toString() || '',
                 area: property?.area?.toString() || '',
                 num_units: property?.num_units?.toString() || '',
@@ -175,7 +194,20 @@ const GroupPropertyUpdateForm = ({ property, onSubmit }) => {
                             ))}
                         </RadioButton.Group>
                     </View>
-
+                    <View style={styles.radioGroup}>
+                        <Text>Currency</Text>
+                        <RadioButton.Group
+                            onValueChange={(value) => setFieldValue('currency', value)}
+                            value={values.currency}
+                        >
+                            {currencyTypes.map((type) => (
+                                <View key={type.value} style={styles.radioItem}>
+                                    <RadioButton value={type.value} />
+                                    <Text>{type.label}</Text>
+                                </View>
+                            ))}
+                        </RadioButton.Group>
+                    </View>
                     <TextInput
                         label="Year Bought"
                         value={values.year_bought}
@@ -245,20 +277,6 @@ const GroupPropertyUpdateForm = ({ property, onSubmit }) => {
                     <HelperText type="error" visible={touched.current_value && errors.current_value}>
                         {errors.current_value}
                     </HelperText>
-
-                    <TextInput
-                        label="Slot Price"
-                        value={values.slot_price}
-                        onChangeText={handleChange('slot_price')}
-                        onBlur={handleBlur('slot_price')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.slot_price && errors.slot_price}
-                    />
-                    <HelperText type="error" visible={touched.slot_price && errors.slot_price}>
-                        {errors.slot_price}
-                    </HelperText>
                     <TextInput
                         label="Total Slots"
                         value={values.total_slots}
@@ -272,7 +290,19 @@ const GroupPropertyUpdateForm = ({ property, onSubmit }) => {
                     <HelperText type="error" visible={touched.total_slots && errors.total_slots}>
                         {errors.total_slots}
                     </HelperText>
-
+                    <TextInput
+                        label="Slot Price"
+                        value={values.slot_price}
+                        editable={false}
+                        mode="outlined"
+                        style={styles.input}
+                        keyboardType="numeric"
+                    />
+                    {errors.slot_price && touched.slot_price && (
+                        <HelperText type="error" visible={touched.slot_price && errors.slot_price}>
+                            {errors.slot_price}
+                        </HelperText>
+                    )}
                     <TextInput
                         label="Virtual Tour URL (Google Coordinates - Optional)"
                         value={values.virtual_tour_url}

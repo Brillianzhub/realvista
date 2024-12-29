@@ -40,6 +40,7 @@ const Portfolio = () => {
   const totalInvestment = formatCurrency(userTotalsWithAnalysis.grossInvestment, currency);
   const totalCurrentValue = formatCurrency(userTotalsWithAnalysis.grossValue, currency);
 
+  console.log(properties)
 
   const handleAddProperty = () => {
     router.replace('/Manage');

@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#358B8B1A',
     },
     detailItem: {
+        
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -167,6 +168,7 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     sheetDetails: {
+        
         fontSize: 16,
         marginVertical: 4,
     },
@@ -177,6 +179,7 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     contributionItem: {
+        
         marginVertical: 4,
         padding: 8,
         backgroundColor: '#fff',
@@ -190,6 +193,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     header: {
+        
         backgroundColor: '#358B8B1A',
         paddingVertical: 12,
         paddingHorizontal: 16,
@@ -198,6 +202,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerTitle: {
+        
         fontSize: 18,
         color: '#358B8B',
         fontWeight: 'bold',

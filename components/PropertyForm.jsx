@@ -130,7 +130,9 @@ const PropertyForm = ({ onSubmit }) => {
                 touched,
                 setFieldValue,
             }) => (
-                <ScrollView contentContainerStyle={styles.container}>
+                <ScrollView contentContainerStyle={styles.container}
+                    showsVerticalScrollIndicator={false}
+                >
                     <TextInput
                         label="Title of property"
                         value={values.title}

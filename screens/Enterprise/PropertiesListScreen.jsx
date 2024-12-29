@@ -32,6 +32,8 @@ const PropertyListScreen = ({ route, navigation }) => {
         navigation.navigate('ManageGroupProperty', { uniqueGroupId: uniqueGroupId });
     };
 
+    console.log(properties)
+
     const openBottomSheet = (item) => {
         setSelectedItem(item);
         bottomSheetRef.current?.expand();

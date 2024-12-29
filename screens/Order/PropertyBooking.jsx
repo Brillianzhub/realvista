@@ -61,8 +61,8 @@ const PropertyBooking = ({ property }) => {
                     },
                 }
             );
-            console.log(response.data)
             Alert.alert('Success', 'Your slots have been booked successfully.');
+            // fetchGroupProperties();
         } catch (error) {
             console.error(error);
             Alert.alert(

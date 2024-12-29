@@ -23,10 +23,9 @@ const UpdateProperty = ({ route, navigation }) => {
         }
 
         setIsSubmitting(true);
-
         try {
-            const response = await axios.post(
-                `https://www.realvistamanagement.com/enterprise/groups/${uniqueGroupId}/properties/${selectedPropertyId}/`,
+            const response = await axios.put( // Use PUT for a full update or PATCH for a partial update
+                `https://www.realvistamanagement.com/enterprise/groups/${uniqueGroupId}/${selectedPropertyId}/update/`,
                 values,
                 {
                     headers: {
@@ -41,13 +40,14 @@ const UpdateProperty = ({ route, navigation }) => {
             navigation.navigate('ManageGroupProperty', { uniqueGroupId: uniqueGroupId });
             return response.data;
         } catch (error) {
-            console.error('Error adding property:', error.response?.data || error.message);
-            Alert.alert('Error', 'Failed to add property. Please try again.');
+            console.error('Error updating property:', error.response?.data || error.message);
+            Alert.alert('Error', 'Failed to update property. Please try again.');
             throw error;
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
     const selectedProperty = properties.find((property) => property.id === selectedPropertyId);
 
