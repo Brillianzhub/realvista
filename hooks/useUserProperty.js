@@ -7,7 +7,7 @@ const useUserProperties = () => {
     const [properties, setProperties] = useState([]);
 
     const fetchUserProperties = async () => {
-        setLoading(true); // Start loading indicator
+        setLoading(true); 
         try {
             const token = await AsyncStorage.getItem('authToken');
             if (!token) {
@@ -22,11 +22,11 @@ const useUserProperties = () => {
                 },
             });
 
-            setProperties(response.data); // Update state with fetched properties
+            setProperties(response.data); 
         } catch (error) {
             console.error("Error fetching user properties:", error.response?.data || error.message);
         } finally {
-            setLoading(false); // Stop loading indicator
+            setLoading(false); 
         }
     };
 

@@ -25,7 +25,7 @@ const GroupDashboardScreen = ({ route, navigation }) => {
         >
             <Tab.Screen name="Properties" component={PropertiesListScreen} initialParams={{ groupId, uniqueGroupId, role }} />
             <Tab.Screen name="Members" component={ManageMembersScreen} initialParams={{ groupId, role }} />
-            <Tab.Screen name="Chat" component={ChatScreen} initialParams={{ groupId }} />
+            <Tab.Screen name="Chat" component={ChatScreen} initialParams={{ groupId, uniqueGroupId, role }} />
         </Tab.Navigator>
     );
 }

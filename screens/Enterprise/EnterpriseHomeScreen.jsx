@@ -116,7 +116,7 @@ const StoryFeature = () => {
                 Alert.alert('Error', 'Please paste a valid token.');
                 return;
             }
-            const response = await fetch('https://www.realvistamanagement.com/enterprise/group/join/', {
+            const response = await fetch('https://www.realvistamanagement.com/enterprise/groups/join/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

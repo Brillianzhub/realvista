@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, Alert } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
 import { TextInput, HelperText, RadioButton, Text } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import * as Location from 'expo-location';
+import CurrencyData from '../assets/CurrencyData';
+import CurrencyModal from "../components/CurrencyModal";
+import { useCurrency } from '../context/CurrencyContext';
 
 const propertyTypes = [
     { label: 'Land', value: 'land' },
@@ -18,12 +21,10 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
-const currencyTypes = [
-    { label: 'Nigerian Naira', value: 'NGN' },
-    { label: 'US Dollar', value: 'USD' },
-    { label: 'Euro', value: 'EUR' },
-    { label: 'British Pound', value: 'GBP' },
-];
+const currencyOptions = Object.entries(CurrencyData.symbols).map(([key, value]) => ({
+    label: `${value} (${key})`,
+    value: key,
+}))
 
 const PropertyForm = ({ onSubmit }) => {
     const validationSchema = Yup.object({
@@ -59,20 +60,22 @@ const PropertyForm = ({ onSubmit }) => {
             .required('Current value is required')
             .positive('Must be positive'),
         currency: Yup.string()
-            .oneOf(['USD', 'EUR', 'GBP', 'JPY', 'NGN'], 'Invalid currency')
             .required('Currency is required'),
         virtual_tour_url: Yup.string()
             .url('Invalid URL')
             .optional(),
     });
 
+    const [modalVisible, setModalVisible] = useState(false);
 
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
+
+    const { currency } = useCurrency();
 
     const handlePickCoordinates = async (handleChange) => {
         setIsFetchingLocation(true);
 
-        // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             setIsFetchingLocation(false);
@@ -111,7 +114,7 @@ const PropertyForm = ({ onSubmit }) => {
                 num_units: 1,
                 initial_cost: '',
                 current_value: '',
-                currency: '',
+                currency: `${currency}`,
                 virtual_tour_url: '',
                 slot_price: null,
                 slot_price_current: null,
@@ -180,7 +183,7 @@ const PropertyForm = ({ onSubmit }) => {
                         style={[styles.input, { height: 120 }]}
                         multiline
                     />
-                    <View style={styles.radioGroup}>
+                    <View style={[styles.radioGroup, { marginTop: 5 }]}>
                         <Text>Status</Text>
                         <RadioButton.Group
                             onValueChange={(value) => setFieldValue('status', value)}
@@ -208,20 +211,29 @@ const PropertyForm = ({ onSubmit }) => {
                             ))}
                         </RadioButton.Group>
                     </View>
-                    <View style={styles.radioGroup}>
-                        <Text>Currency</Text>
-                        <RadioButton.Group
-                            onValueChange={(value) => setFieldValue('currency', value)}
+
+                    <TouchableOpacity
+                        onPress={() => setModalVisible(true)}
+                    >
+                        <TextInput label="Currency"
                             value={values.currency}
-                        >
-                            {currencyTypes.map((type) => (
-                                <View key={type.value} style={styles.radioItem}>
-                                    <RadioButton value={type.value} />
-                                    <Text>{type.label}</Text>
-                                </View>
-                            ))}
-                        </RadioButton.Group>
-                    </View>
+                            onChangeText={handleChange('currency')}
+                            onBlur={handleBlur('currency')}
+                            mode="outlined"
+                            style={[styles.input]}
+                            error={touched.currency && errors.currency}
+                            editable={isEditable}
+                        />
+                        <HelperText type="error" visible={touched.currency && errors.currency}>
+                            {errors.currency}
+                        </HelperText>
+                    </TouchableOpacity>
+                    <CurrencyModal
+                        modalVisible={modalVisible}
+                        setModalVisible={setModalVisible}
+                        currencyTypes={currencyOptions}
+                        setFieldValue={setFieldValue}
+                    />
                     <TextInput
                         label="Year Bought"
                         value={values.year_bought}
@@ -326,7 +338,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     input: {
-        marginBottom: 10,
+        marginBottom: 5,
     },
     button: {
         marginVertical: 10,
@@ -342,6 +354,13 @@ const styles = StyleSheet.create({
     radioItem: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    currencySelector: {
+        padding: 10,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 5,
+        marginTop: 5,
     },
 });
 

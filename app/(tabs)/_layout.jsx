@@ -9,7 +9,7 @@ import HomeScreen from './HomeScreen';
 import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
-import Investment from './Investment';
+
 import { router, useNavigation } from 'expo-router';
 import { useNotifications } from '../../context/NotificationContext';
 
@@ -50,13 +50,13 @@ const RealVistaStack = () => {
   const navigationView = NavigationView();
   const { hasUnread } = useNotifications();
 
-  const navigation = useNavigation();
 
   const openDrawer = () => {
     if (drawerRef.current) {
       drawerRef.current.openDrawer();
     }
   };
+
 
   const handleNav = () => {
     router.replace('General')
@@ -114,17 +114,8 @@ const RealVistaStack = () => {
               },
             }}
           />
-          <Stack.Screen
-            name="Investment"
-            component={Investment}
-            options={{
-              headerShown: true,
-              title: "WeInvest",
-              headerTitleAlign: 'center',
-              headerStyle: { backgroundColor: '#358B8B' },
-              headerTintColor: '#fff',
-            }}
-          />
+
+
         </Stack.Navigator>
       </DrawerLayout>
     </React.Fragment>

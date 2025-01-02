@@ -8,8 +8,8 @@ import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { router } from 'expo-router';
 import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotalsWithAnalysis';
 import { calculateReturns } from '../../utils/calculateReturns';
-import { useCurrency } from '../../context/CurrencyContext';
 import { formatCurrency } from '../../utils/formatCurrency';
+import usePortfolioDetail from '../../hooks/usePortfolioDetail';
 
 
 const WelcomeView = () => (
@@ -32,15 +32,20 @@ const Portfolio = () => {
   const { properties, fetchUserProperties, loading } = useUserProperty();
   const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
   const userReturns = calculateReturns(properties)
-
   const [refreshing, setRefreshing] = useState(false);
+  const { result, setLoading, currency, fetchPortfolioDetails } = usePortfolioDetail();
 
-  const { currency } = useCurrency();
+  const overallSummary = result?.overall_summary;
 
-  const totalInvestment = formatCurrency(userTotalsWithAnalysis.grossInvestment, currency);
-  const totalCurrentValue = formatCurrency(userTotalsWithAnalysis.grossValue, currency);
+  const totalInvestment = formatCurrency(
+    overallSummary?.totalInitialCost + overallSummary?.totalExpenses,
+    currency
+  );
+  const totalCurrentValue = formatCurrency(
+    overallSummary?.totalCurrentValue + overallSummary?.totalIncome,
+    currency
+  );
 
-  console.log(properties)
 
   const handleAddProperty = () => {
     router.replace('/Manage');
@@ -76,12 +81,23 @@ const Portfolio = () => {
     );
   }
 
+  const handleViewDetails = () => {
+    router.replace('/PortfolioDetails')
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.summaryContainer}>
-          <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
+            <TouchableOpacity
+              style={{}}
+              onPress={handleViewDetails}
+            >
+              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>VIEW DETAILS</Text>
+            </TouchableOpacity>
+          </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Investments + Expenses</Text>
             <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalInvestment}</Text>
@@ -222,7 +238,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   handleIndicator: {
-    backgroundColor: '#136e8b',
+    backgroundColor: '#358B8B',
     width: 50,
     height: 5,
     borderRadius: 3,

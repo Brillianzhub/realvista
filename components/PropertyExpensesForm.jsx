@@ -18,12 +18,14 @@ const AddExpenseForm = ({ property, onSubmit }) => {
     });
 
     const [date, setDate] = useState(new Date());
+    const [isEditable, setIsEditable] = useState(false);
 
     return (
         <Formik
             initialValues={{
                 property: property?.id || '',
                 amount: '',
+                currency: property?.currency || '',
                 description: '',
                 date_incurred: '',
             }}
@@ -43,6 +45,20 @@ const AddExpenseForm = ({ property, onSubmit }) => {
                     <HelperText type="error" visible={touched.property && errors.property}>
                         {errors.property}
                     </HelperText>
+
+                    <TextInput label="Currency"
+                        value={values.currency}
+                        onChangeText={handleChange('currency')}
+                        onBlur={handleBlur('currency')}
+                        mode="outlined"
+                        style={[styles.input, !isEditable && styles.disabledInput]}
+                        error={touched.currency && errors.currency}
+                        editable={isEditable}
+                    />
+                    <HelperText type="error" visible={touched.currency && errors.currency}>
+                        {errors.currency}
+                    </HelperText>
+
                     <TextInput
                         label="Amount"
                         value={values.amount}
@@ -110,6 +126,10 @@ const styles = StyleSheet.create({
     },
     input: {
         marginBottom: 10,
+    },
+    disabledInput: {
+        backgroundColor: '#f0f0f0',
+        color: '#a0a0a0',
     },
     button: {
         marginVertical: 10,

@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     },
     percentageReturn: {
         fontSize: 14,
-        color: '#358B8B', // Use a color of your choice
+        color: '#358B8B', 
         marginTop: 10,
         fontWeight: 'bold',
     },

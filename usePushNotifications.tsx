@@ -3,6 +3,8 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import { useGlobalContext } from './context/GlobalProvider';
+
 
 export interface PushNotificationState {
     expoPushToken?: Notifications.ExpoPushToken;
@@ -15,6 +17,7 @@ export interface PushNotificationState {
 const API_BASE_URL = 'https://www.realvistamanagement.com/notifications';
 const UNREGISTER_URL = 'https://www.brillianzhub.com/notifications/unregister-token/';
 
+
 export const usePushNotifications = (): PushNotificationState => {
     Notifications.setNotificationHandler({
         handleNotification: async () => ({
@@ -23,6 +26,15 @@ export const usePushNotifications = (): PushNotificationState => {
             shouldSetBadge: false,
         }),
     });
+
+    const { user } = useGlobalContext();
+
+    const userId = user.id;
+
+
+    // const USER_TOKEN = AsyncStorage.getItem('authToken');
+
+    // console.log(USER_TOKEN)
 
     const [expoPushToken, setExpoPushToken] = useState<Notifications.ExpoPushToken>();
     const [notification, setNotification] = useState<Notifications.Notification>();
@@ -66,7 +78,10 @@ export const usePushNotifications = (): PushNotificationState => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ token: token.data }),
+                body: JSON.stringify({
+                    token: token.data,
+                    user_id: userId
+                }),
             });
 
             return token;

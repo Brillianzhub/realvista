@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, Alert } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
 import { TextInput, HelperText, RadioButton, Text } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import * as Location from 'expo-location';
+import CurrencyData from '../../../assets/CurrencyData';
+import { useCurrency } from '../../../context/CurrencyContext';
+import CurrencyModal from "../../../components/CurrencyModal";
+
 
 const propertyTypes = [
     { label: 'Land', value: 'land' },
@@ -18,12 +22,11 @@ const statusTypes = [
     { label: 'Under Maintenance', value: 'under_maintenance' },
 ];
 
-const currencyTypes = [
-    { label: 'Nigerian Naira', value: 'NGN' },
-    { label: 'US Dollar', value: 'USD' },
-    { label: 'Euro', value: 'EUR' },
-    { label: 'British Pound', value: 'GBP' },
-];
+const currencyOptions = Object.entries(CurrencyData.symbols).map(([key, value]) => ({
+    label: `${value} (${key})`,
+    value: key,
+}))
+
 
 const GroupPropertyForm = ({ onSubmit }) => {
     const validationSchema = Yup.object({
@@ -49,6 +52,9 @@ const GroupPropertyForm = ({ onSubmit }) => {
 
 
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const { currency } = useCurrency();
 
     const handlePickCoordinates = async (handleChange) => {
         setIsFetchingLocation(true);
@@ -90,7 +96,7 @@ const GroupPropertyForm = ({ onSubmit }) => {
                 num_units: 1,
                 initial_cost: '',
                 current_value: '',
-                currency: '',
+                currency: `${currency}`,
                 virtual_tour_url: '',
                 slot_price: '',
             }}
@@ -199,20 +205,29 @@ const GroupPropertyForm = ({ onSubmit }) => {
                                 ))}
                             </RadioButton.Group>
                         </View>
-                        <View style={styles.radioGroup}>
-                            <Text>Currency</Text>
-                            <RadioButton.Group
-                                onValueChange={(value) => setFieldValue('currency', value)}
+
+                        <TouchableOpacity
+                            onPress={() => setModalVisible(true)}
+                        >
+                            <TextInput label="Currency"
                                 value={values.currency}
-                            >
-                                {currencyTypes.map((type) => (
-                                    <View key={type.value} style={styles.radioItem}>
-                                        <RadioButton value={type.value} />
-                                        <Text>{type.label}</Text>
-                                    </View>
-                                ))}
-                            </RadioButton.Group>
-                        </View>
+                                onChangeText={handleChange('currency')}
+                                onBlur={handleBlur('currency')}
+                                mode="outlined"
+                                style={[styles.input]}
+                                error={touched.currency && errors.currency}
+                                editable={isEditable}
+                            />
+                            <HelperText type="error" visible={touched.currency && errors.currency}>
+                                {errors.currency}
+                            </HelperText>
+                        </TouchableOpacity>
+                        <CurrencyModal
+                            modalVisible={modalVisible}
+                            setModalVisible={setModalVisible}
+                            currencyTypes={currencyOptions}
+                            setFieldValue={setFieldValue}
+                        />
                         <TextInput
                             label="Year Bought"
                             value={values.year_bought}
@@ -297,7 +312,7 @@ const GroupPropertyForm = ({ onSubmit }) => {
                         <TextInput
                             label="Slot Price"
                             value={values.slot_price}
-                            editable={false} 
+                            editable={false}
                             mode="outlined"
                             style={styles.input}
                             keyboardType="numeric"

@@ -24,11 +24,11 @@ const PropertyDetail = ({
 
     const { currency } = useCurrency();
 
-    const formattedInitialCost = formatCurrency(selectedItem.initial_cost, currency);
-    const formattedCurrentCost = formatCurrency(selectedItem.current_value, currency);
-    const formattedTotalExpenses = formatCurrency(selectedItem.totalExpenses, currency);
-    const formattedTotalIncome = formatCurrency(selectedItem.totalIncome, currency);
-    const formattedNetReturn = formatCurrency(selectedItem.netReturn, currency);
+    const formattedInitialCost = formatCurrency(selectedItem.initial_cost, selectedItem.currency);
+    const formattedCurrentCost = formatCurrency(selectedItem.current_value, selectedItem.currency);
+    const formattedTotalExpenses = formatCurrency(selectedItem.totalExpenses, selectedItem.currency);
+    const formattedTotalIncome = formatCurrency(selectedItem.totalIncome, selectedItem.currency);
+    const formattedNetReturn = formatCurrency(selectedItem.netReturn, selectedItem.currency);
 
     const items = [
         {
@@ -53,7 +53,6 @@ const PropertyDetail = ({
         { label: 'Number of Units', value: `${selectedItem.num_units}` },
         { label: 'Property Type', value: `${selectedItem.property_type}` },
     ];
-
 
     return (
         <ScrollView
@@ -174,7 +173,7 @@ const PropertyDetail = ({
                                 <View key={index} style={styles.dividendRow}>
                                     <Text style={styles.dividendMonth}>{income.date_received}</Text>
                                     <Text style={styles.dividendShare}>
-                                        {formatCurrency(income.amount, currency)}
+                                        {formatCurrency(income.amount, income.currency)}
                                     </Text>
                                 </View>
                             ))}

@@ -60,7 +60,7 @@ const LessonDetail = ({ route, navigation }) => {
                         <Text style={styles.lessonDescription}>{lesson.description}</Text>
 
                         {/* Video content */}
-                        {lesson.video_url && (
+                        {/* {lesson.video_url && (
                             <Video
                                 source={{ uri: lesson.video_url }}
                                 style={styles.videoFrame}
@@ -70,7 +70,7 @@ const LessonDetail = ({ route, navigation }) => {
                                 onError={(e) => console.error('Video Error:', e)} // Debugging video errors
                             />
 
-                        )}
+                        )} */}
 
                         <Text style={styles.lessonContent}>
                             {lesson.content || 'Content coming soon...'}
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     pagerView: {
         flex: 1,
         backgroundColor: '#F9F9F9',
+        marginBottom: 20
     },
     page: {
         flex: 1,

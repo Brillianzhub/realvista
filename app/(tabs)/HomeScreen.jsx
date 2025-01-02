@@ -13,6 +13,9 @@ import images from '../../constants/images';
 import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 import PagerView from 'react-native-pager-view';
+import { usePushNotifications } from '../../usePushNotifications';
+import { useGlobalContext } from '../../context/GlobalProvider';
+
 
 
 const ROUTES = {
@@ -42,6 +45,7 @@ const HomeMenu = () => {
     const pagerRef = useRef(null);
     const totalPages = 5;
     const autoSlideInterval = 4000;
+    const { user } = useGlobalContext();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -57,6 +61,13 @@ const HomeMenu = () => {
         return () => clearInterval(interval);
     }, []);
 
+    const { expoPushToken,
+        notification,
+        enableNotifications,
+        disableNotifications,
+        getNotificationStatus } = usePushNotifications();
+
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView
@@ -65,7 +76,7 @@ const HomeMenu = () => {
             >
                 <View style={styles.mainMenu}>
                     <MenuItem onPress={() => navigation.navigate(ROUTES.PORTFOLIO)} imageSource={images.portfolio} text="Portfolio" />
-                    <MenuItem onPress={() => navigation.navigate(ROUTES.INVESTMENT)} imageSource={images.invest} text="RealInvest" />
+                    <MenuItem onPress={() => router.replace(ROUTES.INVESTMENT)} imageSource={images.invest} text="RealInvest" />
                     <MenuItem onPress={() => navigation.navigate(ROUTES.MARKET)} imageSource={images.market} text="Market" />
                 </View>
 

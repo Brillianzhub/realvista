@@ -32,8 +32,6 @@ const PropertyListScreen = ({ route, navigation }) => {
         navigation.navigate('ManageGroupProperty', { uniqueGroupId: uniqueGroupId });
     };
 
-    console.log(properties)
-
     const openBottomSheet = (item) => {
         setSelectedItem(item);
         bottomSheetRef.current?.expand();
@@ -147,7 +145,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         right: 20,
-        backgroundColor: '#358B8B',
+        backgroundColor: '#FB902E',
         width: 60,
         height: 60,
         borderRadius: 30,

@@ -3,10 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import FinancialTargetForm from '../Analysis/Forms/FinancialTargetForm';
 
 const FinancialTargetScreen = () => {
-    
     return (
         <View style={styles.container}>
-            <FinancialTargetForm  />
+            <FinancialTargetForm />
         </View>
     );
 };

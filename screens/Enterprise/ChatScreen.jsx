@@ -3,30 +3,64 @@ import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'r
 import { io } from 'socket.io-client';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import useChatMessages from '../../hooks/useChatMessages';
+import { Audio } from 'expo-av';
 
+
+
+// const socket = io('http://192.168.0.57:9000');
 const socket = io('https://www.realvistaproperties.com');
 
-const Chat = () => {
-    const [messages, setMessages] = useState([]);
+
+const Chat = ({ route }) => {
+    const { uniqueGroupId } = route.params;
+    const { messages, setMessages, fetchMessages } = useChatMessages({ uniqueGroupId });
     const [replyTo, setReplyTo] = useState(null);
     const [input, setInput] = useState('');
     const [selectedMessage, setSelectedMessage] = useState(null);
     const { user } = useGlobalContext();
+    const [userToken, setUserToken] = useState(null);
+
+
+    const soundFiles = {
+        'custom-sound.mp3': require('../../assets/sounds/custom-sound.mp3'),
+    };
+
+    const playNotificationSound = async () => {
+        try {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../../assets/sounds/custom-sound.mp3')
+            );
+            await sound.playAsync();
+            sound.setOnPlaybackStatusUpdate((status) => {
+                if (status.didJustFinish) {
+                    sound.unloadAsync();
+                }
+            });
+        } catch (error) {
+            console.error('Error playing notification sound:', error);
+        }
+    };
+
 
     useEffect(() => {
-        socket.on('receive_message', (message) => {
-            const newMessage = { ...message, id: Date.now().toString() };
-            setMessages((prev) => [...prev, newMessage]);
+        socket.on('receive_message', async (messageData) => {
+            setMessages((prev) => [...prev, messageData]);
+
+            if (messageData.sound) {
+                await playNotificationSound();
+            }
         });
 
         socket.on('delete_message', (messageId) => {
-            setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+            setMessages((prev) => prev.filter((msg) => msg.message_id !== messageId));
         });
 
         socket.on('receive_reply', (replyData) => {
             setMessages((prev) => {
                 const updatedMessages = [...prev];
-                const messageIndex = updatedMessages.findIndex((msg) => msg.id === replyData.replyTo.id);
+                const messageIndex = updatedMessages.findIndex((msg) => msg.message_id === replyData.replyTo.message_id);
                 if (messageIndex !== -1) {
                     updatedMessages.splice(messageIndex + 1, 0, replyData);
                 }
@@ -41,22 +75,52 @@ const Chat = () => {
         };
     }, []);
 
+    const playFeedbackSound = async () => {
+        try {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../../assets/sounds/custom-sound.mp3')
+            );
+            await sound.playAsync();
+            sound.setOnPlaybackStatusUpdate((status) => {
+                if (status.didJustFinish) {
+                    sound.unloadAsync();
+                }
+            });
+        } catch (error) {
+            console.error('Error playing feedback sound:', error);
+        }
+    };
 
-    const sendMessage = () => {
+
+
+    useEffect(() => {
+        const retrieveUserToken = async () => {
+            const token = await AsyncStorage.getItem('authToken');
+            setUserToken(token);
+        };
+        retrieveUserToken();
+    }, [])
+
+    const sendMessage = async () => {
         if (input.trim() === '') return;
 
         const timestamp = new Date().toISOString();
         const message = {
             text: input,
             sender: user.name,
+            groupID: uniqueGroupId,
+            userToken: userToken,
             timestamp,
-            id: Date.now().toString(),
-            replyTo: replyTo ? { id: replyTo.id, text: replyTo.text, sender: replyTo.sender } : null,
+            message_id: Date.now().toString(),
+            replyTo: replyTo ? { message_id: replyTo.message_id, text: replyTo.text, sender: replyTo.sender } : null,
         };
         socket.emit('send_message', message);
         setMessages((prev) => [...prev, message]);
         setInput('');
         setReplyTo(null);
+
+        // Play feedback sound
+        await playFeedbackSound();
     };
 
     const handleReply = (message) => {
@@ -65,8 +129,8 @@ const Chat = () => {
     };
 
     const handleDelete = (messageId) => {
-        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
-        socket.emit('delete_message', { id: messageId });
+        setMessages((prev) => prev.filter((msg) => msg.message_id !== messageId));
+        socket.emit('delete_message', { message_id: messageId });
         setSelectedMessage(null);
     };
 
@@ -91,14 +155,8 @@ const Chat = () => {
         });
     };
 
-    const deleteMessage = (messageId) => {
-        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
-        socket.emit('delete_message', { id: messageId });
-    };
 
     const renderMessage = ({ item, index }) => {
-        const isUserMessage = item.sender === user.name;
-
         const senderInitial = item.sender.charAt(0).toUpperCase();
         const showDateHeader =
             index === 0 ||
@@ -129,12 +187,12 @@ const Chat = () => {
                             </View>
                         )}
 
-                        {selectedMessage && selectedMessage.id === item.id && (
+                        {selectedMessage && selectedMessage.message_id === item.message_id && (
                             <View style={styles.toolbar}>
                                 <TouchableOpacity onPress={() => handleReply(item)} style={styles.toolbarButton}>
                                     <Icon name="reply" size={20} color="#358B8B" />
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.toolbarButton}>
+                                <TouchableOpacity onPress={() => handleDelete(item.message_id)} style={styles.toolbarButton}>
                                     <Icon name="trash" size={20} color="#d32f2f" />
                                 </TouchableOpacity>
                             </View>
@@ -146,10 +204,10 @@ const Chat = () => {
     };
 
     const handleLongPress = (message) => {
-        if (selectedMessage && selectedMessage.id === message.id) {
-            setSelectedMessage(null); 
+        if (selectedMessage && selectedMessage.message_id === message.message_id) {
+            setSelectedMessage(null);
         } else {
-            setSelectedMessage(message); 
+            setSelectedMessage(message);
         }
     };
 
@@ -168,7 +226,7 @@ const Chat = () => {
 
             <FlatList
                 data={messages}
-                keyExtractor={(item) => item.id} 
+                keyExtractor={(item) => item.message_id}
                 renderItem={({ item, index }) => (
                     <TouchableOpacity
                         onLongPress={() => handleLongPress(item)}

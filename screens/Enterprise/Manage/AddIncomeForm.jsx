@@ -18,12 +18,14 @@ const AddIncomeForm = ({ property, onSubmit }) => {
     });
 
     const [date, setDate] = useState(new Date());
+    const [isEditable, setIsEditable] = useState(false);
 
     return (
         <Formik
             initialValues={{
                 property_id: property?.id || '',
                 amount: '',
+                currency: property?.currency || '',
                 description: '',
                 date_received: '',
             }}
@@ -43,6 +45,20 @@ const AddIncomeForm = ({ property, onSubmit }) => {
                     <HelperText type="error" visible={touched.property_id && errors.property_id}>
                         {errors.property_id}
                     </HelperText>
+
+                    <TextInput label="Currency"
+                        value={values.currency}
+                        onChangeText={handleChange('currency')}
+                        onBlur={handleBlur('currency')}
+                        mode="outlined"
+                        style={[styles.input, !isEditable && styles.disabledInput]}
+                        error={touched.currency && errors.currency}
+                        editable={isEditable}
+                    />
+                    <HelperText type="error" visible={touched.currency && errors.currency}>
+                        {errors.currency}
+                    </HelperText>
+
                     <TextInput
                         label="Amount"
                         value={values.amount}

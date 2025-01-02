@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform, ActivityIndicator } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images'
@@ -7,19 +7,10 @@ import axios from 'axios';
 import { router, useNavigation } from 'expo-router';
 import TransactionDetail from '../../components/TransactionDetail';
 import useUserOrders from "../../hooks/useUserOrders";
-import useUserHoldings from "../../hooks/useUserHoldings";
-import useUserDividends from '../../hooks/useUserDividends';
-
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import useUserProperty from '../../hooks/useUserProperty';
-
-
-import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotalsWithAnalysis';
-import { calculateReturns } from '../../utils/calculateReturns';
-import { useCurrency } from '../../context/CurrencyContext';
 import { formatCurrency } from '../../utils/formatCurrency';
+import usePortfolioDetail from '../../hooks/usePortfolioDetail';
 
 
 
@@ -27,38 +18,29 @@ const Profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
     const [selectedItem, setSelectedItem] = useState(null);
     const bottomSheetRef = useRef(null);
-
-    const [totalInvestedAmount, setTotalInvestedAmount] = useState(0);
-
     const { orders, fetchUserOrders } = useUserOrders();
-    const { holdings, fetchUserHoldings } = useUserHoldings();
-    const { dividends, fetchDividends } = useUserDividends();
-
-    const { properties, fetchUserProperties } = useUserProperty();
 
 
-    const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
-    const userReturns = calculateReturns(properties)
+    const { result, loading, setLoading, currency, fetchPortfolioDetails } = usePortfolioDetail();
+    const personalSummary = result?.personal_summary;
+    const groupSummary = result?.group_summary;
+    const overallSummary = result?.overall_summary;
 
-    const { currency } = useCurrency();
+    const personalAccountNet =
+        personalSummary?.totalCurrentValue +
+        personalSummary?.totalIncome -
+        personalSummary?.totalExpenses;
 
-    const totalInvestment = formatCurrency(userTotalsWithAnalysis.grossValue, currency);
-    const totalProfit = formatCurrency(userTotalsWithAnalysis.totalProfit, currency);
+    const groupAccountNet =
+        groupSummary?.totalCurrentValue +
+        groupSummary?.totalIncome -
+        groupSummary?.totalExpenses;
 
-    useEffect(() => {
-        const sum = holdings.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+    const overallAccountNet =
+        overallSummary?.totalCurrentValue +
+        overallSummary?.totalIncome -
+        overallSummary?.totalExpenses;
 
-        const totalFinalShareAmount = dividends.reduce((total, dividend) => {
-            const sharesSum = dividend.shares.reduce(
-                (shareTotal, share) => shareTotal + parseFloat(share.final_share_amount),
-                0
-            );
-            return total + sharesSum;
-        }, 0);
-
-        setTotalInvestedAmount(sum + totalFinalShareAmount);
-
-    }, [holdings, dividends]);
 
 
     const handleDeleteAccount = () => {
@@ -111,7 +93,7 @@ const Profile = () => {
     const handleShare = async () => {
         try {
             const result = await Share.share({
-                message: 'Check out this amazing app! Download it now from https://www.exampleapp.com', // Replace with your app's details
+                message: 'Check out this amazing app! Download it now from https://play.google.com/store/apps/details?id=com.brillianzhub.realvista', // Replace with your app's details
             });
 
             if (result.action === Share.sharedAction) {
@@ -130,7 +112,7 @@ const Profile = () => {
 
     const handleRateUs = async () => {
         const appStoreUrl = 'https://apps.apple.com/app/idYOUR_APP_ID'; // Replace with your App Store URL
-        const playStoreUrl = 'https://play.google.com/store/apps/details?id=YOUR_APP_PACKAGE_NAME'; // Replace with your Play Store URL
+        const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.brillianzhub.realvista';
 
         try {
             const storeUrl = Platform.OS === 'ios' ? appStoreUrl : playStoreUrl;
@@ -167,7 +149,6 @@ const Profile = () => {
 
     const initialName = user?.name ? user.name.charAt(0).toUpperCase() : '';
 
-
     const openTransactionDetails = (item) => {
         setSelectedItem(item);
         bottomSheetRef.current?.expand();
@@ -186,7 +167,15 @@ const Profile = () => {
 
     const sortedOrders = orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    const navigation = useNavigation();
+
+    if (loading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#358B8B" />
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
 
     return (
         <ScrollView>
@@ -200,18 +189,19 @@ const Profile = () => {
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
                         <Text style={styles.portfolioNetText}>Net Worth</Text>
+                        <Text style={[styles.portfolioItemText, { color: 'gray', fontWeight: 'normal', fontSize: 14 }]}>Total Current Value + Total Income - Total Expenses</Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Personal Account</Text>
-                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{totalInvestment}</Text>
+                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{formatCurrency(personalAccountNet, currency)}</Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Investment Account</Text>
-                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{totalInvestedAmount}</Text>
+                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{formatCurrency(groupAccountNet, currency)}</Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Total</Text>
-                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{totalInvestment + totalInvestedAmount}</Text>
+                        <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{formatCurrency(overallAccountNet, currency)}</Text>
                     </View>
                 </View>
                 <View style={styles.portfolioSummary}>
@@ -426,6 +416,11 @@ const styles = StyleSheet.create({
         width: 50,
         height: 5,
         borderRadius: 3,
+    },
+    centered: {
+        flex: 1,
+        // justifyContent: 'center',
+        alignItems: 'center',
     },
 
 })

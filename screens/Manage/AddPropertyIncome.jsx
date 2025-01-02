@@ -13,7 +13,6 @@ const AddPropertyIncome = ({ navigation }) => {
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-
     const handleFormSubmit = async (values) => {
         const token = await AsyncStorage.getItem('authToken');
 
@@ -48,7 +47,10 @@ const AddPropertyIncome = ({ navigation }) => {
         }
     };
 
-    const selectedProperty = properties.find((property) => property.id === selectedPropertyId);
+    const filteredProperties = properties.filter(
+        (property) => property.group_owner_name === null
+    );
+    const selectedProperty = filteredProperties.find((property) => property.id === selectedPropertyId);
 
     return (
         <View style={styles.container}>
@@ -66,7 +68,7 @@ const AddPropertyIncome = ({ navigation }) => {
                             style={styles.picker}
                         >
                             <Picker.Item label="Select property" value={null} />
-                            {properties.map((property) => (
+                            {filteredProperties.map((property) => (
                                 <Picker.Item key={property.id} label={property.title} value={property.id} />
                             ))}
                         </Picker>
