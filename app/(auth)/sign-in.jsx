@@ -228,10 +228,13 @@ const SignIn = () => {
                             )}
 
                             <View style={styles.footer}>
-                                <Text style={styles.footerText}>Have an account already?</Text>
+                                <Text style={styles.footerText}>Don't have an account with us ?</Text>
                                 <Link href="/sign-up" style={styles.link}>
                                     Sign Up
                                 </Link>
+                            </View>
+                            <View>
+                                <Text>Singin with Google</Text>
                             </View>
                             <View style={{ marginVertical: 10 }}>
                                 <Text style={styles.text}>

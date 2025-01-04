@@ -62,8 +62,8 @@ const PropertyForm = ({ onSubmit }) => {
         currency: Yup.string()
             .required('Currency is required'),
         virtual_tour_url: Yup.string()
-            .url('Invalid URL')
             .optional(),
+
     });
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -97,6 +97,18 @@ const PropertyForm = ({ onSubmit }) => {
         } finally {
             setIsFetchingLocation(false);
         }
+    };
+
+    const constructGoogleMapsURL = (coordinates) => {
+        // Trim and remove extra spaces
+        const cleanedCoordinates = coordinates.replace(/\s+/g, '').trim();
+        const isValidCoordinates = /^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(cleanedCoordinates);
+
+        if (isValidCoordinates) {
+            const [latitude, longitude] = cleanedCoordinates.split(',');
+            return `https://www.google.com/maps?q=${latitude},${longitude}`;
+        }
+        return null; // Return null if invalid
     };
 
 
@@ -299,10 +311,14 @@ const PropertyForm = ({ onSubmit }) => {
                     <HelperText type="error" visible={touched.current_value && errors.current_value}>
                         {errors.current_value}
                     </HelperText>
+
                     <TextInput
                         label="Virtual Tour URL (Google Coordinates - Optional)"
                         value={values.virtual_tour_url}
-                        onChangeText={handleChange('virtual_tour_url')}
+                        onChangeText={(text) => {
+                            const googleMapsURL = constructGoogleMapsURL(text);
+                            setFieldValue('virtual_tour_url', googleMapsURL || text);
+                        }}
                         onBlur={handleBlur('virtual_tour_url')}
                         mode="outlined"
                         style={styles.input}

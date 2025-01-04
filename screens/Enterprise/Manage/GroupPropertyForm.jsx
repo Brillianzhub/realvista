@@ -45,7 +45,8 @@ const GroupPropertyForm = ({ onSubmit }) => {
         total_slots: Yup.number()
             .nullable() // Make it optional but validate if present
             .min(1, 'Must be at least 1'),
-        virtual_tour_url: Yup.string().url('Invalid URL').nullable(),
+        virtual_tour_url: Yup.string()
+            .optional(),
         property_type: Yup.string().required('Property type is required'),
         status: Yup.string().required('Status is required'),
     });
@@ -81,6 +82,20 @@ const GroupPropertyForm = ({ onSubmit }) => {
             setIsFetchingLocation(false);
         }
     };
+
+
+    const constructGoogleMapsURL = (coordinates) => {
+        // Trim and remove extra spaces
+        const cleanedCoordinates = coordinates.replace(/\s+/g, '').trim();
+        const isValidCoordinates = /^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(cleanedCoordinates);
+
+        if (isValidCoordinates) {
+            const [latitude, longitude] = cleanedCoordinates.split(',');
+            return `https://www.google.com/maps?q=${latitude},${longitude}`;
+        }
+        return null; // Return null if invalid
+    };
+
 
     return (
         <Formik
@@ -325,7 +340,10 @@ const GroupPropertyForm = ({ onSubmit }) => {
                         <TextInput
                             label="Virtual Tour URL (Google Coordinates - Optional)"
                             value={values.virtual_tour_url}
-                            onChangeText={handleChange('virtual_tour_url')}
+                            onChangeText={(text) => {
+                                const googleMapsURL = constructGoogleMapsURL(text);
+                                setFieldValue('virtual_tour_url', googleMapsURL || text);
+                            }}
                             onBlur={handleBlur('virtual_tour_url')}
                             mode="outlined"
                             style={styles.input}
@@ -344,6 +362,9 @@ const GroupPropertyForm = ({ onSubmit }) => {
                                 {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
                             </Text>
                         </Pressable>
+                        <HelperText type="error" visible={touched.virtual_tour_url && errors.virtual_tour_url}>
+                            {errors.virtual_tour_url}
+                        </HelperText>
                         <HelperText type="error" visible={touched.virtual_tour_url && errors.virtual_tour_url}>
                             {errors.virtual_tour_url}
                         </HelperText>

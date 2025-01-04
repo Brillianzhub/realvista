@@ -13,8 +13,8 @@ const Notifications = () => {
         <View style={styles.container}>
             <Text style={styles.header}>Notifications</Text>
             <FlatList
-                data={notifications || []} // Ensure notifications is never null
-                keyExtractor={(item, index) => item?.id?.toString() || index.toString()} // Fallback to index if id is missing
+                data={notifications || []}
+                keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.notification}>
                         <Text style={styles.title}>{item.title}</Text>
@@ -23,7 +23,8 @@ const Notifications = () => {
                 )}
                 ListEmptyComponent={
                     <Text style={styles.emptyText}>No notifications to show</Text>
-                } // Render this if notifications is empty
+                }
+                showsVerticalScrollIndicator={false}
             />
         </View>
     );

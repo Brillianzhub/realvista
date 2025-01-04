@@ -21,6 +21,8 @@ const FinancialTargetForm = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const { currency } = useCurrency();
     const { user } = useGlobalContext();
+    const [isEditable, setIsEditable] = useState(false);
+
 
     const validationSchema = Yup.object({
         target_name: Yup.string().required('Target Name is only required to save this target'),
@@ -65,9 +67,9 @@ const FinancialTargetForm = () => {
     const themes = {
         light: {
             background: '#ffffff',
-            text: '#000000',
+            text: '#ffffff',
             inputBackground: '#f5f5f5',
-            inputText: '#000000',
+            inputText: '#ffffff',
         },
         dark: {
             background: '#ffffff',
@@ -205,16 +207,18 @@ const FinancialTargetForm = () => {
                                 {errors.rate_of_return}
                             </HelperText>
 
-                            <View style={styles.radioGroup}>
-                                <Text>Currency</Text>
-                                <TouchableOpacity
-                                    style={styles.currencySelector}
-                                    onPress={() => setModalVisible(true)}
-                                >
-                                    <Text>{values.currency}</Text>
-                                </TouchableOpacity>
-                            </View>
-
+                            <TextInput label="Currency"
+                                value={values.currency}
+                                onChangeText={handleChange('currency')}
+                                onBlur={handleBlur('currency')}
+                                mode="outlined"
+                                style={[styles.input, !isEditable && styles.disabledInput]}
+                                error={touched.currency && errors.currency}
+                                editable={isEditable}
+                            />
+                            <HelperText type="error" visible={touched.currency && errors.currency}>
+                                {errors.currency}
+                            </HelperText>
                             <CurrencyModal
                                 modalVisible={modalVisible}
                                 setModalVisible={setModalVisible}

@@ -2,8 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { Platform } from 'react-native';
+import { setupNotificationChannels } from './notificationChannels';
 import { useGlobalContext } from './context/GlobalProvider';
+
+const API_BASE_URL = 'https://www.realvistamanagement.com/notifications';
+const UNREGISTER_URL = 'https://www.brillianzhub.com/notifications/unregister-token/';
 
 
 export interface PushNotificationState {
@@ -14,33 +17,50 @@ export interface PushNotificationState {
     getNotificationStatus: () => Promise<boolean>;
 }
 
-const API_BASE_URL = 'https://www.realvistamanagement.com/notifications';
-const UNREGISTER_URL = 'https://www.brillianzhub.com/notifications/unregister-token/';
-
 
 export const usePushNotifications = (): PushNotificationState => {
-    Notifications.setNotificationHandler({
-        handleNotification: async () => ({
-            shouldPlaySound: false,
-            shouldShowAlert: true,
-            shouldSetBadge: false,
-        }),
-    });
-
     const { user } = useGlobalContext();
-
     const userId = user.id;
-
-
-    // const USER_TOKEN = AsyncStorage.getItem('authToken');
-
-    // console.log(USER_TOKEN)
 
     const [expoPushToken, setExpoPushToken] = useState<Notifications.ExpoPushToken>();
     const [notification, setNotification] = useState<Notifications.Notification>();
 
     const notificationListener = useRef<Notifications.Subscription>();
     const responseListener = useRef<Notifications.Subscription>();
+
+    // Notifications.setNotificationHandler({
+    //     handleNotification: async () => ({
+    //         shouldPlaySound: false,
+    //         shouldShowAlert: true,
+    //         shouldSetBadge: false,
+    //     }),
+    // });
+
+
+    Notifications.setNotificationHandler({
+        handleNotification: async (notification) => {
+            const { request } = notification;
+            const { content } = request;
+            const groupId = content.data?.groupId; // Access groupId from the data payload
+
+            if (groupId) {
+                console.log(`Notification for groupId: ${groupId}`);
+                return {
+                    shouldPlaySound: true,
+                    shouldShowAlert: true,
+                    shouldSetBadge: true,
+                };
+            }
+
+            // Default behavior
+            return {
+                shouldPlaySound: true,
+                shouldShowAlert: true,
+                shouldSetBadge: false,
+            };
+        },
+    });
+
 
     const registerForPushNotificationsAsync = async (): Promise<Notifications.ExpoPushToken | undefined> => {
         try {
@@ -63,25 +83,13 @@ export const usePushNotifications = (): PushNotificationState => {
 
             if (!token) throw new Error('Failed to generate push token');
 
-            if (Platform.OS === 'android') {
-                await Notifications.setNotificationChannelAsync('default', {
-                    name: 'default',
-                    importance: Notifications.AndroidImportance.MAX,
-                    vibrationPattern: [0, 250, 250, 250],
-                    lightColor: '#FF231F7C',
-                });
-            }
+            await setupNotificationChannels();
 
             // Send the token to the backend
             await fetch(`${API_BASE_URL}/register-token/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    token: token.data,
-                    user_id: userId
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token.data, user_id: userId }),
             });
 
             return token;

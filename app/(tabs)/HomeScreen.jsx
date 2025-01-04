@@ -61,12 +61,11 @@ const HomeMenu = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const { expoPushToken,
-        notification,
-        enableNotifications,
-        disableNotifications,
-        getNotificationStatus } = usePushNotifications();
+    const { expoPushToken, notification, enableNotifications, disableNotifications, getNotificationStatus } = usePushNotifications();
 
+    useEffect(() => {
+        enableNotifications();
+    }, []);
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
