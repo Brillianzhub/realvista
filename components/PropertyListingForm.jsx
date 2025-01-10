@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const SalePropertyScreen = () => {
+const PropertyListingForm = ({ property }) => {
     return (
         <View>
-            <Text>SalePropertyScreen</Text>
+            <Text>PropertyListingForm</Text>
         </View>
     )
 }
 
-export default SalePropertyScreen
+export default PropertyListingForm
 
 const styles = StyleSheet.create({})

@@ -5,7 +5,6 @@ import AddPropertyExpenses from '../../screens/Manage/AddPropertyExpenses';
 import AddPropertyIncome from '../../screens/Manage/AddPropertyIncome';
 import UpdatePropertyScreen from '../../screens/Manage/UpdatePropertyScreen';
 import RemovePropertyScreen from '../../screens/Manage/RemovePropertyScreen';
-import SalePropertyScreen from '../../screens/Manage/SalePropertyScreen';
 
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
@@ -90,17 +89,6 @@ const ManageNavigator = () => {
                 options={{
                     headerShown: true,
                     title: "Delete Property",
-                    headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
-                }}
-            />
-            <Stack.Screen
-                name="SaleProperty"
-                component={SalePropertyScreen}
-                options={{
-                    headerShown: true,
-                    title: "Sale Property",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',

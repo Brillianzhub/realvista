@@ -95,7 +95,7 @@ const ProjectDetail = ({ route }) => {
     }
 
     if (loading) {
-        return <ActivityIndicator size="large" color="#0000ff" />;
+        return <ActivityIndicator size="large" color="#358B8B" />;
     }
 
     if (!project) {
@@ -207,7 +207,7 @@ const ProjectDetail = ({ route }) => {
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity
-                            style={[styles.investButton, { backgroundColor: '#dc9b5e' }]} // Disabled style
+                            style={[styles.investButton, { backgroundColor: '#FB902E' }]} // Disabled style
                             disabled={true} // Disable button
                         >
                             <Text style={[styles.investNow, { color: '#ccc' }]}>Sold Out</Text>

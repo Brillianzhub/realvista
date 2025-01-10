@@ -15,12 +15,10 @@ const useGroupProperties = ({ uniqueGroupId }) => {
                 console.error("Token is required for this operation");
                 return;
             }
-
             if (!uniqueGroupId) {
                 console.error("Group ID is required to fetch properties.");
                 return;
             }
-
             const response = await axios.get(
                 `https://www.realvistamanagement.com/enterprise/groups/${uniqueGroupId}/properties/`,
                 {

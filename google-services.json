@@ -12,7 +12,20 @@
           "package_name": "com.brillianzhub.realvista"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "249644969622-9jcu7vv2ev7dpolccun2sol93kmj8950.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.brillianzhub.realvista",
+            "certificate_hash": "5e13267fc7927abeda9bdc91f56c62a9e677d553"
+          }
+        },
+        {
+          "client_id": "249644969622-pm62s6ipfbkqg65ifefsknur3khttf0f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCcYzACRrTH74yVaWiEmTu3zRrha6POOcE"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "249644969622-pm62s6ipfbkqg65ifefsknur3khttf0f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

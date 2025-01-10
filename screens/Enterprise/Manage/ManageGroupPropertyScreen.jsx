@@ -42,9 +42,15 @@ const ManageGroupPropertyScreen = ({ route, navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
                 style={styles.button}
+                onPress={() => handleManageProperty('ManageAllocations')}
+            >
+                <Text style={styles.buttonText}>Manage Slot Allocations</Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity
+                style={styles.button}
             >
                 <Text style={styles.buttonText}>Transfer Slots</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </View>
     );
 };

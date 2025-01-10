@@ -15,11 +15,14 @@ import images from '@/constants/images';
 import PropertyBooking from './PropertyBooking';
 
 
+
 const PropertyDetail = ({
     selectedItem,
     closeBottomSheet,
     role,
-    navigation
+    navigation,
+    deviceTokens,
+    onRefresh
 }) => {
     if (!selectedItem) {
         return <View><Text>No data selected.</Text></View>;
@@ -31,7 +34,6 @@ const PropertyDetail = ({
     };
 
     const { currency } = useCurrency();
-
     const formattedInitialCost = formatCurrency(selectedItem.initial_cost, currency);
 
     return (
@@ -89,7 +91,12 @@ const PropertyDetail = ({
                                 </View>
                             </View>
                         </View>
-                        <PropertyBooking property={selectedItem} />
+                        <PropertyBooking
+                            property={selectedItem}
+                            tokens={deviceTokens}
+                            closeBottomSheet={closeBottomSheet}
+                            onRefresh={onRefresh}
+                        />
                         <View style={styles.dividendsContainer}>
                             <Text style={styles.dividendsHeader}>Property info</Text>
                             <TouchableOpacity onPress={toggleExpanded}>
@@ -117,7 +124,7 @@ const PropertyDetail = ({
                             virtual_tour_url={selectedItem.virtual_tour_url}
                         />
 
-                        {role === "ADMIN" && <View style={[styles.dividendsContainer, {marginBottom: 20}]}>
+                        {(role === "SUPERADMIN" || "ADMIN") && <View style={[styles.dividendsContainer, { marginBottom: 20 }]}>
                             <Text style={styles.dividendsHeader}>Manage Bookings</Text>
                             <TouchableOpacity
                                 onPress={() => navigation.navigate('ManageBooking', { propertyId: selectedItem.id })}

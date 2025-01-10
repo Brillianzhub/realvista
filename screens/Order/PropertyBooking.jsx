@@ -3,8 +3,10 @@ import { View, Text, TextInput, Button, Switch, StyleSheet, Alert } from 'react-
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalContext } from '../../context/GlobalProvider';
+import { sendNotification } from '../../utils/sendNotifications';
 
-const PropertyBooking = ({ property }) => {
+
+const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
     const { user } = useGlobalContext();
     const [toggle, setToggle] = useState(false);
     const [slots, setSlots] = useState('');
@@ -34,12 +36,22 @@ const PropertyBooking = ({ property }) => {
         calculateTotal(parsedValue);
     };
 
+    const title = property.title;
+    const deviceTokens = tokens;
+
     const handleBooking = async () => {
         if (!slots || isNaN(slots) || parseInt(slots) <= 0) {
             Alert.alert('Invalid Input', 'Please enter a valid number of slots.');
             return;
         }
-
+    
+        const bookingReference = `RV-${Math.random().toString(36).slice(2, 8).toUpperCase()}-${Date.now()}`;
+        const messageData = {
+            sender: user.name,
+            text: `booked ${parseInt(slots)} slots.`,
+            senderEmail: user.email,
+        };
+    
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem('authToken');
@@ -47,12 +59,14 @@ const PropertyBooking = ({ property }) => {
                 Alert.alert('Error', 'Authentication token is missing.');
                 return;
             }
-
+    
+            // Make the booking request
             const response = await axios.post(
                 `https://www.realvistamanagement.com/enterprise/groups/${property.id}/book-slot/`,
                 {
                     slots_owned: parseInt(slots),
-                    user_name: user.name
+                    user_name: user.name,
+                    booking_reference: bookingReference,
                 },
                 {
                     headers: {
@@ -61,10 +75,25 @@ const PropertyBooking = ({ property }) => {
                     },
                 }
             );
+    
             Alert.alert('Success', 'Your slots have been booked successfully.');
-            // fetchGroupProperties();
+    
+            // Send notification
+            if (deviceTokens && deviceTokens.length > 0) {
+                try {
+                    await sendNotification({ title, messageData, deviceTokens });
+                } catch (notificationError) {
+                    console.error('Notification Error:', notificationError);
+                    Alert.alert('Notification Failed', 'Booking succeeded, but notification failed to send.');
+                }
+            } else {
+                console.warn('No device tokens available for notification.');
+            }
+    
+            onRefresh();
+            closeBottomSheet();
         } catch (error) {
-            console.error(error);
+            console.error('Booking Error:', error);
             Alert.alert(
                 'Booking Failed',
                 error.response?.data?.error || 'An unexpected error occurred.'
@@ -73,6 +102,7 @@ const PropertyBooking = ({ property }) => {
             setLoading(false);
         }
     };
+    
 
     return (
         <View style={styles.detailItem}>

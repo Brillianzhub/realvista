@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import useGroupProperty from '../../hooks/useGroupProperty';
 import PropertyListingDetail from '../Order/PropertyListingView';
 import GroupPropertiesList from './GroupPropertyListing';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { calculateReturns } from '../../utils/calculateReturns';
+import useFetchAdminDeviceTokens from "../../hooks/useFetchAdminDeviceTokens";
 
 
 const WelcomeView = () => (
@@ -20,6 +21,10 @@ const WelcomeView = () => (
 
 const PropertyListScreen = ({ route, navigation }) => {
     const { groupId, uniqueGroupId, role } = route.params;
+    const { deviceTokens } = useFetchAdminDeviceTokens(uniqueGroupId);
+
+    console.log(role)
+
     const [selectedItem, setSelectedItem] = useState(null);
     const [mapType, setMapType] = useState('standard');
     const bottomSheetRef = useRef(null);
@@ -63,7 +68,6 @@ const PropertyListScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-
             <View style={styles.container}>
                 {properties.length === 0 ? (
                     <WelcomeView />
@@ -78,8 +82,7 @@ const PropertyListScreen = ({ route, navigation }) => {
                     </View>
                 )}
             </View>
-
-            {role === 'ADMIN' && (
+            {(role === 'SUPERADMIN' || role === 'ADMIN') && (
                 <TouchableOpacity style={styles.addButton} onPress={handleAddProperty}>
                     <Ionicons name="add" size={30} color="white" />
                 </TouchableOpacity>
@@ -103,7 +106,10 @@ const PropertyListScreen = ({ route, navigation }) => {
                         closeBottomSheet={closeBottomSheet}
                         mapType={mapType}
                         role={role}
+                        deviceTokens={deviceTokens}
                         navigation={navigation}
+                        uniqueGroupId={uniqueGroupId}
+                        onRefresh={onRefresh}
                     />
                 </BottomSheetScrollView>
             </BottomSheet>
@@ -118,7 +124,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
-
     propertiesList: {
         flex: 1,
         padding: 10,

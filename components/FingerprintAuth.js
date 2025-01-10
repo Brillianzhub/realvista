@@ -19,7 +19,7 @@ const FingerprintAuth = ({ onSuccess, onFailure }) => {
             if (result.success) {
                 onSuccess && onSuccess();
             } else {
-                Alert.alert('Error', 'Authentication failed.');
+                // Alert.alert('Error', 'Authentication failed.');
                 onFailure && onFailure();
             }
         } catch (error) {

@@ -63,7 +63,7 @@ const RemoveGroupProperty = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Remove Group Property</Text>
+            <Text style={[styles.title]}>Select the property you wish to remove.</Text>
             {loading && <ActivityIndicator size="large" color="#358B8B" />}
             <FlatList
                 data={properties}
@@ -89,9 +89,9 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: 'bold',
+        fontWeight: '400',
         marginBottom: 20,
-        textAlign: 'center',
+        textAlign: 'left',
     },
     listContainer: {
         paddingBottom: 20,

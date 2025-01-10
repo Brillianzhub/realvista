@@ -1,4 +1,5 @@
-import { Stack } from 'expo-router';
+import { useEffect } from 'react';
+import { SplashScreen, Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import GlobalProvider from '../context/GlobalProvider';
@@ -7,8 +8,37 @@ import { InvestmentProvider } from '../context/InvestmentProvider';
 import { NotificationProvider } from '../context/NotificationContext';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { CurrencyProvider } from '../context/CurrencyContext';
+import { useFonts } from "expo-font";
+import { StatusBar } from 'react-native';
 
 const RealVistaLayout = () => {
+
+  const [fontsLoaded, error] = useFonts({
+    "RobotoSerif-Black": require("../assets/fonts/RobotoSerif-Black.ttf"),
+    "RobotoSerif-Bold": require("../assets/fonts/RobotoSerif-Bold.ttf"),
+    "RobotoSerif-ExtraLight": require("../assets/fonts/RobotoSerif-ExtraLight.ttf"),
+    "RobotoSerif-Regular": require("../assets/fonts/RobotoSerif-Regular.ttf"),
+    "RobotoSerif-SemiBold": require("../assets/fonts/RobotoSerif-SemiBold.ttf"),
+    "RobotoSerif-Thin": require("../assets/fonts/RobotoSerif-Thin.ttf"),
+    "RobotoSerif-Light": require("../assets/fonts/RobotoSerif-Light.ttf"),
+    "Abel-Regular": require("../assets/fonts/Abel-Regular.ttf"),
+  });
+
+  useEffect(() => {
+    if (error) throw error;
+
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, error]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  if (!fontsLoaded && !error) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -27,7 +57,12 @@ const RealVistaLayout = () => {
                     <Stack.Screen name="(enterprise)" options={{ headerShown: false }} />
                     <Stack.Screen name="(analyser)" options={{ headerShown: false }} />
                     <Stack.Screen name="(trends)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(marketlisting)" options={{ headerShown: false }} />
                   </Stack>
+                  <StatusBar
+                    barStyle="light-content"
+                    backgroundColor="#358B8B"
+                  />
                 </CurrencyProvider>
               </PaperProvider>
             </NotificationProvider>
@@ -35,6 +70,7 @@ const RealVistaLayout = () => {
         </InvestmentProvider>
       </GlobalProvider>
     </GestureHandlerRootView>
+
   );
 };
 

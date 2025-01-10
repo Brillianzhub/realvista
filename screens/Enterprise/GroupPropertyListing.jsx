@@ -1,6 +1,7 @@
 import images from '@/constants/images';
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 const GroupPropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
     if (!properties || properties.length === 0) {
@@ -11,28 +12,57 @@ const GroupPropertiesList = ({ properties, onPress, refreshing, onRefresh }) => 
         );
     }
 
-    const renderPropertyItem = ({ item }) => {
+    const truncateText = (text, maxLength) => {
+        if (text.length > maxLength) {
+            return text.slice(0, maxLength) + '...';
+        }
+        return text;
+    };
 
+    const renderPropertyItem = ({ item }) => {
         return (
             <TouchableOpacity
                 style={styles.propertyItem}
                 onPress={() => onPress(item)}
             >
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View>
                     <View>
-                        <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.subtitle}>{item.address}</Text>
-                        <Text style={styles.percentageReturn}>
-                            Status: {item.available_slots}
-                        </Text>
-                    </View>
-                    <View>
-                        <Image source={images.profit} />
+                        <View style={{ marginBottom: 10 }}>
+                            <Text style={styles.title}>
+                                {item.title}{' '}
+                                <Text style={{ fontStyle: 'italic', color: 'gray', fontSize: 14 }}>
+                                    (Location: {item.location})
+                                </Text>
+                            </Text>
+                            <Text style={{ fontSize: 12, color: '#FB902E' }}>
+                                {new Date(item.added_on).toLocaleDateString()}
+                            </Text>
+                            <Text style={styles.subtitle}>{truncateText(item.description, 100)}</Text>
+                        </View>
+                        <View style={styles.propertyFeaturesRow}>
+                            <View style={styles.propertyFeatures}>
+                                <Text style={styles.featuresTitle}>Total slots</Text>
+                                <Text style={[styles.percentageReturn, { color: '#FB902E' }]}>
+                                    {item.total_slots}
+                                </Text>
+                            </View>
+                            <View style={styles.propertyFeatures}>
+                                <Text style={styles.featuresTitle}>Open slots</Text>
+                                <Text style={[styles.percentageReturn, { color: '#FB902E' }]}>
+                                    {item.available_slots}
+                                </Text>
+                            </View>
+                            <View style={styles.propertyFeatures}>
+                                <Text style={styles.featuresTitle}>Price per slot</Text>
+                                <Text style={[styles.percentageReturn, { color: '#FB902E' }]}>
+                                    {formatCurrency(item.slot_price, item.currency)}
+                                </Text>
+                            </View>
+                        </View>
                     </View>
                 </View>
             </TouchableOpacity>
         );
-
     };
 
 
@@ -79,12 +109,22 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#888',
     },
-    percentageReturn: {
+    featuresTitle: {
         fontSize: 14,
-        color: '#358B8B', // Use a color of your choice
-        marginTop: 10,
+        color: '#358B8B',
         fontWeight: 'bold',
     },
+    propertyFeaturesRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'left',
+        width: '90%',
+    },
+    propertyFeatures: {
+        flexDirection: 'column',
+        justifyContent: 'left',
+        alignItems: 'center'
+    }
 });
 
 export default GroupPropertiesList;

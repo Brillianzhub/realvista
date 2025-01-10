@@ -7,7 +7,6 @@ import {
     TextInput,
     StyleSheet,
     Pressable,
-    Keyboard,
     Alert,
     Image,
     Linking
@@ -19,6 +18,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { googleAuthSignIn } from '../../lib/googleAuthSignIn';
 
 const RegistrationForm = () => {
     const { setUser, setIsLogged } = useGlobalContext();
@@ -30,23 +31,31 @@ const RegistrationForm = () => {
         confirmPassword: '',
     });
 
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    useEffect(() => {
-        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-            setKeyboardVisible(true);
+    const configureGoogleSignIn = async () => {
+        GoogleSignin.configure({
+            webClientId: "249644969622-pm62s6ipfbkqg65ifefsknur3khttf0f.apps.googleusercontent.com",
+            offlineAccess: true,
         });
-        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardVisible(false);
-        });
+    };
 
-        return () => {
-            showSubscription.remove();
-            hideSubscription.remove();
-        };
+    useEffect(() => {
+        configureGoogleSignIn();
     }, []);
+
+    const handleGoogleAuth = async () => {
+        setIsSubmitting(true); // Start loading state
+        try {
+            await googleAuthSignIn({ setUser, setIsLogged, router });
+        } catch (error) {
+            console.error('Google Auth Error:', error);
+        } finally {
+            setIsSubmitting(false); // Reset loading state
+        }
+    };
+
 
 
     const validateForm = (form) => {
@@ -124,7 +133,6 @@ const RegistrationForm = () => {
 
             await AsyncStorage.setItem('authToken', tokenData.token);
 
-
             setUser({
                 id: result.id,
                 email: result.email,
@@ -160,13 +168,13 @@ const RegistrationForm = () => {
                                 <Image source={images.logo} style={styles.logo} />
                             </View>
                             <TextInput
-                                style={[styles.input, keyboardVisible && styles.inputKeyboardVisible]}
+                                style={[styles.input]}
                                 placeholder="Full Name"
                                 value={form.name}
                                 onChangeText={(e) => setForm({ ...form, name: e })}
                             />
                             <TextInput
-                                style={[styles.input, keyboardVisible && styles.inputKeyboardVisible]}
+                                style={[styles.input]}
                                 placeholder="Email"
                                 keyboardType="email-address"
                                 value={form.email}
@@ -215,6 +223,18 @@ const RegistrationForm = () => {
                                 <Link href="/sign-in" style={styles.link}>
                                     Sign In
                                 </Link>
+                            </View>
+                            <View style={{ marginVertical: 10 }}>
+                                <Text style={{ textAlign: 'center' }}>OR</Text>
+                            </View>
+                            <View style={{ marginVertical: 20 }}>
+                                <Pressable style={[styles.googleBtn, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }]} onPress={handleGoogleAuth}>
+                                    <Image
+                                        source={images.google}
+                                        style={styles.googleBtnImage}
+                                    />
+                                    <Text style={[styles.buttonText, { color: '#000', textAlign: 'center' }]}>Login with Google</Text>
+                                </Pressable>
                             </View>
                             <View style={{ marginVertical: 10 }}>
                                 <Text style={styles.text}>
@@ -288,13 +308,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#FB902E',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 5,
+        borderRadius: 30,
         marginTop: 10,
     },
     buttonText: {
+        fontFamily: 'Abel-Regular',
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '400',
     },
 
     logoContainer: {
@@ -319,7 +340,17 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         fontSize: 16,
     },
-
+    googleBtn: {
+        borderWidth: 3,
+        borderColor: '#FB902E',
+        borderRadius: 30,
+        padding: 8
+    },
+    googleBtnImage: {
+        width: 24,
+        height: 24,
+        resizeMode: 'contain',
+    },
     text: {
         fontSize: 15,
         color: '#000',
@@ -356,265 +387,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 50,
         fontSize: 16,
-        // padding: 10,
     },
 });
 
 export default RegistrationForm;
-
-
-
-
-// const SignUp = () => {
-//     const { setUser, setIsLogged } = useGlobalContext();
-//     const [isSubmitting, setIsSubmitting] = useState(false);
-
-
-//     const [form, setForm] = useState({
-//         name: '',
-//         email: '',
-//         password: ''
-//     });
-
-//     const submit = async () => {
-//         if (!form.name || !form.email || !form.password) {
-//             Alert.alert('Error', 'Please fill in all the fields');
-//             return;
-//         }
-
-//         setIsSubmitting(true);
-
-//         try {
-//             const response = await fetch('https://www.realvistamanagement.com/accounts/register_user/', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({
-//                     name: form.name,
-//                     email: form.email,
-//                     password: form.password,
-//                     auth_provider: 'email'
-//                 }),
-//             });
-
-//             if (!response.ok) {
-//                 throw new Error('Failed to sign up');
-//             }
-
-//             const result = await response.json();
-
-//             const tokenResponse = await fetch('https://www.realvistamanagement.com/portfolio/api-token-auth/', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({
-//                     username: form.email,
-//                     password: form.password,
-//                 }),
-//             });
-
-//             const tokenData = await tokenResponse.json();
-
-//             if (!tokenData.token) {
-//                 throw new Error('Authentication token not provided');
-//             }
-
-//             await AsyncStorage.setItem('authToken', tokenData.token);
-
-
-//             setUser({
-//                 id: result.id,
-//                 email: result.email,
-//                 name: result.name,
-//                 authProvider: 'email'
-//             });
-//             setIsLogged(true);
-
-//             router.replace('/verify-email');
-//         } catch (error) {
-//             Alert.alert('Error', error.message);
-//         } finally {
-//             setIsSubmitting(false);
-//         }
-//     };
-
-
-//     return (
-//         // justifyContent: 'center',
-//         <SafeAreaView style={styles.safeArea}>
-//             <ScrollView
-//                 // contentContainerStyle={styles.scrollViewContent}
-//                 keyboardShouldPersistTaps="handled"
-//             >
-//                 <View style={styles.container}>
-//                     {isSubmitting && (
-//                         <View style={styles.loadingOverlay}>
-//                             <ActivityIndicator size="large" color="#358B8B" />
-//                             <Text style={styles.loadingText}>Registering...</Text>
-//                         </View>
-//                     )}
-//                     {!isSubmitting && (
-//                         <>
-//                             <View style={styles.logoContainer}>
-//                                 <Image source={images.logo} style={styles.logo} />
-//                             </View>
-//                             <View style={styles.formContainer}>
-//                                 <FormField
-//                                     placeholder="Enter your first and last name"
-//                                     title="Full Name"
-//                                     value={form.name}
-//                                     handleChangeText={(e) => setForm({ ...form, name: e })}
-//                                     otherStyles=""
-//                                 />
-//                                 <FormField
-//                                     placeholder="Enter your email"
-//                                     title="E-mail"
-//                                     value={form.email}
-//                                     handleChangeText={(e) => setForm({ ...form, email: e })}
-//                                     otherStyles="mt-3"
-//                                     keyboardType="email-address"
-//                                 />
-//                                 <FormField
-//                                     placeholder="********"
-//                                     title="Password"
-//                                     value={form.password}
-//                                     handleChangeText={(e) => setForm({ ...form, password: e })}
-//                                     otherStyles="mt-5"
-//                                     secureTextEntry
-//                                 />
-//                                 <FormField
-//                                     placeholder="*********"
-//                                     title="Confirm Password"
-//                                     value={form.confirmPassword}
-//                                     handleChangeText={(e) => setForm({ ...form, confirmPassword: e })}
-//                                     otherStyles="mt-5"
-//                                     secureTextEntry
-//                                 />
-//                                 <Pressable style={styles.button} onPress={submit}>
-//                                     <Text style={styles.buttonText}>Register</Text>
-//                                 </Pressable>
-//                                 <View style={styles.footer}>
-//                                     <Text style={styles.footerText}>Have an account already?</Text>
-//                                     <Link href="/sign-in" style={styles.link}>
-//                                         Sign In
-//                                     </Link>
-//                                 </View>
-//                                 <View style={{ marginVertical: 10 }}>
-//                                     <Text style={styles.text}>
-//                                         By continuing, you agree to our{' '}
-//                                         <Text
-//                                             style={styles.link2}
-//                                             onPress={() =>
-//                                                 Linking.openURL('https://www.realvistaproperties.com/terms-of-use')
-//                                             }
-//                                         >
-//                                             Terms of Use
-//                                         </Text>{' '}
-//                                         and{' '}
-//                                         <Text
-//                                             style={styles.link2}
-//                                             onPress={() =>
-//                                                 Linking.openURL('https://www.realvistaproperties.com/privacy-policy')
-//                                             }
-//                                         >
-//                                             Privacy Policy
-//                                         </Text>
-//                                         .
-//                                     </Text>
-//                                 </View>
-//                             </View>
-//                         </>
-//                     )}
-//                 </View>
-//             </ScrollView>
-//         </SafeAreaView>
-//     );
-// };
-
-// const styles = StyleSheet.create({
-//     safeArea: {
-//         flex: 1,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         padding: 20,
-//     },
-//     container: {
-//         // width: '100%',
-//         // alignItems: 'center',
-//         flex: 1,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         // padding: 20,
-//         // backgroundColor: '#f9f9f9',
-//     },
-//     formContainer: {
-//         width: '100%',
-//         // maxWidth: 400,
-//         // alignSelf: 'center',
-//     },
-//     logoContainer: {
-//         alignItems: 'center',
-//         marginBottom: 40,
-//     },
-//     logo: {
-//         width: 214,
-//         height: 48,
-//         resizeMode: 'contain',
-//     },
-//     footer: {
-//         marginTop: 20,
-//         alignItems: 'center',
-//     },
-//     footerText: {
-//         color: 'gray',
-//     },
-//     link: {
-//         color: '#358B8B',
-//         textAlign: 'center',
-//         marginVertical: 10,
-//         fontSize: 16,
-//     },
-//     button: {
-//         width: '100%',
-//         height: 50,
-//         backgroundColor: '#FB902E',
-//         borderRadius: 30,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         marginBottom: 10,
-//     },
-//     buttonText: {
-//         color: '#fff',
-//         fontSize: 18,
-//         fontWeight: 'bold',
-//     },
-//     loadingContainer: {
-//         flex: 1,
-//         width: '100%',
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         backgroundColor: 'rgba(0, 0, 0, 0.1)',
-//     },
-//     loadingText: {
-//         marginTop: 10,
-//         fontSize: 16,
-//         color: '#000',
-//     },
-//     buttonDisabled: {
-//         backgroundColor: '#ccc',
-//     },
-//     text: {
-//         fontSize: 15,
-//         color: '#000',
-//         textAlign: 'center',
-//     },
-//     link2: {
-//         color: '#358B8B',
-//         textDecorationLine: 'underline',
-//     },
-
-// });
-
-// export default SignUp;

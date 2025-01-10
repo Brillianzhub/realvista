@@ -14,7 +14,6 @@ const useFetchProperties = () => {
             if (!token) {
                 return;
             }
-            console.log(token)
             const url = `https://www.realvistamanagement.com/market/fetch-listed-properties`
 
             try {

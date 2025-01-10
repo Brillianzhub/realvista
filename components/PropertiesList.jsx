@@ -11,6 +11,7 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
         );
     }
 
+
     const renderPropertyItem = ({ item }) => {
 
         return (
@@ -34,7 +35,7 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
                                 { color: item.percentageReturn < 0 ? 'red' : styles.percentageReturn.color }
                             ]}
                         >
-                            Return: {item.percentage_performance}%
+                            Return: {item.percentage_performance ? item.percentage_performance.toFixed(2) : '0.00'}%
                         </Text>
                     </View>
                     <View>
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
     },
     percentageReturn: {
         fontSize: 14,
-        color: '#358B8B', 
+        color: '#358B8B',
         marginTop: 10,
         fontWeight: 'bold',
     },

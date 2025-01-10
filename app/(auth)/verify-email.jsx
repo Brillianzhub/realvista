@@ -229,13 +229,14 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: '#FB902E',
         paddingVertical: 15,
-        borderRadius: 25,
+        borderRadius: 30,
         alignItems: 'center',
         marginBottom: 20,
     },
     buttonText: {
+        fontFamily: 'Abel-Regular',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '400',
         color: '#fff',
     },
     footer: {

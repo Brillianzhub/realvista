@@ -47,6 +47,7 @@ const HomeMenu = () => {
     const autoSlideInterval = 4000;
     const { user } = useGlobalContext();
 
+
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentPage((prevPage) => {
@@ -76,18 +77,19 @@ const HomeMenu = () => {
                 <View style={styles.mainMenu}>
                     <MenuItem onPress={() => navigation.navigate(ROUTES.PORTFOLIO)} imageSource={images.portfolio} text="Portfolio" />
                     <MenuItem onPress={() => router.replace(ROUTES.INVESTMENT)} imageSource={images.invest} text="RealInvest" />
-                    <MenuItem onPress={() => navigation.navigate(ROUTES.MARKET)} imageSource={images.market} text="Market" />
+                    <MenuItem onPress={() => router.replace(ROUTES.MUTUAL)} imageSource={images.team} text="MutualInvest" />
                 </View>
 
                 <View style={styles.auxiliaryMenu}>
                     <View style={styles.menuRow}>
-                        <MenuItem onPress={() => router.replace(ROUTES.TRENDS)} imageSource={images.trends} text="Trends" />
+                        <MenuItem onPress={() => navigation.navigate(ROUTES.MARKET)} imageSource={images.market} text="Market" />
                         <MenuItem onPress={() => router.replace(ROUTES.ANALYSIS)} imageSource={images.calculator} text="Calculator" />
-                        <MenuItem onPress={() => router.replace(ROUTES.LEARN)} imageSource={images.learn} text="Learn" />
+                        <MenuItem onPress={() => router.replace(ROUTES.MANAGER)} imageSource={images.manager} text="Manager" />
+
                     </View>
                     <View style={styles.menuRow}>
-                        <MenuItem onPress={() => router.replace(ROUTES.MUTUAL)} imageSource={images.team} text="Mutual Invest" />
-                        <MenuItem onPress={() => router.replace(ROUTES.MANAGER)} imageSource={images.manager} text="Manager" />
+                        <MenuItem onPress={() => router.replace(ROUTES.LEARN)} imageSource={images.learn} text="Learn" />
+                        <MenuItem onPress={() => router.replace(ROUTES.TRENDS)} imageSource={images.trends} text="Trends" />
                         <MenuItem onPress={() => router.replace(ROUTES.SETTINGS)} imageSource={images.menuSettings} text="Settings" />
                     </View>
                 </View>

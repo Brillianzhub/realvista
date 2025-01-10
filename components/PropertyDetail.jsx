@@ -188,7 +188,7 @@ const PropertyDetail = ({
                                 <View key={index} style={styles.dividendRow}>
                                     <Text style={styles.dividendMonth}>{expense.date_incurred}</Text>
                                     <Text style={styles.dividendShare}>
-                                        {formatCurrency(expense.amount, currency)}
+                                        {formatCurrency(expense.amount, expense.currency)}
                                     </Text>
                                 </View>
                             ))}

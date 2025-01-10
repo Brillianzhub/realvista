@@ -90,7 +90,7 @@ const Portfolio = () => {
       <View style={styles.header}>
         <View style={styles.summaryContainer}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={styles.summaryTitle}>PORTFOLIO SUMMARY</Text>
+            <Text style={styles.summaryTitle}>SUMMARY</Text>
             <TouchableOpacity
               style={{}}
               onPress={handleViewDetails}
@@ -99,15 +99,15 @@ const Portfolio = () => {
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Investments + Expenses</Text>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Investment</Text>
             <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalInvestment}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Current Values + Incomes</Text>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Current Values</Text>
             <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Percentage Returns</Text>
+            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Returns</Text>
             {userTotalsWithAnalysis.length === 0 ? (
               <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>0.00 %</Text>
             ) : (
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   summaryText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#555',
     marginBottom: 5,
   },

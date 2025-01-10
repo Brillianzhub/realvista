@@ -68,7 +68,7 @@ const UserPropertyExpense = ({ navigation }) => {
                             onValueChange={(itemValue) => setSelectedPropertyId(itemValue)}
                             style={styles.picker}
                         >
-                            <Picker.Item label="Select property" value={null} />
+                            <Picker.Item label="Select a property to assign expenses" value={null} />
                             {filteredProperties.map((property) => (
                                 <Picker.Item key={property.id} label={property.title} value={property.id} />
                             ))}
@@ -78,7 +78,7 @@ const UserPropertyExpense = ({ navigation }) => {
                     {selectedProperty ? (
                         <PropertyExpensesForm property={selectedProperty} onSubmit={handleFormSubmit} />
                     ) : (
-                        <Text style={styles.infoText}>Please select a property to add expenses.</Text>
+                        <Text style={styles.infoText}>Select the property for which you'd like to add expenses using the dropdown menu.</Text>
                     )}
                 </>
             )}

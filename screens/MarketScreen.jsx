@@ -4,6 +4,8 @@ import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, Image, A
 import useFetchProperties from "../hooks/useFetchProperties";
 import { useCurrency } from '../context/CurrencyContext';
 import { formatCurrency } from '../utils/formatCurrency';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const MarketScreen = () => {
@@ -43,26 +45,49 @@ const MarketScreen = () => {
         );
     }
 
-    const renderProperty = ({ item }) => (
-        <View style={styles.propertyCard}>
-            <Image
-                source={{ uri: item.image || 'https://via.placeholder.com/150' }}
-                style={styles.propertyImage}
-            />
-            <View style={styles.propertyInfo}>
-                <Text style={styles.propertyTitle}>{item.title}</Text>
-                <Text style={styles.propertyDetails}>Location: {item.city}, {item.state}</Text>
-                <Text style={styles.propertyDetails}>Price: {formatCurrency(item.price, currency)}</Text>
-                <TouchableOpacity
-                    style={styles.contactButton}
-                    onPress={() => navigation.navigate('PropertyDetail', { property: item })}
-                >
-                    <Text style={styles.contactButtonText}>View Details</Text>
-                </TouchableOpacity>
+    const renderProperty = ({ item }) => {
+        const handleViewProperty = async (propertyId) => {
+            try {
+
+                const token = await AsyncStorage.getItem('authToken');
+                await axios.get(`https://www.realvistamanagement.com/market/view-property/${propertyId}/`, {
+                    headers: {
+                        Authorization: `Token ${token}`, 
+                    },
+                });
+
+                navigation.navigate('PropertyDetail', { property: item });
+            } catch (error) {
+                console.error('Error viewing property:', error.response?.data || error.message);
+            }
+        };
+
+        return (
+            <View style={styles.propertyCard}>
+                <Image
+                    source={{ uri: item.image || 'https://via.placeholder.com/150' }}
+                    style={styles.propertyImage}
+                />
+                <View style={styles.propertyInfo}>
+                    <Text style={styles.propertyTitle}>{item.title}</Text>
+                    <Text style={styles.propertyDetails}>
+                        Location: {item.city}, {item.state}
+                    </Text>
+                    <Text style={styles.propertyDetails}>
+                        Price: {formatCurrency(item.price, currency)}
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.contactButton}
+                        onPress={() => handleViewProperty(item.id)}
+                    >
+                        <Text style={styles.contactButtonText}>View Details</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
-    );
-    
+        );
+    };
+
+
 
     return (
         <View style={styles.container}>

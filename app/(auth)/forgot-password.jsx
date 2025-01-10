@@ -105,15 +105,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#FB902E',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 5,
+        borderRadius: 30,
     },
     buttonDisabled: {
         backgroundColor: '#ccc',
     },
     buttonText: {
+        fontFamily: 'Abel-Regular',
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '400',
     },
     logoContainer: {
         alignItems: 'center',

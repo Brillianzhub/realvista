@@ -119,6 +119,22 @@ const ManageLayout = () => {
                         ),
                     }}
                 />
+
+                {/* <Stack.Screen
+                    name="PropertyListing"
+                    options={{
+                        headerShown: true,
+                        title: "PropertyListing",
+                        headerTitleAlign: 'center',
+                        headerStyle: { backgroundColor: '#358B8B' },
+                        headerTintColor: '#fff',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#fff" style={{ marginLeft: 15 }} />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                /> */}
             </Stack>
             <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
         </>

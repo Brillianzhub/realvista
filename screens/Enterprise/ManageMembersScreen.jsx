@@ -33,7 +33,6 @@ export default function ManageMembersScreen({ route }) {
             Alert.alert('Validation Error', 'Please enter a valid email.');
             return;
         }
-
         if (members.some((member) => member.email === email)) {
             Alert.alert('Duplicate Member', 'This member is already added.');
             return;
@@ -62,7 +61,6 @@ export default function ManageMembersScreen({ route }) {
         }
     };
 
-
     useEffect(() => {
         fetchGroupMembers();
     }, []);
@@ -86,7 +84,7 @@ export default function ManageMembersScreen({ route }) {
                 />
             )}
 
-            {role === 'ADMIN' && (
+            {(role === 'SUPERADMIN' || role === 'ADMIN') && (
                 <>
                     <TextInput
                         style={styles.input}

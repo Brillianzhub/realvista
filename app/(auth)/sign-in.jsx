@@ -10,7 +10,6 @@ import {
     Alert,
     Image,
     Linking,
-    Keyboard
 } from 'react-native';
 import images from '../../constants/images';
 import { useGlobalContext } from '../../context/GlobalProvider';
@@ -20,8 +19,8 @@ import { ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import FingerprintAuth from '../../components/FingerprintAuth';
-
-
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { googleAuthSignIn } from '../../lib/googleAuthSignIn';
 
 
 const signIn = async (email, password) => {
@@ -87,16 +86,36 @@ const signIn = async (email, password) => {
 
 const SignIn = () => {
     const { setUser, isLogged, setIsLogged } = useGlobalContext();
-
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const [form, setForm] = useState({
         email: '',
         password: ''
     });
 
-    console.log(isLogged)
+    const configureGoogleSignIn = async () => {
+        GoogleSignin.configure({
+            webClientId: "249644969622-pm62s6ipfbkqg65ifefsknur3khttf0f.apps.googleusercontent.com",
+            offlineAccess: true,
+        });
+    };
+
+    useEffect(() => {
+        configureGoogleSignIn();
+    }, []);
+
+    const handleGoogleAuth = async () => {
+        setIsSubmitting(true);
+        try {
+            await googleAuthSignIn({ setUser, setIsLogged, router });
+        } catch (error) {
+            console.error('Google Auth Error:', error);
+        } finally {
+            setIsSubmitting(false); // Reset loading state
+        }
+    };
 
     const fetchUserData = async () => {
         try {
@@ -127,14 +146,17 @@ const SignIn = () => {
         }
     };
 
+    useEffect(() => {
+        const { authenticate } = FingerprintAuth({
+            onSuccess: fetchUserData,
+            onFailure: () => {
+                // Do nothing when fingerprint authentication fails or is canceled
+            },
+        });
 
-    const { authenticate } = FingerprintAuth({
-        onSuccess: fetchUserData,
-        onFailure: () => console.log('Fingerprint authentication failed!'),
-    });
+        authenticate();
+    }, [isLogged]);
 
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async () => {
         if (!form.email || !form.password) {
@@ -184,7 +206,7 @@ const SignIn = () => {
                             </View>
 
                             <TextInput
-                                style={[styles.input, keyboardVisible && styles.inputKeyboardVisible]}
+                                style={[styles.input]}
                                 placeholder="Email"
                                 keyboardType="email-address"
                                 value={form.email}
@@ -210,22 +232,9 @@ const SignIn = () => {
                                 Forgot your password ?
                             </Link>
 
-                            {isLogged ? (
-                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5 }}>
-                                    <Pressable style={[styles.button, { flex: 5 }]} onPress={handleSubmit}>
-                                        <Text style={styles.buttonText}>Login</Text>
-                                    </Pressable>
-                                    <Pressable style={[styles.button, { flex: 1 }]} onPress={authenticate}>
-                                        <Image
-                                            source={images.fingerprint}
-                                        />
-                                    </Pressable>
-                                </View>
-                            ) : (
-                                <Pressable style={[styles.button]} onPress={handleSubmit}>
-                                    <Text style={styles.buttonText}>Login</Text>
-                                </Pressable>
-                            )}
+                            <Pressable style={[styles.button]} onPress={handleSubmit}>
+                                <Text style={styles.buttonText}>Login</Text>
+                            </Pressable>
 
                             <View style={styles.footer}>
                                 <Text style={styles.footerText}>Don't have an account with us ?</Text>
@@ -233,8 +242,17 @@ const SignIn = () => {
                                     Sign Up
                                 </Link>
                             </View>
-                            <View>
-                                <Text>Singin with Google</Text>
+                            <View style={{ marginVertical: 10 }}>
+                                <Text style={{ textAlign: 'center' }}>OR</Text>
+                            </View>
+                            <View style={{ marginVertical: 20 }}>
+                                <Pressable style={[styles.googleBtn, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }]} onPress={handleGoogleAuth}>
+                                    <Image
+                                        source={images.google}
+                                        style={styles.googleBtnImage}
+                                    />
+                                    <Text style={[styles.buttonText, { color: '#000', textAlign: 'center' }]}>Login with Google</Text>
+                                </Pressable>
                             </View>
                             <View style={{ marginVertical: 10 }}>
                                 <Text style={styles.text}>
@@ -262,7 +280,6 @@ const SignIn = () => {
                         </>
                     )}
                 </View>
-
             </ScrollView>
         </SafeAreaView>
     );
@@ -312,15 +329,27 @@ const styles = StyleSheet.create({
         backgroundColor: '#FB902E',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 5,
+        borderRadius: 30,
         marginTop: 10,
     },
     buttonText: {
+        fontFamily: 'Abel-Regular',
+        fontSize: 20,
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '400',
     },
-
+    googleBtn: {
+        borderWidth: 3,
+        borderColor: '#FB902E',
+        borderRadius: 30,
+        padding: 8
+    },
+    googleBtnImage: {
+        width: 24,
+        height: 24,
+        resizeMode: 'contain',
+    },
     logoContainer: {
         alignItems: 'center',
         marginBottom: 40,

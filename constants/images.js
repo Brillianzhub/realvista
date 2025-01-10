@@ -56,10 +56,23 @@ import carouselTwo from '../assets/images/carousel-two.png';
 import carouselThree from '../assets/images/carousel-three.png';
 import carouselFour from '../assets/images/carousel-four.png';
 import carouselFive from '../assets/images/carousel-five.png';
+import onboarding from '../assets/images/onboarding.png';
+import onboardCarOne from '../assets/images/onboarding-carousel-one.png';
+import onboardCarTwo from '../assets/images/onboarding-carousel-two.png';
+import onboardCarThree from '../assets/images/onboarding-carousel-three.png';
+import closeModal from '../assets/images/closemodal.png';
+
+
+
 
 
 
 export default {
+    closeModal,
+    onboardCarOne,
+    onboardCarTwo,
+    onboardCarThree,
+    onboarding,
     manager,
     menuSettings,
     carouselOne,

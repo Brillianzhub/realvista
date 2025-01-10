@@ -6,7 +6,6 @@ import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
 import axios from 'axios';
-import { router } from 'expo-router';
 
 
 const UpdateProperty = ({ navigation }) => {
@@ -79,7 +78,7 @@ const UpdateProperty = ({ navigation }) => {
                     {selectedProperty ? (
                         <PropertyUpdateForm property={selectedProperty} onSubmit={handleUpdate} />
                     ) : (
-                        <Text style={styles.infoText}>Please select a property to update.</Text>
+                        <Text style={styles.infoText}>Select the property for which you'd like to update using the dropdown menu.</Text>
                     )}
                 </>
             )}

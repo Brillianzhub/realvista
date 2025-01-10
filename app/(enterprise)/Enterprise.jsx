@@ -16,6 +16,8 @@ import RemoveGroupProperty from '../../screens/Enterprise/Manage/RemoveGroupProp
 import UpdateGroupProperty from '../../screens/Enterprise/Manage/UpdateGroupProperty';
 import AddGroupPropertyIncome from '../../screens/Enterprise/Manage/AddGroupPropertyIncome';
 import AddGroupPropertyExpense from '../../screens/Enterprise/Manage/AddGroupPropertyExpense';
+import ManageAllocations from '../../screens/Enterprise/Manage/ManageAllocations';
+
 
 
 const Stack = createStackNavigator();
@@ -146,6 +148,17 @@ export default function EnterpriseNavigator() {
                 options={{
                     headerShown: true,
                     title: "Add Group Property Expense",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: '#358B8B' },
+                    headerTintColor: '#fff',
+                }}
+            />
+            <Stack.Screen
+                name="ManageAllocations" 
+                component={ManageAllocations}
+                options={{
+                    headerShown: true,
+                    title: "Manage Allocations",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#358B8B' },
                     headerTintColor: '#fff',
