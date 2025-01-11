@@ -61,6 +61,8 @@ import onboardCarOne from '../assets/images/onboarding-carousel-one.png';
 import onboardCarTwo from '../assets/images/onboarding-carousel-two.png';
 import onboardCarThree from '../assets/images/onboarding-carousel-three.png';
 import closeModal from '../assets/images/closemodal.png';
+import wishList from '../assets/images/wishlist.png';
+
 
 
 
@@ -69,6 +71,7 @@ import closeModal from '../assets/images/closemodal.png';
 
 export default {
     closeModal,
+    wishList,
     onboardCarOne,
     onboardCarTwo,
     onboardCarThree,

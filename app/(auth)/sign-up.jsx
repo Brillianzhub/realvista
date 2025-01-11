@@ -34,6 +34,21 @@ const RegistrationForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const [validation, setValidation] = useState({
+        passwordLength: false,
+        passwordUppercase: false,
+        passwordLowercase: false,
+        passwordNumber: false,
+        passwordSpecialChar: false,
+    });
+
+
+    // Regex patterns
+    const uppercaseRegex = /[A-Z]/;
+    const lowercaseRegex = /[a-z]/;
+    const numberRegex = /\d/;
+    const specialCharRegex = /[@$!%*?&]/;
+
     const configureGoogleSignIn = async () => {
         GoogleSignin.configure({
             webClientId: "249644969622-pm62s6ipfbkqg65ifefsknur3khttf0f.apps.googleusercontent.com",
@@ -56,30 +71,43 @@ const RegistrationForm = () => {
         }
     };
 
+    const handlePasswordChange = (password) => {
+        setForm((prev) => ({ ...prev, password }));
 
+        // Validate password
+        setValidation({
+            passwordLength: password.length >= 8,
+            passwordUppercase: uppercaseRegex.test(password),
+            passwordLowercase: lowercaseRegex.test(password),
+            passwordNumber: numberRegex.test(password),
+            passwordSpecialChar: specialCharRegex.test(password),
+        });
+    };
+
+    const isPasswordStrong = Object.values(validation).every((val) => val);
 
     const validateForm = (form) => {
         const { email, password, confirmPassword } = form;
 
-        // Regular expression for validating email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        // Validate email
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
         if (!email || !emailRegex.test(email)) {
             return { valid: false, message: "Please enter a valid email address." };
         }
 
-        // Validate password length
-        if (!password || password.length < 8) {
-            return { valid: false, message: "Password must be at least 8 characters long." };
+        if (!password || !strongPasswordRegex.test(password)) {
+            return {
+                valid: false,
+                message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+            };
         }
 
-        // Validate password and confirm password match
         if (password !== confirmPassword) {
             return { valid: false, message: "Password and confirm password must match." };
         }
 
-        // All validations passed
         return { valid: true };
     };
 

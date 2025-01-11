@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useCurrency } from '../context/CurrencyContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useGlobalContext } from '@/context/GlobalProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
 
@@ -12,6 +14,9 @@ const PropertyDetailScreen = ({ route }) => {
     const { property } = route.params;
     const { currency } = useCurrency();
     const navigation = useNavigation();
+
+    const [isRecordingInquiry, setIsRecordingInquiry] = useState(false);
+
 
     const { user } = useGlobalContext()
     const placeholderImage = "https://via.placeholder.com/400x200?text=No+Image";
@@ -21,12 +26,68 @@ const PropertyDetailScreen = ({ route }) => {
 
     const [activeIndex, setActiveIndex] = useState(0);
 
+    const handleAddBookmark = async (propertyId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
 
-    const contactPropertyOwner = () => {
+            if (!token) {
+                Alert.alert('Error', 'Authentication token is missing.');
+                return;
+            }
+
+            const response = await axios.post(
+                `https://www.realvistamanagement.com/market/bookmark-property/${propertyId}/`,
+                {}, // Empty body for POST request
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+
+            // Handle success response
+            Alert.alert('Success', response.data.message || 'Property bookmarked successfully.');
+        } catch (error) {
+            // Suppress the log for "already bookmarked" error
+            if (
+                error.response?.status === 400 &&
+                error.response?.data?.message === "Property is already bookmarked"
+            ) {
+                Alert.alert('Info', 'This property is already bookmarked.');
+                return; // Avoid further handling for this specific case
+            }
+
+            // Log other errors for debugging purposes
+            console.error('Error bookmarking property:', error.response?.data || error.message);
+
+            // Handle other errors
+            if (error.response?.status === 404) {
+                Alert.alert('Error', 'The property does not exist.');
+            } else {
+                Alert.alert(
+                    'Error',
+                    error.response?.data?.error || 'An error occurred while bookmarking the property.'
+                );
+            }
+        }
+    };
+
+    const contactPropertyOwner = async () => {
         if (!property || !property.owner || !user || !user.name || !user.email) {
             Alert.alert('Error', 'Property or user information is missing.');
             return;
         }
+
+        setIsRecordingInquiry(true);
+        try {
+            await handleInquiryProperty(property.id);
+        } catch (error) {
+            console.error('Error recording inquiry:', error.response?.data || error.message);
+            Alert.alert('Error', 'Unable to record inquiry. Please try again.');
+            setIsRecordingInquiry(false);
+            return;
+        }
+        setIsRecordingInquiry(false);
 
         const ownerEmail = property.owner;
         const propertyName = property.title;
@@ -47,6 +108,35 @@ const PropertyDetailScreen = ({ route }) => {
             );
         });
     };
+
+
+    const handleInquiryProperty = async (propertyId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+
+            if (!token) {
+                Alert.alert('Error', 'Authentication token is missing.');
+                return;
+            }
+
+            const response = await axios.get(
+                `https://www.realvistamanagement.com/market/inquiry-on-property/${propertyId}/`,
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+
+        } catch (error) {
+            console.error(
+                'Error recording inquiry:',
+                error.response?.data || error.message
+            );
+            Alert.alert('Error', error.response?.data?.detail || 'An error occurred while recording the inquiry.');
+        }
+    };
+
 
 
     return (
@@ -103,12 +193,22 @@ const PropertyDetailScreen = ({ route }) => {
                 <Text style={styles.description}>{property.description}</Text>
             </View>
 
-            <TouchableOpacity
-                style={styles.contactButton}
-                onPress={contactPropertyOwner}
-            >
-                <Text style={{ textAlign: 'center', color: 'white', fontSize: 16, fontWeight: 'bold' }}>Contact the Owner</Text>
-            </TouchableOpacity>
+            <View style={styles.actionBtns}>
+                <TouchableOpacity
+                    style={styles.contactButton}
+                    onPress={contactPropertyOwner}
+                >
+                    <Text style={{ textAlign: 'center', color: 'white', fontSize: 16, fontWeight: 'bold' }}>Contact the Owner</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.wishlistButton}
+                    onPress={() => handleAddBookmark(property.id)}
+                >
+                    <Text style={{ textAlign: 'center', color: '#FB902E', fontSize: 16, fontWeight: 'bold' }}>Add to Wish List</Text>
+                </TouchableOpacity>
+            </View>
+
         </ScrollView>
     );
 };
@@ -175,8 +275,23 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 4,
         alignItems: 'center',
-        marginTop: 20
+        marginTop: 20,
+        width: '48%'
     },
+    actionBtns: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    wishlistButton: {
+        borderWidth: 1,
+        borderColor: '#FB902E',
+        padding: 10,
+        borderRadius: 4,
+        alignItems: 'center',
+        marginTop: 20,
+        width: '48%'
+    }
 });
 
 export default PropertyDetailScreen;

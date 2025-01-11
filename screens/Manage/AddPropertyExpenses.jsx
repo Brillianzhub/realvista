@@ -36,12 +36,12 @@ const UserPropertyExpense = ({ navigation }) => {
                 }
             );
 
-            Alert.alert('Success', 'Income added successfully!');
+            Alert.alert('Success', 'Expenses added successfully!');
             navigation.goBack();
             return response.data;
         } catch (error) {
-            console.error('Error adding income:', error.response?.data || error.message);
-            Alert.alert('Error', 'Failed to add income. Please try again.');
+            console.error('Error adding expenses:', error.response?.data || error.message);
+            Alert.alert('Error', 'Failed to add expenses. Please try again.');
             throw error;
         } finally {
             setIsSubmitting(false);

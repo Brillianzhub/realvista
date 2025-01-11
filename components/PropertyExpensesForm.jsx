@@ -92,7 +92,7 @@ const AddExpenseForm = ({ property, onSubmit }) => {
                     >
                         {values.date_incurred
                             ? `Date: ${values.date_incurred}`
-                            : 'Select Date Received'}
+                            : 'Select Date Incurred'}
                     </Button>
                     <HelperText type="error" visible={touched.date_incurred && errors.date_incurred}>
                         {errors.date_incurred}

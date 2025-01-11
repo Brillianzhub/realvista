@@ -44,6 +44,17 @@ const NavigationView = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
+                onPress={() => router.push('Bookmarks')}
+                style={styles.menuItem}
+            >
+                <Image
+                    source={images.wishList}
+                    style={styles.menuImg}
+                />
+                <Text style={styles.menuText}>Wish List</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
                 onPress={() =>
                     Linking.openURL('https://www.realvistaproperties.com/frequently-asked-questions')
                 }

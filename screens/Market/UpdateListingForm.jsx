@@ -5,6 +5,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import * as Location from 'expo-location';
 
+
 import CurrencyModal from "../../components/CurrencyModal";
 import { useCurrency } from '../../context/CurrencyContext';
 import CurrencyData from '../../assets/CurrencyData';
@@ -31,22 +32,10 @@ const propertyTypes = [
     { label: 'Studio Apartment', value: 'studio' },
 ];
 
-
-const statusTypes = [
-    { label: 'Available', value: 'available' },
-    { label: 'Occupied', value: 'occupied' },
-    { label: 'Sold', value: 'sold' },
-];
-
 const currencyOptions = Object.entries(CurrencyData.symbols).map(([key, value]) => ({
     label: `${value} (${key})`,
     value: key,
 }))
-
-const availabilityChoices = [
-    { label: 'Available Now', value: 'now' },
-    { label: 'Available from Specified Date', value: 'date' },
-];
 
 const listingPurposeChoices = [
     { label: 'For Sale', value: 'sale' },
@@ -54,7 +43,7 @@ const listingPurposeChoices = [
     { label: 'For Rent', value: 'rent' },
 ];
 
-const ListingForm = ({ property, onSubmit }) => {
+const UpdateListingForm = ({ property, onSubmit }) => {
 
     const validationSchema = Yup.object({
         title: Yup.string().required('Title is required'),
@@ -173,14 +162,14 @@ const ListingForm = ({ property, onSubmit }) => {
                 address: property?.address || '',
                 city: property?.city || '',
                 state: property?.state || '',
-                zip_code: property?.zip_code.toString() || '',
-                bedrooms: property?.bedrooms.toString() || '',
-                bathrooms: property?.bathrooms.toString() || '',
-                square_feet: property?.square_feet.toString() || '',
-                lot_size: property?.area.toString() || '',
-                year_built: property?.year_built.toString() || '',
-                availability: property?.availability || '',
-                availability_date: property?.availability_date || '',
+                zip_code: '',
+                bedrooms: property?.bedrooms || '',
+                bathrooms: property?.bathrooms || '',
+                square_feet: property?.square_feet || '',
+                lot_size: '',
+                year_built: property?.year_built || '',
+                availability: '',
+                availability_date: '',
                 coordinate_url: property?.virtual_tour_url || '',
             }}
             enableReinitialize={true}
@@ -446,7 +435,7 @@ const ListingForm = ({ property, onSubmit }) => {
                         {errors.virtual_tour_url}
                     </HelperText>
                     <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
-                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Add Listing</Text>
+                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Update Listing</Text>
                     </Pressable>
                 </ScrollView>
             )}
@@ -478,4 +467,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ListingForm;
+export default UpdateListingForm;

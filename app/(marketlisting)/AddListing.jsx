@@ -24,7 +24,7 @@ const AddListing = ({ route, navigation }) => {
 
         setIsSubmitting(true);
         try {
-            const response = await axios.put(
+            const response = await axios.post(
                 `https://www.realvistamanagement.com/market/list-property/`,
                 values,
                 {

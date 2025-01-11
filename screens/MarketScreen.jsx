@@ -52,7 +52,7 @@ const MarketScreen = () => {
                 const token = await AsyncStorage.getItem('authToken');
                 await axios.get(`https://www.realvistamanagement.com/market/view-property/${propertyId}/`, {
                     headers: {
-                        Authorization: `Token ${token}`, 
+                        Authorization: `Token ${token}`,
                     },
                 });
 

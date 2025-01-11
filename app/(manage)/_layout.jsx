@@ -120,11 +120,11 @@ const ManageLayout = () => {
                     }}
                 />
 
-                {/* <Stack.Screen
-                    name="PropertyListing"
+                <Stack.Screen
+                    name="Bookmarks"
                     options={{
                         headerShown: true,
-                        title: "PropertyListing",
+                        title: "Wished Items",
                         headerTitleAlign: 'center',
                         headerStyle: { backgroundColor: '#358B8B' },
                         headerTintColor: '#fff',
@@ -134,7 +134,7 @@ const ManageLayout = () => {
                             </TouchableOpacity>
                         ),
                     }}
-                /> */}
+                />
             </Stack>
             <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
         </>

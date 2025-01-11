@@ -1,8 +1,11 @@
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import useFetchUserListedProperties from '../../hooks/useFetchUserListedProperties';
 import UpdateListingForm from '../../screens/Market/UpdateListingForm';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { router } from 'expo-router';
 
 
 const UpdateListing = () => {
@@ -11,20 +14,22 @@ const UpdateListing = () => {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    console.log(selectedProperty)
 
     useEffect(() => {
-        if (properties && property) {
+        if (properties && properties.length > 0 && property) {
+            const propertyId = Number(property);
+
             const filteredProperty = properties.find(
-                (prop) => prop.id === Number(property)
+                (prop) => prop.id === propertyId
             );
+
             if (filteredProperty) {
-                setTimeout(() => {
-                    setSelectedProperty(filteredProperty);
-                }, 2500); // Adjust delay time as needed
+                setSelectedProperty(filteredProperty);
             }
         }
     }, [properties, property]);
+
+
 
     if (loading) {
         return <ActivityIndicator size="large" color="#358B8B" />;
@@ -34,35 +39,62 @@ const UpdateListing = () => {
         return <Text>Error: {error}</Text>;
     }
 
-    if (!selectedProperty) {
-        return <Text>Property not found. Ensure the property ID matches an existing property.</Text>;
+    if (!selectedProperty && !loading) {
+        return <Text>Property not found. Please try again later.</Text>;
     }
 
     const handleSubmit = async (values) => {
-        console.log(values)
+        const token = await AsyncStorage.getItem('authToken');
+
+        if (!token) {
+            Alert.alert('Error', 'Authentication token required!');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await axios.put(
+                `https://www.realvistamanagement.com/market/update-property/`,
+                values,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+
+            Alert.alert('Success', 'Property updated successfully!');
+            router.replace('/MarketListing');
+            return response.data;
+        } catch (error) {
+            console.error('Error updating property:', error.response?.data || error.message);
+            Alert.alert('Error', 'Failed to update property. Please try again.');
+            throw error;
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <View style={styles.container}>
-            <Text>Update coming soon...</Text>
+            {isSubmitting ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#358B8B" />
+                    <Text style={[styles.loadingText, { textAlign: 'center' }]}>
+                        Wait while we update your property...
+                    </Text>
+                </View>
+            ) : selectedProperty ? (
+                <UpdateListingForm property={selectedProperty} onSubmit={handleSubmit} />
+            ) : (
+                <Text style={{ textAlign: 'center', marginTop: 20 }}>
+                    No property selected or found. Please try again.
+                </Text>
+            )}
         </View>
-        // <View style={styles.container}>
-        //     {isSubmitting ? (
-        //         <View style={styles.loadingContainer}>
-        //             <ActivityIndicator size="large" color="#358B8B" />
-        //             <Text style={styles.loadingText}>
-        //                 Wait while we update your property...
-        //             </Text>
-        //         </View>
-        //     ) : (
-        //         <>
-        //             {selectedProperty && (
-        //                 <UpdateListingForm property={selectedProperty} onSubmit={handleSubmit} />
-        //             )}
-        //         </>
-        //     )}
-        // </View>
     );
+
 
 };
 
