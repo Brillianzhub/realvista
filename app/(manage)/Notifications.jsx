@@ -5,6 +5,8 @@ import { useNotifications } from '../../context/NotificationContext';
 const Notifications = () => {
     const { notifications, markNotificationsAsRead } = useNotifications();
 
+    console.log(notifications)
+
     useEffect(() => {
         markNotificationsAsRead();
     }, []);
@@ -13,7 +15,7 @@ const Notifications = () => {
         <View style={styles.container}>
             <Text style={styles.header}>Notifications</Text>
             <FlatList
-                data={notifications || []}
+                data={notifications}
                 keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.notification}>

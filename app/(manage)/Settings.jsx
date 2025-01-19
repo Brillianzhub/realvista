@@ -40,7 +40,7 @@ const Settings = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Settings</Text>
+            {/* <Text style={styles.header}>Settings</Text> */}
             <View style={styles.settingItem}>
                 <Text style={styles.label}>Preferred Currency</Text>
                 <TouchableOpacity
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ffffff',
     },
     header: {
         fontSize: 24,

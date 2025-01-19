@@ -9,12 +9,26 @@ const RemoveGroupProperty = ({ navigation }) => {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const { properties, fetchUserProperties, setLoading, loading } = useUserProperty();
 
-
-    const handleDeleteProperty = async () => {
+    const confirmDeleteProperty = () => {
         if (!selectedProperty) {
             Alert.alert('Error', 'Please select a property to delete.');
             return;
         }
+
+        Alert.alert(
+            'Confirm Deletion',
+            `Are you sure you want to delete the property "${selectedProperty.title}"? 
+            \nThis action is irreversible, and all data associated with this property will be permanently lost.`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Yes', onPress: handleDeleteProperty },
+            ],
+            { cancelable: true }
+        );
+    };
+
+
+    const handleDeleteProperty = async () => {
         const token = await AsyncStorage.getItem('authToken');
         if (!token) {
             Alert.alert('Error', 'User token required to complete this operation');
@@ -34,7 +48,7 @@ const RemoveGroupProperty = ({ navigation }) => {
             );
             if (response.ok) {
                 Alert.alert('Success', 'Property has been deleted successfully.');
-                setSelectedProperty('');
+                setSelectedProperty(null);
                 fetchUserProperties();
                 navigation.goBack();
             } else {
@@ -72,7 +86,7 @@ const RemoveGroupProperty = ({ navigation }) => {
                 contentContainerStyle={styles.listContainer}
                 showsVerticalScrollIndicator={false}
             />
-            <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteProperty}>
+            <TouchableOpacity style={styles.deleteButton} onPress={confirmDeleteProperty}>
                 <Text style={styles.deleteButtonText}>Delete Selected Property</Text>
             </TouchableOpacity>
         </View>
@@ -81,11 +95,12 @@ const RemoveGroupProperty = ({ navigation }) => {
 
 export default RemoveGroupProperty;
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#FFFFFF',
     },
     title: {
         fontSize: 20,

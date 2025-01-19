@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import PagerView from 'react-native-pager-view';
 import { usePushNotifications } from '../../usePushNotifications';
 import { useGlobalContext } from '../../context/GlobalProvider';
-
+import { useTheme } from '@/context/ThemeContext';
 
 
 const ROUTES = {
@@ -46,7 +46,7 @@ const HomeMenu = () => {
     const totalPages = 5;
     const autoSlideInterval = 4000;
     const { user } = useGlobalContext();
-
+    const { theme, toggleTheme, colors } = useTheme();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -71,7 +71,7 @@ const HomeMenu = () => {
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView
-                contentContainerStyle={styles.container}
+                contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.mainMenu}>
@@ -152,10 +152,11 @@ const HomeMenu = () => {
 
 export default HomeMenu;
 
+
 const styles = StyleSheet.create({
     container: {
         padding: 16,
-        backgroundColor: '#f5f5f5',
+
     },
     mainMenu: {
         flexDirection: 'row',
@@ -176,8 +177,7 @@ const styles = StyleSheet.create({
         width: 50,
     },
     menuText: {
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 14,
     },
     auxiliaryMenu: {
         padding: 20,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     link: {
-        color: '#358B8B',
+        color: '#FB902E',
         textDecorationLine: 'underline',
     },
     pagerView: {

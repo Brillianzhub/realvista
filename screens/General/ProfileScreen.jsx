@@ -4,22 +4,22 @@ import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images'
 import { TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import { router, useNavigation } from 'expo-router';
+import { router } from 'expo-router';
 import TransactionDetail from '../../components/TransactionDetail';
 import useUserOrders from "../../hooks/useUserOrders";
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatCurrency } from '../../utils/formatCurrency';
 import usePortfolioDetail from '../../hooks/usePortfolioDetail';
-
+import { useTheme } from '@/context/ThemeContext';
 
 
 const Profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
+    const { theme, toggleTheme, colors } = useTheme();
     const [selectedItem, setSelectedItem] = useState(null);
     const bottomSheetRef = useRef(null);
     const { orders, fetchUserOrders } = useUserOrders();
-
 
     const { result, loading, setLoading, currency, fetchPortfolioDetails } = usePortfolioDetail();
     const personalSummary = result?.personal_summary;
@@ -170,7 +170,7 @@ const Profile = () => {
 
     if (loading) {
         return (
-            <View style={styles.centered}>
+            <View style={[styles.centered, { backgroundColor: colors.background }]}>
                 <ActivityIndicator size="large" color="#358B8B" />
                 <Text>Loading...</Text>
             </View>
@@ -178,13 +178,17 @@ const Profile = () => {
     }
 
     return (
-        <ScrollView>
-            <View style={styles.container}>
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+        >
+            <View style={[styles.container, { backgroundColor: colors.background }]}>
                 <View style={styles.userInitialNameView}>
                     <Text style={styles.userInitialName}>{initialName}</Text>
                 </View>
                 <View style={styles.userNameView}>
-                    <Text style={styles.userName}>{user?.name}</Text>
+                    <Text style={styles.userName}>
+                        {user?.name && user?.first_name ? `${user.name} ${user.first_name}` : user?.name || user?.first_name}
+                    </Text>
                 </View>
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
@@ -245,9 +249,7 @@ const Profile = () => {
                                 Linking.openURL('https://www.realvistaproperties.com/about-us')
                             }
                         >
-
                             <Text style={styles.portfolioItemText}>About us</Text>
-
                         </TouchableOpacity>
                     </View>
                     <View style={styles.portfolioItem}>
@@ -282,7 +284,7 @@ const Profile = () => {
                 </View>
 
                 {/* If I have a group */}
-                <View style={styles.portfolioSummary}>
+                {/* <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
                         <Text style={styles.portfolioNetText}>My Corporate Groups</Text>
                     </View>
@@ -291,14 +293,17 @@ const Profile = () => {
                             <Text style={[styles.portfolioItemText]}>Example Group</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </View> */}
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
                         <Text style={styles.portfolioNetText}>Personal details</Text>
                     </View>
-                    <View style={styles.portfolioItem}>
-                        <Text style={styles.portfolioItemText}>Update your email</Text>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.portfolioItem}
+                        onPress={() => router.replace('/update-profile')}
+                    >
+                        <Text style={styles.portfolioItemText}>Update your profile</Text>
+                    </TouchableOpacity>
                     <View style={styles.portfolioItem}>
                         <Text style={styles.portfolioItemText}>Change your password</Text>
                     </View>
@@ -347,7 +352,7 @@ export default Profile
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20
+        padding: 20,
     },
     userInitialNameView: {
         alignItems: 'center',

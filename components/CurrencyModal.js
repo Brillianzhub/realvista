@@ -8,13 +8,10 @@ const CurrencyModal = ({ modalVisible, setModalVisible, currencyTypes, setFieldV
         currency.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // const handleCurrencySelect = (key) => {
-    //     setCurrency(key);
-    //     setModalVisible(false);
-    //     setSearchText(""); 
-    //     setFilteredCurrencies(Object.entries(CurrencyData.symbols)); 
-    //     Alert.alert('Currency Updated', `Your preferred currency is now set to ${key}`);
-    // };
+    const handleSelect = (value) => {
+        setFieldValue('currency', value);
+        setModalVisible(false);
+    };
 
 
     return (

@@ -4,7 +4,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CourseDetailScreen = ({ route, navigation }) => {
-    const { courseId } = route.params; // courseId passed from navigation
+    const { courseId } = route.params; 
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
 

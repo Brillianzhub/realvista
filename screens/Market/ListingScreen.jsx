@@ -5,7 +5,6 @@ const AddPropertyScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Add a New Property</Text>
-            {/* Add your form logic here */}
         </View>
     );
 };

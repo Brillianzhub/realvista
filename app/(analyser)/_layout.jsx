@@ -5,10 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 const AnalysisLayout = () => {
 
-    const handleBackPress = () => {
-        router.replace('/HomeScreen');
-    };
-
     return (
         <>
             <Stack>
@@ -18,15 +14,15 @@ const AnalysisLayout = () => {
                         headerShown: false,
                         title: "Analysis",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerLeft: () => null,
                         headerBackVisible: false
                     }}
                 />
             </Stack>
 
-            <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         </>
     );
 };

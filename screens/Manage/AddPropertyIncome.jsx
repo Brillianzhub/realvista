@@ -6,9 +6,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
 import useUserProperty from '../../hooks/useUserProperty';
 import { Picker } from '@react-native-picker/picker';
+import { useTheme } from '@/context/ThemeContext';
 
 
 const AddPropertyIncome = ({ navigation }) => {
+    const { colors } = useTheme();
     const { properties } = useUserProperty();
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +55,7 @@ const AddPropertyIncome = ({ navigation }) => {
     const selectedProperty = filteredProperties.find((property) => property.id === selectedPropertyId);
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             {isSubmitting ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#358B8B" />
@@ -91,7 +93,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
     },
     loadingContainer: {
         flex: 1,

@@ -30,7 +30,7 @@ const Bookmarks = () => {
     if (bookmarks.length === 0) {
         return (
             <View style={styles.center}>
-                <Text style={styles.emptyText}>No bookmarks found.</Text>
+                <Text style={styles.emptyText}>No items found in your wish list.</Text>
                 <Button title="Reload" onPress={handleReload} color="#358B8B" />
             </View>
         );

@@ -1,7 +1,10 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "react-native";
+import { useTheme } from '@/context/ThemeContext';
 
 const EnterpriseLayout = () => {
+    const { colors } = useTheme();
+
     return (
         <>
             <Stack>
@@ -11,15 +14,15 @@ const EnterpriseLayout = () => {
                         headerShown: false,
                         title: "Enterprise Account",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: colors.background },
+                        headerTintColor: colors.tint,
                         headerLeft: () => null,
                         headerBackVisible: false
                     }}
                 />
             </Stack>
 
-            <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
+            <StatusBar barStyle="dark-content" backgroundColor={colors.background}  />
         </>
     );
 };

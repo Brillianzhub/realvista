@@ -41,7 +41,6 @@ const signIn = async (email, password) => {
             throw new Error(errorData.error || 'Failed to sign in');
         }
 
-        // Step 2: Get the token
         const tokenResponse = await fetch('https://www.realvistamanagement.com/portfolio/api-token-auth/', {
             method: 'POST',
             headers: {
@@ -89,7 +88,6 @@ const SignIn = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-
     const [form, setForm] = useState({
         email: '',
         password: ''
@@ -113,7 +111,7 @@ const SignIn = () => {
         } catch (error) {
             console.error('Google Auth Error:', error);
         } finally {
-            setIsSubmitting(false); // Reset loading state
+            setIsSubmitting(false);
         }
     };
 
@@ -146,7 +144,10 @@ const SignIn = () => {
         }
     };
 
+
     useEffect(() => {
+        if (!isLogged) return;
+
         const { authenticate } = FingerprintAuth({
             onSuccess: fetchUserData,
             onFailure: () => {
@@ -156,7 +157,6 @@ const SignIn = () => {
 
         authenticate();
     }, [isLogged]);
-
 
     const handleSubmit = async () => {
         if (!form.email || !form.password) {

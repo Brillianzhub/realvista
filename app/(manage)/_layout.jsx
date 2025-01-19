@@ -23,8 +23,8 @@ const ManageLayout = () => {
                         headerShown: false,
                         title: "Manage Portfolio",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerLeft: () => null,
                         headerBackVisible: false
                     }}
@@ -35,8 +35,8 @@ const ManageLayout = () => {
                         headerShown: false,
                         title: "General",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerLeft: () => null,
                         headerBackVisible: false
                     }}
@@ -47,12 +47,12 @@ const ManageLayout = () => {
                         headerShown: true,
                         title: "Transactions",
                         headerTitleAlign: 'center',
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerBackVisible: false,
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#fff" />
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" />
                             </TouchableOpacity>
                         ),
                     }}
@@ -63,12 +63,12 @@ const ManageLayout = () => {
                         headerShown: true,
                         title: "Notifications",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerBackVisible: false,
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#fff" />
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" />
                             </TouchableOpacity>
                         ),
                     }}
@@ -79,12 +79,12 @@ const ManageLayout = () => {
                         headerShown: true,
                         title: "Settings",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "##358B8B",
                         headerBackVisible: false,
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#fff" />
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" />
                             </TouchableOpacity>
                         ),
                     }}
@@ -95,11 +95,11 @@ const ManageLayout = () => {
                         headerShown: true,
                         title: "Portfolio Analysis",
                         headerTitleAlign: 'center',
-                        headerStyle: { backgroundColor: '#358B8B' },
-                        headerTintColor: '#fff',
+                        headerStyle: { backgroundColor: '#FFFFFF' },
+                        headerTintColor: '#358B8B',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBack}>
-                                <Ionicons name="arrow-back" size={24} color="#fff" style={{ marginLeft: 15 }} />
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" style={{ marginLeft: 15 }} />
                             </TouchableOpacity>
                         ),
                     }}
@@ -110,11 +110,11 @@ const ManageLayout = () => {
                         headerShown: true,
                         title: "RealInvest",
                         headerTitleAlign: 'center',
-                        headerStyle: { backgroundColor: '#358B8B' },
-                        headerTintColor: '#fff',
+                        headerStyle: { backgroundColor: '#FFFFFF' },
+                        headerTintColor: '#358B8B',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#fff" style={{ marginLeft: 15 }} />
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" style={{ marginLeft: 15 }} />
                             </TouchableOpacity>
                         ),
                     }}
@@ -124,19 +124,19 @@ const ManageLayout = () => {
                     name="Bookmarks"
                     options={{
                         headerShown: true,
-                        title: "Wished Items",
+                        title: "Wish Items",
                         headerTitleAlign: 'center',
-                        headerStyle: { backgroundColor: '#358B8B' },
-                        headerTintColor: '#fff',
+                        headerStyle: { backgroundColor: '#FFFFFF' },
+                        headerTintColor: '#358B8B',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#fff" style={{ marginLeft: 15 }} />
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" style={{ marginLeft: 15 }} />
                             </TouchableOpacity>
                         ),
                     }}
                 />
             </Stack>
-            <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
+            <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
         </>
     );
 };

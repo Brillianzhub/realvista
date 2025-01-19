@@ -37,7 +37,7 @@ const PropertyDetailScreen = ({ route }) => {
 
             const response = await axios.post(
                 `https://www.realvistamanagement.com/market/bookmark-property/${propertyId}/`,
-                {}, // Empty body for POST request
+                {},
                 {
                     headers: {
                         Authorization: `Token ${token}`,
@@ -45,22 +45,18 @@ const PropertyDetailScreen = ({ route }) => {
                 }
             );
 
-            // Handle success response
-            Alert.alert('Success', response.data.message || 'Property bookmarked successfully.');
+            Alert.alert('Success', response.data.message || 'Property successfully added to your wish list.');
         } catch (error) {
-            // Suppress the log for "already bookmarked" error
             if (
                 error.response?.status === 400 &&
-                error.response?.data?.message === "Property is already bookmarked"
+                error.response?.data?.message === "Property is already added to your wish list."
             ) {
                 Alert.alert('Info', 'This property is already bookmarked.');
-                return; // Avoid further handling for this specific case
+                return;
             }
 
-            // Log other errors for debugging purposes
             console.error('Error bookmarking property:', error.response?.data || error.message);
 
-            // Handle other errors
             if (error.response?.status === 404) {
                 Alert.alert('Error', 'The property does not exist.');
             } else {

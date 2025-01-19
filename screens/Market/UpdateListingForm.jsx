@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
-import { TextInput, HelperText, RadioButton, Text } from 'react-native-paper';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import { Pressable, ScrollView, StyleSheet, View, Alert, TouchableOpacity, Text } from 'react-native';
 import * as Location from 'expo-location';
-
-
+import CustomForm from '../../components/CustomForm';
 import CurrencyModal from "../../components/CurrencyModal";
 import { useCurrency } from '../../context/CurrencyContext';
 import CurrencyData from '../../assets/CurrencyData';
-import PropertyTypePicker from './PropertyTypePicker';
 import AvailabilityPicker from './AvailabilityPicker';
+import CustomPicker from '../../components/CustomPicker';
 
 
 const propertyTypes = [
@@ -32,6 +28,47 @@ const propertyTypes = [
     { label: 'Studio Apartment', value: 'studio' },
 ];
 
+const statesOfNigeria = [
+    { label: 'Abia', value: 'abia' },
+    { label: 'Adamawa', value: 'adamawa' },
+    { label: 'Akwa Ibom', value: 'akwa_ibom' },
+    { label: 'Anambra', value: 'anambra' },
+    { label: 'Bauchi', value: 'bauchi' },
+    { label: 'Bayelsa', value: 'bayelsa' },
+    { label: 'Benue', value: 'benue' },
+    { label: 'Borno', value: 'borno' },
+    { label: 'Cross River', value: 'cross_river' },
+    { label: 'Delta', value: 'delta' },
+    { label: 'Ebonyi', value: 'ebonyi' },
+    { label: 'Edo', value: 'edo' },
+    { label: 'Ekiti', value: 'ekiti' },
+    { label: 'Enugu', value: 'enugu' },
+    { label: 'Gombe', value: 'gombe' },
+    { label: 'Imo', value: 'imo' },
+    { label: 'Jigawa', value: 'jigawa' },
+    { label: 'Kaduna', value: 'kaduna' },
+    { label: 'Kano', value: 'kano' },
+    { label: 'Katsina', value: 'katsina' },
+    { label: 'Kebbi', value: 'kebbi' },
+    { label: 'Kogi', value: 'kogi' },
+    { label: 'Kwara', value: 'kwara' },
+    { label: 'Lagos', value: 'lagos' },
+    { label: 'Nasarawa', value: 'nasarawa' },
+    { label: 'Niger', value: 'niger' },
+    { label: 'Ogun', value: 'ogun' },
+    { label: 'Ondo', value: 'ondo' },
+    { label: 'Osun', value: 'osun' },
+    { label: 'Oyo', value: 'oyo' },
+    { label: 'Plateau', value: 'plateau' },
+    { label: 'Rivers', value: 'rivers' },
+    { label: 'Sokoto', value: 'sokoto' },
+    { label: 'Taraba', value: 'taraba' },
+    { label: 'Yobe', value: 'yobe' },
+    { label: 'Zamfara', value: 'zamfara' },
+    { label: 'Federal Capital Territory', value: 'fct' },
+];
+
+
 const currencyOptions = Object.entries(CurrencyData.symbols).map(([key, value]) => ({
     label: `${value} (${key})`,
     value: key,
@@ -44,61 +81,127 @@ const listingPurposeChoices = [
 ];
 
 const UpdateListingForm = ({ property, onSubmit }) => {
-
-    const validationSchema = Yup.object({
-        title: Yup.string().required('Title is required'),
-        description: Yup.string().required('Description is required'),
-        property_type: Yup.string().required('Property type is required'),
-        price: Yup.number()
-            .required('Price is required')
-            .positive('Price must be positive'),
-        currency: Yup.string()
-            .required('Currency is required')
-            .length(3, 'Currency code must be 3 characters long'),
-        listing_purpose: Yup.string().required('Listing purpose is required'),
-        address: Yup.string().required('Address is required'),
-        city: Yup.string().required('City is required'),
-        state: Yup.string().required('State is required'),
-        zip_code: Yup.string().nullable(),
-        availability: Yup.string().required('Availability is required'),
-        availability_date: Yup.string()
-            .nullable()
-            .when('availability', (availability, schema) => {
-                return availability === 'date'
-                    ? schema.required('Availability date is required')
-                    : schema.nullable();
-            }),
-        bedrooms: Yup.number()
-            .nullable()
-            .when('property_type', (property_type, schema) =>
-                property_type === 'land'
-                    ? schema.test('is-null', 'Bedrooms must be null for land', (value) => value == null)
-                    : schema.positive('Must be a positive number')
-            ),
-        bathrooms: Yup.number()
-            .nullable()
-            .when('property_type', (property_type, schema) =>
-                property_type === 'land'
-                    ? schema.test('is-null', 'Bathrooms must be null for land', (value) => value == null)
-                    : schema.positive('Must be a positive number')
-            ),
-        square_feet: Yup.number().nullable().positive('Must be a positive number'),
-        lot_size: Yup.number().nullable().positive('Must be a positive number'),
-        year_built: Yup.number()
-            .nullable()
-            .min(1800, 'Year must be later than 1800')
-            .max(new Date().getFullYear(), 'Year cannot be in the future'),
-        coordinate_url: Yup.string().url('Must be a valid URL').nullable(),
-        virtual_tour_url: Yup.string().url('Must be a valid URL').nullable(),
-    });
-
-
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const { currency } = useCurrency();
 
-    const handlePickCoordinates = async (handleChange) => {
+    console.log(property)
+
+    const [formData, setFormData] = useState({
+        property_id: property?.id || '',
+        title: property?.title || '',
+        description: property?.description || '',
+        property_type: property?.property_type || '',
+        price: property?.price.toString() || '',
+        currency: property?.currency || `${currency}`,
+        listing_purpose: property?.listing_purpose || '',
+        address: property?.address || '',
+        city: property?.city || '',
+        state: property?.state || '',
+        zip_code: '',
+        bedrooms: property?.bedrooms || '',
+        bathrooms: property?.bathrooms || '',
+        square_feet: property?.square_feet || '',
+        lot_size: '',
+        year_built: property?.year_built || '',
+        availability: '',
+        availability_date: '',
+        coordinate_url: property?.virtual_tour_url || '',
+    });
+
+    const [errors, setErrors] = useState({});
+
+    const handleInputChange = (field, value) => {
+        setFormData((prevData) => {
+            const updatedData = { ...prevData, [field]: value };
+
+            if (field === 'property_type' && value === 'land') {
+                updatedData.bedrooms = null;
+                updatedData.bathrooms = null;
+                updatedData.year_built = null;
+                updatedData.square_feet = null
+            }
+
+            return updatedData;
+        });
+    };
+
+
+    const validateFormData = (data) => {
+        const errors = {};
+
+        if (!data.title.trim()) {
+            errors.title = 'Title is required.';
+        }
+
+        if (!data.description.trim()) {
+            errors.description = 'Description is required.';
+        }
+
+        if (!data.property_type) {
+            errors.property_type = 'Property type is required.';
+        }
+
+        if (!data.price || isNaN(data.price) || Number(data.price) <= 0) {
+            errors.price = 'Price must be a positive number.';
+        }
+
+        if (!data.currency) {
+            errors.currency = 'Currency is required.';
+        }
+
+        if (!data.listing_purpose) {
+            errors.listing_purpose = 'Listing purpose is required.';
+        }
+
+        if (!data.address.trim()) {
+            errors.address = 'Address is required.';
+        }
+
+        if (!data.city.trim()) {
+            errors.city = 'City is required.';
+        }
+
+        if (!data.state.trim()) {
+            errors.state = 'State is required.';
+        }
+
+        if (data.property_type !== 'land') {
+            if (!data.bedrooms || isNaN(data.bedrooms) || Number(data.bedrooms) < 0) {
+                errors.bedrooms = 'Number of bedrooms must be zero or greater.';
+            }
+
+            if (!data.bathrooms || isNaN(data.bathrooms) || Number(data.bathrooms) < 0) {
+                errors.bathrooms = 'Number of bathrooms must be zero or greater.';
+            }
+        } else {
+            data.bedrooms = null;
+            data.bathrooms = null;
+        }
+
+        if (data.property_type !== 'land') {
+            if (!data.square_feet || isNaN(data.square_feet) || Number(data.square_feet) <= 0) {
+                errors.square_feet = 'Area must be a positive number.';
+            }
+        }
+
+        if (!data.lot_size || isNaN(data.lot_size) || Number(data.lot_size) <= 0) {
+            errors.lot_size = 'Plot size must be a positive number.';
+        }
+
+        if (data.year_built && (!/^\d{4}$/.test(data.year_built) || Number(data.year_built) > new Date().getFullYear())) {
+            errors.year_built = 'Year built must be a valid year.';
+        }
+
+        if (!data.availability) {
+            errors.availability = 'Availability is required.';
+        }
+
+        return errors;
+    };
+
+    const handlePickCoordinates = async () => {
         setIsFetchingLocation(true);
 
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -115,8 +218,10 @@ const UpdateListingForm = ({ property, onSubmit }) => {
             const { latitude, longitude } = location.coords;
             const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-            // Set the virtual tour URL in Formik field
-            handleChange('virtual_tour_url')(googleMapsURL);
+            setFormData((prevData) => ({
+                ...prevData,
+                virtual_tour_url: googleMapsURL,
+            }));
         } catch (error) {
             console.error('Location fetching error:', error);
             Alert.alert('Error', 'Could not get location. Please try again.');
@@ -126,7 +231,6 @@ const UpdateListingForm = ({ property, onSubmit }) => {
     };
 
     const constructGoogleMapsURL = (coordinates) => {
-        // Trim and remove extra spaces
         const cleanedCoordinates = coordinates.replace(/\s+/g, '').trim();
         const isValidCoordinates = /^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(cleanedCoordinates);
 
@@ -137,318 +241,251 @@ const UpdateListingForm = ({ property, onSubmit }) => {
         return null; // Return null if invalid
     };
 
+    const handleSubmit = () => {
+        let updatedFormData = { ...formData };
 
-    const handleFormSubmit = (values) => {
-        if (values.property_type === 'land') {
-            values.bedrooms = null;
-            values.bathrooms = null;
-            values.year_built = null;
-            values.square_feet = null;
+        if (updatedFormData.availability === 'now') {
+            updatedFormData.availability_date = null;
         }
-        onSubmit(values);
+
+        const errors = validateFormData(updatedFormData);
+
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+
+            const errorMessages = Object.values(errors).join('\n');
+            alert(`Please complete the mandatory fields:\n\n${errorMessages}`);
+            return;
+        }
+
+        setFormData(updatedFormData);
+
+        if (onSubmit) {
+            onSubmit(updatedFormData);
+        }
     };
 
 
+
     return (
-        <Formik
-            initialValues={{
-                property_id: property?.id || '',
-                title: property?.title || '',
-                description: property?.description || '',
-                property_type: property?.property_type || '',
-                price: property?.price.toString() || '',
-                currency: property?.currency || `${currency}`,
-                listing_purpose: property?.listing_purpose || '',
-                address: property?.address || '',
-                city: property?.city || '',
-                state: property?.state || '',
-                zip_code: '',
-                bedrooms: property?.bedrooms || '',
-                bathrooms: property?.bathrooms || '',
-                square_feet: property?.square_feet || '',
-                lot_size: '',
-                year_built: property?.year_built || '',
-                availability: '',
-                availability_date: '',
-                coordinate_url: property?.virtual_tour_url || '',
-            }}
-            enableReinitialize={true}
-            validationSchema={validationSchema}
-            // onSubmit={onSubmit}
-            onSubmit={handleFormSubmit}
-
+        <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
         >
-            {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                setFieldValue,
-            }) => (
-                <ScrollView
-                    contentContainerStyle={styles.container}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <TextInput
-                        label="Title of property"
-                        value={values.title}
-                        onChangeText={handleChange('title')}
-                        onBlur={handleBlur('title')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.title && errors.title}
-                    />
-                    <HelperText type="error" visible={touched.title && errors.title}>
-                        {errors.title}
-                    </HelperText>
-                    <TextInput
-                        label="Description (Optional)"
-                        value={values.description}
-                        onChangeText={handleChange('description')}
-                        onBlur={handleBlur('description')}
-                        mode="outlined"
-                        style={[styles.input, { height: 120 }]}
-                        multiline
-                    />
+            <CustomForm
+                label="Title"
+                required
+                placeholder="Title of property"
+                keyboardType="default"
+                value={formData.title}
+                onChangeText={(value) => handleInputChange('title', value)}
+                error={errors.title}
+            />
+            <CustomForm
+                label="Description"
+                required
+                placeholder="Description of property"
+                keyboardType="default"
+                value={formData.description}
+                onChangeText={(value) => handleInputChange('description', value)}
+                error={errors.description}
+                multiline={true}
+                numberOfLines={4}
+            />
+            <CustomPicker
+                label="Property Type"
+                required={true}
+                placeholder="Select property type"
+                options={propertyTypes}
+                selectedValue={formData.property_type}
+                onValueChange={(value) => handleInputChange('property_type', value)}
+            />
 
-                    <PropertyTypePicker
-                        propertyTypes={propertyTypes}
-                        values={values}
-                        setFieldValue={setFieldValue}
-                    />
-                    <TextInput
-                        label="Price"
-                        value={values.price}
-                        onChangeText={handleChange('price')}
-                        onBlur={handleBlur('price')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.price && errors.price}
-                    />
-                    <HelperText type="error" visible={touched.price && errors.price}>
-                        {errors.price}
-                    </HelperText>
+            <CustomForm
+                label="Price"
+                required
+                placeholder="Selling price of property"
+                keyboardType="numeric"
+                value={formData.price}
+                onChangeText={(value) => handleInputChange('price', value)}
+                error={errors.price}
+            />
+            <CustomForm
+                label="Currency"
+                required
+                placeholder="Select a currency"
+                value={formData.currency}
+                isModal
+                error={errors.currency}
+                onPress={() => setModalVisible(true)}
+            />
+            <CurrencyModal
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                currencyTypes={currencyOptions}
+                setFieldValue={handleInputChange}
+            />
+
+            <Text style={styles.label}>Purpose of Listing *</Text>
+
+            <View style={styles.radioGroup}>
+                {listingPurposeChoices.map((item) => (
                     <TouchableOpacity
-                        onPress={() => setModalVisible(true)}
-                    >
-                        <TextInput label="Currency"
-                            value={values.currency}
-                            onChangeText={handleChange('currency')}
-                            onBlur={handleBlur('currency')}
-                            mode="outlined"
-                            style={[styles.input]}
-                            error={touched.currency && errors.currency}
-                            editable={isEditable}
-                        />
-                        <HelperText type="error" visible={touched.currency && errors.currency}>
-                            {errors.currency}
-                        </HelperText>
-                    </TouchableOpacity>
-                    <CurrencyModal
-                        modalVisible={modalVisible}
-                        setModalVisible={setModalVisible}
-                        currencyTypes={currencyOptions}
-                        setFieldValue={setFieldValue}
-                    />
-                    <View style={styles.radioGroup}>
-                        <Text>Listing Purpose</Text>
-                        <RadioButton.Group
-                            onValueChange={(value) => setFieldValue('listing_purpose', value)}
-                            value={values.listing_purpose}
-                        >
-                            {listingPurposeChoices.map((type) => (
-                                <View key={type.value} style={styles.radioItem}>
-                                    <RadioButton value={type.value} />
-                                    <Text>{type.label}</Text>
-                                </View>
-                            ))}
-                        </RadioButton.Group>
-                    </View>
-                    <AvailabilityPicker
-                        values={values}
-                        setFieldValue={setFieldValue}
-                        touched={touched}
-                        errors={errors}
-                    />
-                    <TextInput
-                        label="Address"
-                        value={values.address}
-                        onChangeText={handleChange('address')}
-                        onBlur={handleBlur('address')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.address && errors.address}
-                    />
-                    <HelperText type="error" visible={touched.address && errors.address}>
-                        {errors.address}
-                    </HelperText>
-                    <TextInput
-                        label="State"
-                        value={values.state}
-                        onChangeText={handleChange('state')}
-                        onBlur={handleBlur('state')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.state && errors.state}
-                    />
-                    <HelperText type="error" visible={touched.state && errors.state}>
-                        {errors.state}
-                    </HelperText>
-                    <TextInput
-                        label="City"
-                        value={values.city}
-                        onChangeText={handleChange('city')}
-                        onBlur={handleBlur('city')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.city && errors.city}
-                    />
-                    <HelperText type="error" visible={touched.city && errors.city}>
-                        {errors.city}
-                    </HelperText>
-                    <TextInput
-                        label="Zip Code - Optional"
-                        value={values.zip_code}
-                        onChangeText={handleChange('zip_code')}
-                        onBlur={handleBlur('zip_code')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.zip_code && errors.zip_code}
-                    />
-                    <HelperText type="error" visible={touched.zip_code && errors.zip_code}>
-                        {errors.zip_code}
-                    </HelperText>
-
-                    {values.property_type !== 'land' && (
-                        <View>
-                            <TextInput
-                                label="No. of Bedrooms"
-                                value={values.bedrooms}
-                                onChangeText={handleChange('bedrooms')}
-                                onBlur={handleBlur('bedrooms')}
-                                mode="outlined"
-                                style={styles.input}
-                                keyboardType="numeric"
-                                error={touched.bedrooms && errors.bedrooms}
-                            />
-                            <HelperText type="error" visible={touched.bedrooms && errors.bedrooms}>
-                                {errors.bedrooms}
-                            </HelperText>
-                        </View>
-                    )}
-
-                    {values.property_type !== 'land' && (
-                        <View>
-                            <TextInput
-                                label="No. of Bathrooms"
-                                value={values.bathrooms}
-                                onChangeText={handleChange('bathrooms')}
-                                onBlur={handleBlur('bathrooms')}
-                                mode="outlined"
-                                style={styles.input}
-                                keyboardType="numeric"
-                                error={touched.bathrooms && errors.bathrooms}
-                            />
-                            <HelperText type="error" visible={touched.bathrooms && errors.bathrooms}>
-                                {errors.bathrooms}
-                            </HelperText>
-                        </View>
-                    )}
-
-                    {values.property_type !== 'land' && (
-                        <View>
-                            <TextInput
-                                label="Area (sqm)"
-                                value={values.square_feet}
-                                onChangeText={handleChange('square_feet')}
-                                onBlur={handleBlur('square_feet')}
-                                mode="outlined"
-                                style={styles.input}
-                                keyboardType="numeric"
-                                error={touched.square_feet && errors.square_feet}
-                            />
-                            <HelperText type="error" visible={touched.square_feet && errors.square_feet}>
-                                {errors.square_feet}
-                            </HelperText>
-                        </View>
-                    )}
-                    <TextInput
-                        label="Plot Size (sqm)"
-                        value={values.lot_size}
-                        onChangeText={handleChange('lot_size')}
-                        onBlur={handleBlur('lot_size')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.lot_size && errors.lot_size}
-                    />
-                    <HelperText type="error" visible={touched.lot_size && errors.lot_size}>
-                        {errors.lot_size}
-                    </HelperText>
-                    {values.property_type !== 'land' && (
-                        <View>
-                            <TextInput
-                                label="Year Built"
-                                value={values.year_built}
-                                onChangeText={handleChange('year_built')}
-                                onBlur={handleBlur('year_built')}
-                                mode="outlined"
-                                style={styles.input}
-                                keyboardType="numeric"
-                                error={touched.year_built && errors.year_built}
-                            />
-                            <HelperText type="error" visible={touched.year_built && errors.year_built}>
-                                {errors.year_built}
-                            </HelperText>
-                        </View>
-                    )}
-                    <TextInput
-                        label="Property Coordinates (Google Coordinates - Optional)"
-                        value={values.virtual_tour_url}
-                        onChangeText={(text) => {
-                            const googleMapsURL = constructGoogleMapsURL(text);
-                            setFieldValue('virtual_tour_url', googleMapsURL || text);
-                        }}
-                        onBlur={handleBlur('virtual_tour_url')}
-                        mode="outlined"
-                        style={styles.input}
-                        placeholder="e.g., 40.7128,-74.0060"
-                        error={touched.virtual_tour_url && errors.virtual_tour_url}
-                    />
-                    <Pressable
-                        onPress={() => handlePickCoordinates(handleChange)}
-                        disabled={isFetchingLocation}
-                        style={({ pressed }) => [
-                            styles.button,
-                            { backgroundColor: pressed ? '#DDDDDD' : '#358B8B' },
+                        key={item.value}
+                        style={[
+                            styles.radioButton,
+                            formData.listing_purpose === item.value && styles.selectedRadioButton,
                         ]}
+                        onPress={() => handleInputChange('listing_purpose', item.value)}
                     >
-                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
-                            {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
+                        <View
+                            style={[
+                                styles.dot,
+                                formData.listing_purpose === item.value && styles.selectedDot,
+                            ]}
+                        />
+                        <Text
+                            style={[
+                                styles.radioButtonText,
+                                formData.listing_purpose === item.value && styles.selectedRadioButtonText,
+                            ]}
+                        >
+                            {item.label}
                         </Text>
-                    </Pressable>
-                    <HelperText type="error" visible={touched.virtual_tour_url && errors.virtual_tour_url}>
-                        {errors.virtual_tour_url}
-                    </HelperText>
-                    <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
-                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Update Listing</Text>
-                    </Pressable>
-                </ScrollView>
+                    </TouchableOpacity>
+                ))}
+            </View>
+            <CustomForm
+                label="Address"
+                required
+                placeholder="Address of property"
+                keyboardType="default"
+                value={formData.address}
+                onChangeText={(value) => handleInputChange('address', value)}
+                error={errors.address}
+            />
+            <CustomForm
+                label="City"
+                required
+                placeholder="City where property is located"
+                keyboardType="default"
+                value={formData.city}
+                onChangeText={(value) => handleInputChange('city', value)}
+                error={errors.city}
+            />
+
+            <CustomPicker
+                label="State"
+                required={true}
+                options={statesOfNigeria}
+                selectedValue={formData.state}
+                placeholder="Choose a state"
+                onValueChange={(value) => handleInputChange('state', value)}
+            />
+            <CustomForm
+                label="Postal Code"
+                placeholder="000000"
+                keyboardType="numeric"
+                value={formData.zip_code}
+                onChangeText={(value) => handleInputChange('zip_code', value)}
+                error={errors.zip_code}
+            />
+            {formData.property_type !== 'land' && (
+                <CustomForm
+                    label="Bedrooms"
+                    required
+                    placeholder="Number of bedrooms"
+                    keyboardType="numeric"
+                    value={formData.bedrooms}
+                    onChangeText={(value) => handleInputChange('bedrooms', value)}
+                    error={errors.bedrooms}
+                />
             )}
-        </Formik>
-    );
-};
+            {formData.property_type !== 'land' && (
+                <CustomForm
+                    label="Bathrooms"
+                    required
+                    placeholder="Number of bathrooms"
+                    keyboardType="numeric"
+                    value={formData.bathrooms}
+                    onChangeText={(value) => handleInputChange('bathrooms', value)}
+                    error={errors.bathrooms}
+                />
+            )}
+            {formData.property_type !== 'land' && (
+                <CustomForm
+                    label="Area of property (sqm)"
+                    required
+                    placeholder="The size of the property"
+                    keyboardType="numeric"
+                    value={formData.square_feet}
+                    onChangeText={(value) => handleInputChange('square_feet', value)}
+                    error={errors.square_feet}
+                />
+            )}
+            <CustomForm
+                label="Area of plot (sqm)"
+                required
+                placeholder="Size of the plot"
+                keyboardType="numeric"
+                value={formData.lot_size}
+                onChangeText={(value) => handleInputChange('lot_size', value)}
+                error={errors.lot_size}
+            />
+            {formData.property_type !== 'land' && (
+                <CustomForm
+                    label="Year Built"
+                    required
+                    placeholder="1998"
+                    keyboardType="numeric"
+                    value={formData.year_built}
+                    onChangeText={(value) => handleInputChange('year_built', value)}
+                    error={errors.year_built}
+                />
+            )}
+            <AvailabilityPicker
+                formData={formData}
+                handleInputChange={handleInputChange}
+                errors={errors}
+            />
+
+            <CustomForm
+                label="Point Coordinate (Google Coordinates)"
+                placeholder="e.g., 40.7128,-74.0060"
+                value={formData.virtual_tour_url}
+                onChangeText={(text) =>
+                    setFormData((prevData) => ({ ...prevData, virtual_tour_url: text }))
+                }
+                error={errors.virtual_tour_url}
+            />
+
+            <Pressable
+                onPress={handlePickCoordinates}
+                disabled={isFetchingLocation}
+                style={({ pressed }) => [
+                    styles.button,
+                    { backgroundColor: pressed ? '#DDDDDD' : '#358B8B' },
+                ]}
+            >
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
+                    {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
+                </Text>
+            </Pressable>
+            <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Update Listing</Text>
+            </Pressable>
+
+        </ScrollView>
+    )
+}
+
+export default UpdateListingForm
 
 const styles = StyleSheet.create({
-    container: {
-        // padding: 20,
-    },
-    input: {
-        marginBottom: 10,
+    disabledInput: {
+        backgroundColor: '#f0f0f0',
+        color: '#a0a0a0',
     },
     button: {
         marginVertical: 10,
@@ -458,13 +495,55 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 5,
     },
-    radioGroup: {
+    dateButton: {
         marginBottom: 15,
+        padding: 10,
+        borderWidth: 1,
+        borderRadius: 30,
+        borderColor: '#ccc',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    radioItem: {
+    buttonText: {
+        fontSize: 16,
+        color: '#000',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 14,
+        marginBottom: 10,
+    },
+    label: {
+        color: '#333',
+        fontSize: 16,
+        marginBottom: 8,
+    },
+    radioGroup: {
+        flexDirection: 'column',
+        marginBottom: 16,
+    },
+    radioButton: {
         flexDirection: 'row',
         alignItems: 'center',
+        padding: 10,
+    },
+    dot: {
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        borderWidth: 1.2,
+        marginRight: 10,
+    },
+    selectedDot: {
+        borderColor: '#358B8B',
+    },
+    radioButtonText: {
+        fontSize: 15,
+        color: '#333',
+    },
+    selectedRadioButtonText: {
+        color: '#358B8B',
     },
 });
 
-export default UpdateListingForm;
+

@@ -1,7 +1,8 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import FinancialAnalysisScreen from '../../screens/Analysis/FinancialAnalysisScreen';
 import FinancialTarget from '../../screens/Analysis/FinancialTargetScreen';
-import TargetList from '../../screens/Analysis/TargetListScreen'
+import CompoundSavings from '../../screens/Analysis/CompoundSavings';
+
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
@@ -22,13 +23,13 @@ const AnalysisNavigator = () => {
                 component={FinancialAnalysisScreen}
                 options={{
                     headerShown: true,
-                    title: "Calculator",
+                    title: "Financial Calculators",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#ffffff' },
+                    headerTintColor: '#358B8B',
                     headerLeft: () => (
                         <TouchableOpacity onPress={handleBackPress} style={{ paddingLeft: 10 }}>
-                            <Ionicons name="arrow-back" size={24} color="#fff" />
+                            <Ionicons name="arrow-back" size={24} color="#358B8B" />
                         </TouchableOpacity>
                     ),
                 }}
@@ -40,19 +41,19 @@ const AnalysisNavigator = () => {
                     headerShown: true,
                     title: "Financial Target",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#ffffff' },
+                    headerTintColor: '#358B8B',
                 }}
             />
             <Stack.Screen
-                name="TargetList"
-                component={TargetList}
+                name="CompoundSavings"
+                component={CompoundSavings}
                 options={{
                     headerShown: true,
-                    title: "Target List",
+                    title: "Compound Savings",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#ffffff' },
+                    headerTintColor: '#358B8B',
                 }}
             />
         </Stack.Navigator>

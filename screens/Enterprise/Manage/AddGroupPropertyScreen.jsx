@@ -4,10 +4,12 @@ import GroupPropertyForm from './GroupPropertyForm';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 
 const AddGroupPropertyScreen = ({ route, navigation }) => {
     const { groupId, uniqueGroupId } = route.params;
+    const { colors } = useTheme();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,7 +47,7 @@ const AddGroupPropertyScreen = ({ route, navigation }) => {
 
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: colors.background, padding: 16 }}>
             {isSubmitting ? (
                 <View
                     style={{

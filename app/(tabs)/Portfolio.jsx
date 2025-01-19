@@ -10,6 +10,7 @@ import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotals
 import { calculateReturns } from '../../utils/calculateReturns';
 import { formatCurrency } from '../../utils/formatCurrency';
 import usePortfolioDetail from '../../hooks/usePortfolioDetail';
+import { useTheme } from '@/context/ThemeContext';
 
 
 const WelcomeView = () => (
@@ -18,9 +19,6 @@ const WelcomeView = () => (
     <Text style={styles.instructionText}>
       Start managing your real estate properties today. Tap the "+" button at the bottom right to add your first property!
     </Text>
-    <TouchableOpacity style={styles.addButton1}>
-      <Text style={styles.addButtonText}>Add Your First Property</Text>
-    </TouchableOpacity>
   </View>
 );
 
@@ -36,6 +34,8 @@ const Portfolio = () => {
   const { result, setLoading, currency, fetchPortfolioDetails } = usePortfolioDetail();
 
   const overallSummary = result?.overall_summary;
+
+  const { theme, toggleTheme, colors } = useTheme();
 
   const totalInvestment = formatCurrency(
     overallSummary?.totalInitialCost + overallSummary?.totalExpenses,
@@ -86,34 +86,37 @@ const Portfolio = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <View style={styles.summaryContainer}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={styles.summaryTitle}>SUMMARY</Text>
+            <Text style={styles.summaryTitle}>Totals</Text>
             <TouchableOpacity
               style={{}}
               onPress={handleViewDetails}
             >
-              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>VIEW DETAILS</Text>
+              <Text style={[styles.summaryText, { color: 'gray', fontWeight: 'normal', textDecorationLine: 'underline' }]}>View Details</Text>
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Investment</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalInvestment}</Text>
+            <Text style={[styles.summaryText]}>Investment</Text>
+            <Text style={[styles.summaryText, { color: '#000', fontWeight: '600' }]}>{totalInvestment}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Current Values</Text>
-            <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
+            <Text style={[styles.summaryText]}>Current Value</Text>
+            <Text style={[styles.summaryText, { color: '#000', fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText, { fontWeight: 'bold' }]}>Returns</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+            <Text style={[styles.summaryText]}>Returns</Text>
             {userTotalsWithAnalysis.length === 0 ? (
-              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>0.00 %</Text>
+              <Text style={[styles.summaryText, { color: '#358B8B', fontWeight: 'bold' }]}>0.00 %</Text>
             ) : (
-              <Text style={[styles.summaryText, { color: '#FB902E', fontWeight: 'bold' }]}>{userTotalsWithAnalysis.percentageReturn}</Text>
+              <Text style={[styles.summaryText, { color: userTotalsWithAnalysis.percentageReturn < 0 ? 'red' : '#358B8B', fontWeight: 'bold' }]}>
+                {userTotalsWithAnalysis.percentageReturn}
+              </Text>
             )}
           </View>
+
         </View>
       </View>
       <View style={styles.container}>
@@ -121,6 +124,11 @@ const Portfolio = () => {
           <WelcomeView />
         ) : (
           <View style={styles.propertiesList}>
+            <View style={styles.listTitle}>
+              <Text style={styles.listTitleText}>Investments</Text>
+              <Text style={styles.sinceBuy}>%ROI</Text>
+            </View>
+
             <PropertiesList
               properties={userReturns}
               onPress={openBottomSheet}
@@ -165,37 +173,32 @@ export default Portfolio;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 10,
-    backgroundColor: '#358B8B'
+    backgroundColor: '#FFFFFF'
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'left',
-    marginTop: 15
   },
   summaryContainer: {
-    backgroundColor: '#fff',
-    width: '90%',
+    width: '95%',
     padding: 15,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#358B8B',
     margin: 20,
     borderRadius: 10,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
   },
   summaryTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#9b9696',
     marginBottom: 10,
   },
   summaryText: {
@@ -224,6 +227,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
+  },
+  listTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10
+  },
+  listTitleText: {
+    fontFamily: 'Roboto',
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  sinceBuy: {
+    fontFamily: 'Roboto',
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'gray'
   },
   addButton: {
     position: 'absolute',

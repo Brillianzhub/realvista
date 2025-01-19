@@ -4,20 +4,24 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 import PerformanceScreen from '../../screens/Market/MarketPerformanceScreen';
 import ManageListingsScreen from '../../screens/Market/MarketListingScreen';
+import { useTheme } from '@/context/ThemeContext';
+
 
 const Tab = createMaterialTopTabNavigator();
 
 
 const GroupDashboardScreen = () => {
+    const { colors } = useTheme();
+
     return (
         <Tab.Navigator
             screenOptions={{
                 lazy: true,
-                tabBarStyle: { backgroundColor: '#358B8B' },
+                tabBarStyle: { backgroundColor: colors.background },
                 tabBarLabelStyle: { fontSize: 16, fontWeight: 'bold' },
                 tabBarIndicatorStyle: { backgroundColor: '#FB902E' },
                 tabBarActiveTintColor: '#FB902E',
-                tabBarInactiveTintColor: 'white',
+                tabBarInactiveTintColor: colors.tint,
             }}
         >
             <Tab.Screen name="Manage Listings" component={ManageListingsScreen} />

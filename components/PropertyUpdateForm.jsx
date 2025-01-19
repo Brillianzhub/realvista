@@ -1,13 +1,10 @@
+
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
-import { TextInput, HelperText, RadioButton, Text } from 'react-native-paper';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import * as Location from 'expo-location';
+import { Pressable, ScrollView, StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import CurrencyModal from "../components/CurrencyModal";
 import { useCurrency } from '../context/CurrencyContext';
 import CurrencyData from '../assets/CurrencyData';
-
+import CustomForm from '../components/CustomForm';
 
 const propertyTypes = [
     { label: 'Land', value: 'land' },
@@ -28,52 +25,102 @@ const currencyOptions = Object.entries(CurrencyData.symbols).map(([key, value]) 
 }))
 
 const PropertyUpdateForm = ({ property, onSubmit }) => {
-    const validationSchema = Yup.object({
-        title: Yup.string()
-            .required('Title is required'),
-        address: Yup.string()
-            .required('Address is required'),
-        location: Yup.string()
-            .required('Location is required'),
-        description: Yup.string()
-            .optional(),
-        status: Yup.string()
-            .oneOf(['available', 'occupied', 'under_maintenance'], 'Invalid status')
-            .required('Status is required'),
-        property_type: Yup.string()
-            .oneOf(['land', 'private', 'commercial', 'residential'], 'Invalid property type')
-            .required('Property type is required'),
-        year_bought: Yup.number()
-            .integer('Year must be an integer')
-            .min(1900, 'Year must be no earlier than 1900')
-            .max(new Date().getFullYear(), `Year can't be in the future`)
-            .optional(),
-        area: Yup.number()
-            .positive('Area must be positive')
-            .optional(),
-        num_units: Yup.number()
-            .required('Number of units is required')
-            .min(1, 'Must be at least 1'),
-        initial_cost: Yup.number()
-            .required('Initial cost is required')
-            .positive('Must be positive'),
-        current_value: Yup.number()
-            .required('Current value is required')
-            .positive('Must be positive'),
-        currency: Yup.string()
-            .required('Currency is required'),
-        virtual_tour_url: Yup.string()
-            .optional(),
 
+    const { currency } = useCurrency();
+
+    const [formData, setFormData] = useState({
+        property_id: property?.id || '',
+        title: property?.title || '',
+        address: property?.address || '',
+        location: property?.location || '',
+        description: property?.description || '',
+        status: property?.status || '',
+        property_type: property?.property_type || '',
+        year_bought: property?.year_bought?.toString() || '',
+        area: property?.area?.toString() || '',
+        num_units: property?.num_units?.toString() || '',
+        initial_cost: property?.initial_cost?.toString() || '',
+        current_value: property?.current_value?.toString() || `${currency}`,
+        currency: property?.currency || '',
+        virtual_tour_url: property?.virtual_tour_url || '',
+        slot_price: null,
+        slot_price_current: null,
+        total_slots: null,
+        user_slots: 0,
     });
 
-    const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const handleInputChange = (field, value) => {
+        setFormData((prevData) => ({ ...prevData, [field]: value }));
+    };
+
     const [modalVisible, setModalVisible] = useState(false);
-    const { currency } = useCurrency();
-    const [isEditable, setIsEditable] = useState(false);
+
+    const [isFetchingLocation, setIsFetchingLocation] = useState(false);
 
 
-    const handlePickCoordinates = async (handleChange) => {
+    const validateForm = (formData) => {
+        const errors = {};
+
+        if (!formData.title || formData.title.trim() === '') {
+            errors.title = 'Title is required';
+        }
+
+        if (!formData.address || formData.address.trim() === '') {
+            errors.address = 'Address is required';
+        }
+
+        if (!formData.location || formData.location.trim() === '') {
+            errors.location = 'Location is required';
+        }
+
+        if (!['available', 'occupied', 'under_maintenance'].includes(formData.status)) {
+            errors.status = 'Invalid status';
+        }
+
+        if (!formData.status || formData.status.trim() === '') {
+            errors.status = 'Status is required';
+        }
+
+        if (!['land', 'private', 'commercial', 'residential'].includes(formData.property_type)) {
+            errors.property_type = 'Invalid property type';
+        }
+
+        if (!formData.property_type || formData.property_type.trim() === '') {
+            errors.property_type = 'Property type is required';
+        }
+
+        if (formData.year_bought && (isNaN(formData.year_bought) ||
+            formData.year_bought < 1900 ||
+            formData.year_bought > new Date().getFullYear())) {
+            errors.year_bought = `Year must be between 1900 and ${new Date().getFullYear()}`;
+        }
+
+        if (formData.area && formData.area <= 0) {
+            errors.area = 'Area must be positive';
+        }
+
+        if (!formData.num_units || isNaN(formData.num_units) || formData.num_units < 1) {
+            errors.num_units = 'Number of units must be at least 1';
+        }
+
+        if (!formData.initial_cost || isNaN(formData.initial_cost) || formData.initial_cost <= 0) {
+            errors.initial_cost = 'Initial cost must be a positive number';
+        }
+
+        if (!formData.current_value || isNaN(formData.current_value) || formData.current_value <= 0) {
+            errors.current_value = 'Current value must be a positive number';
+        }
+
+        if (!formData.currency || formData.currency.trim() === '') {
+            errors.currency = 'Currency is required';
+        }
+
+        return errors;
+    };
+
+    const handlePickCoordinates = async () => {
         setIsFetchingLocation(true);
 
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -90,7 +137,10 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
             const { latitude, longitude } = location.coords;
             const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-            handleChange('virtual_tour_url')(googleMapsURL);
+            setFormData((prevData) => ({
+                ...prevData,
+                virtual_tour_url: googleMapsURL,
+            }));
         } catch (error) {
             console.error('Location fetching error:', error);
             Alert.alert('Error', 'Could not get location. Please try again.');
@@ -99,8 +149,8 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
         }
     };
 
+
     const constructGoogleMapsURL = (coordinates) => {
-        // Trim and remove extra spaces
         const cleanedCoordinates = coordinates.replace(/\s+/g, '').trim();
         const isValidCoordinates = /^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(cleanedCoordinates);
 
@@ -108,267 +158,222 @@ const PropertyUpdateForm = ({ property, onSubmit }) => {
             const [latitude, longitude] = cleanedCoordinates.split(',');
             return `https://www.google.com/maps?q=${latitude},${longitude}`;
         }
-        return null; // Return null if invalid
+        return null;
     };
 
 
+    const handleSubmit = () => {
+        const errors = validateForm(formData);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+        } else {
+            setErrors({});
+            onSubmit(formData);
+        }
+    };
 
     return (
-        <Formik
-            initialValues={{
-                property_id: property?.id || '',
-                title: property?.title || '',
-                address: property?.address || '',
-                location: property?.location || '',
-                description: property?.description || '',
-                status: property?.status || '',
-                property_type: property?.property_type || '',
-                year_bought: property?.year_bought?.toString() || '',
-                area: property?.area?.toString() || '',
-                num_units: property?.num_units?.toString() || '',
-                initial_cost: property?.initial_cost?.toString() || '',
-                current_value: property?.current_value?.toString() || `${currency}`,
-                currency: property?.currency || '',
-                virtual_tour_url: property?.virtual_tour_url || '',
-                slot_price: null,
-                slot_price_current: null,
-                total_slots: null,
-                user_slots: 0,
-            }}
-            enableReinitialize={true}
-            validationSchema={validationSchema}
-            onSubmit={onSubmit}
+        <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
         >
-            {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                setFieldValue,
-            }) => (
-                <ScrollView
-                    contentContainerStyle={styles.container}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <TextInput
-                        label="Title of property"
-                        value={values.title}
-                        onChangeText={handleChange('title')}
-                        onBlur={handleBlur('title')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.title && errors.title}
-                    />
-                    <HelperText type="error" visible={touched.title && errors.title}>
-                        {errors.title}
-                    </HelperText>
-                    <TextInput
-                        label="Address"
-                        value={values.address}
-                        onChangeText={handleChange('address')}
-                        onBlur={handleBlur('address')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.address && errors.address}
-                    />
-                    <HelperText type="error" visible={touched.address && errors.address}>
-                        {errors.address}
-                    </HelperText>
+            <CustomForm
+                label="Title"
+                required
+                placeholder="Title of property"
+                keyboardType="default"
+                value={formData.title}
+                onChangeText={(value) => handleInputChange('title', value)}
+                error={errors.title}
+            />
+            <CustomForm
+                label="Address"
+                required
+                placeholder="Address of property"
+                keyboardType="default"
+                value={formData.address}
+                onChangeText={(value) => handleInputChange('address', value)}
+                error={errors.address}
+            />
+            <CustomForm
+                label="Location"
+                required
+                placeholder="Location of property"
+                keyboardType="default"
+                value={formData.location}
+                onChangeText={(value) => handleInputChange('location', value)}
+                error={errors.location}
+            />
+            <CustomForm
+                label="Description"
+                placeholder="Description of property"
+                keyboardType="default"
+                value={formData.description}
+                onChangeText={(value) => handleInputChange('description', value)}
+                multiline={true}
+                numberOfLines={4}
+                error={errors.description}
+            />
 
-                    <TextInput
-                        label="Location"
-                        value={values.location}
-                        onChangeText={handleChange('location')}
-                        onBlur={handleBlur('location')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.location && errors.location}
-                    />
-                    <HelperText type="error" visible={touched.location && errors.location}>
-                        {errors.location}
-                    </HelperText>
+            <Text style={styles.label}>Property type <Text style={{ color: 'red' }}>*</Text></Text>
 
-                    <TextInput
-                        label="Description (Optional)"
-                        value={values.description}
-                        onChangeText={handleChange('description')}
-                        onBlur={handleBlur('description')}
-                        mode="outlined"
-                        style={[styles.input, { height: 120 }]}
-                        multiline
-                    />
-
-                    <View style={styles.radioGroup}>
-                        <Text>Status</Text>
-                        <RadioButton.Group
-                            onValueChange={(value) => setFieldValue('status', value)}
-                            value={values.status}
-                        >
-                            {statusTypes.map((type) => (
-                                <View key={type.value} style={styles.radioItem}>
-                                    <RadioButton value={type.value} />
-                                    <Text>{type.label}</Text>
-                                </View>
-                            ))}
-                        </RadioButton.Group>
-                    </View>
-
-                    <View style={styles.radioGroup}>
-                        <Text>Property Type</Text>
-                        <RadioButton.Group
-                            onValueChange={(value) => setFieldValue('property_type', value)}
-                            value={values.property_type}
-                        >
-                            {propertyTypes.map((type) => (
-                                <View key={type.value} style={styles.radioItem}>
-                                    <RadioButton value={type.value} />
-                                    <Text>{type.label}</Text>
-                                </View>
-                            ))}
-                        </RadioButton.Group>
-                    </View>
-
+            <View style={styles.radioGroup}>
+                {propertyTypes.map((item) => (
                     <TouchableOpacity
-                        onPress={() => setModalVisible(true)}
-                    >
-                        <TextInput label="Currency"
-                            value={values.currency}
-                            onChangeText={handleChange('currency')}
-                            onBlur={handleBlur('currency')}
-                            mode="outlined"
-                            style={[styles.input]}
-                            error={touched.currency && errors.currency}
-                            editable={isEditable}
-                        />
-                        <HelperText type="error" visible={touched.currency && errors.currency}>
-                            {errors.currency}
-                        </HelperText>
-                    </TouchableOpacity>
-
-                    <CurrencyModal
-                        modalVisible={modalVisible}
-                        setModalVisible={setModalVisible}
-                        currencyTypes={currencyOptions}
-                        setFieldValue={setFieldValue}
-                    />
-
-                    <TextInput
-                        label="Year Bought"
-                        value={values.year_bought}
-                        onChangeText={handleChange('year_bought')}
-                        onBlur={handleBlur('year_bought')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.year_bought && errors.year_bought}
-                    />
-                    <HelperText type="error" visible={touched.year_bought && errors.year_bought}>
-                        {errors.year_bought}
-                    </HelperText>
-
-                    <TextInput
-                        label="Area (sqm)"
-                        value={values.area}
-                        onChangeText={handleChange('area')}
-                        onBlur={handleBlur('area')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.area && errors.area}
-                    />
-                    <HelperText type="error" visible={touched.area && errors.area}>
-                        {errors.area}
-                    </HelperText>
-
-                    <TextInput
-                        label="Number of Units"
-                        value={values.num_units}
-                        onChangeText={handleChange('num_units')}
-                        onBlur={handleBlur('num_units')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.num_units && errors.num_units}
-                    />
-                    <HelperText type="error" visible={touched.num_units && errors.num_units}>
-                        {errors.num_units}
-                    </HelperText>
-
-                    <TextInput
-                        label="Initial Cost"
-                        value={values.initial_cost}
-                        onChangeText={handleChange('initial_cost')}
-                        onBlur={handleBlur('initial_cost')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.initial_cost && errors.initial_cost}
-                    />
-                    <HelperText type="error" visible={touched.initial_cost && errors.initial_cost}>
-                        {errors.initial_cost}
-                    </HelperText>
-
-                    <TextInput
-                        label="Current Value"
-                        value={values.current_value}
-                        onChangeText={handleChange('current_value')}
-                        onBlur={handleBlur('current_value')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.current_value && errors.current_value}
-                    />
-                    <HelperText type="error" visible={touched.current_value && errors.current_value}>
-                        {errors.current_value}
-                    </HelperText>
-
-                    <TextInput
-                        label="Virtual Tour URL (Google Coordinates - Optional)"
-                        value={values.virtual_tour_url}
-                        onChangeText={(text) => {
-                            const googleMapsURL = constructGoogleMapsURL(text);
-                            setFieldValue('virtual_tour_url', googleMapsURL || text);
-                        }}
-                        onBlur={handleBlur('virtual_tour_url')}
-                        mode="outlined"
-                        style={styles.input}
-                        placeholder="e.g., 40.7128,-74.0060"
-                        error={touched.virtual_tour_url && errors.virtual_tour_url}
-                    />
-
-                    <Pressable
-                        onPress={() => handlePickCoordinates(handleChange)}
-                        disabled={isFetchingLocation}
-                        style={({ pressed }) => [
-                            styles.button,
-                            { backgroundColor: pressed ? '#DDDDDD' : '#358B8B' },
+                        key={item.value}
+                        style={[
+                            styles.radioButton,
+                            formData.property_type === item.value && styles.selectedRadioButton,
                         ]}
+                        onPress={() => handleInputChange('property_type', item.value)}
                     >
-                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
-                            {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
+                        <View
+                            style={[
+                                styles.dot,
+                                formData.property_type === item.value && styles.selectedDot,
+                            ]}
+                        />
+                        <Text
+                            style={[
+                                styles.radioButtonText,
+                                formData.property_type === item.value && styles.selectedRadioButtonText,
+                            ]}
+                        >
+                            {item.label}
                         </Text>
-                    </Pressable>
-                    <HelperText type="error" visible={touched.virtual_tour_url && errors.virtual_tour_url}>
-                        {errors.virtual_tour_url}
-                    </HelperText>
+                    </TouchableOpacity>
+                ))}
+            </View>
 
-                    <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
-                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Update Property</Text>
-                    </Pressable>
-                </ScrollView>
-            )}
-        </Formik>
-    );
-};
+            <Text style={styles.label}>Status <Text style={{ color: 'red' }}>*</Text></Text>
+
+            <View style={styles.radioGroup}>
+                {statusTypes.map((item) => (
+                    <TouchableOpacity
+                        key={item.value}
+                        style={[
+                            styles.radioButton,
+                            formData.status === item.value && styles.selectedRadioButton,
+                        ]}
+                        onPress={() => handleInputChange('status', item.value)}
+                    >
+                        <View
+                            style={[
+                                styles.dot,
+                                formData.status === item.value && styles.selectedDot,
+                            ]}
+                        />
+                        <Text
+                            style={[
+                                styles.radioButtonText,
+                                formData.status === item.value && styles.selectedRadioButtonText,
+                            ]}
+                        >
+                            {item.label}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+
+            <CustomForm
+                label="Year bought"
+                required
+                placeholder="2020"
+                keyboardType="numeric"
+                value={formData.year_bought}
+                onChangeText={(value) => handleInputChange('year_bought', value)}
+                error={errors.year_bought}
+            />
+            <CustomForm
+                label="Area (sqm)"
+                required
+                placeholder="450"
+                keyboardType="numeric"
+                value={formData.area}
+                onChangeText={(value) => handleInputChange('area', value)}
+                error={errors.area}
+            />
+            <CustomForm
+                label="Number of units"
+                required
+                placeholder="1"
+                keyboardType="numeric"
+                value={formData.num_units}
+                onChangeText={(value) => handleInputChange('num_units', value)}
+                error={errors.num_units}
+            />
+            <CustomForm
+                label="Initial Cost"
+                required
+                placeholder="Initial cost of property"
+                keyboardType="numeric"
+                value={formData.initial_cost}
+                onChangeText={(value) => handleInputChange('initial_cost', value)}
+                error={errors.initial_cost}
+            />
+            <CustomForm
+                label="Current Value"
+                required
+                placeholder="Current value of property"
+                keyboardType="numeric"
+                value={formData.current_value}
+                onChangeText={(value) => handleInputChange('current_value', value)}
+                error={errors.current_value}
+            />
+
+            <CustomForm
+                label="Currency"
+                required
+                placeholder="Select a currency"
+                value={formData.currency}
+                isModal
+                error={errors.currency}
+                onPress={() => setModalVisible(true)}
+            />
+            <CurrencyModal
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                currencyTypes={currencyOptions}
+                setFieldValue={handleInputChange}
+            />
+
+            <CustomForm
+                label="Point Coordinate (Google Coordinates)"
+                placeholder="e.g., 40.7128,-74.0060"
+                value={formData.virtual_tour_url}
+                onChangeText={(text) =>
+                    setFormData((prevData) => ({ ...prevData, virtual_tour_url: text }))
+                }
+                error={errors.virtual_tour_url}
+            />
+
+            <Pressable
+                onPress={handlePickCoordinates}
+                disabled={isFetchingLocation}
+                style={({ pressed }) => [
+                    styles.button,
+                    { backgroundColor: pressed ? '#DDDDDD' : '#358B8B' },
+                ]}
+            >
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
+                    {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
+                </Text>
+            </Pressable>
+
+            <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Submit</Text>
+            </Pressable>
+        </ScrollView>
+    )
+}
+
+export default PropertyUpdateForm
 
 const styles = StyleSheet.create({
-    container: {
-        // padding: 20,
-    },
-    input: {
-        marginBottom: 10,
+    disabledInput: {
+        backgroundColor: '#f0f0f0',
+        color: '#a0a0a0',
     },
     button: {
         marginVertical: 10,
@@ -378,20 +383,53 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 5,
     },
-    radioGroup: {
+    dateButton: {
         marginBottom: 15,
-    },
-    radioItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    currencySelector: {
         padding: 10,
         borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 5,
-        marginTop: 5,
+        borderRadius: 30,
+        borderColor: '#ccc',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: '#000',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 14,
+        marginBottom: 10,
+    },
+    label: {
+        color: '#333',
+        fontSize: 16,
+        marginBottom: 8,
+    },
+    radioGroup: {
+        flexDirection: 'column',
+        marginBottom: 16,
+    },
+    radioButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+    },
+    dot: {
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        borderWidth: 1.2,
+        marginRight: 10,
+    },
+    selectedDot: {
+        borderColor: '#358B8B',
+    },
+    radioButtonText: {
+        fontSize: 15,
+        color: '#333',
+    },
+    selectedRadioButtonText: {
+        color: '#358B8B',
     },
 });
-
-export default PropertyUpdateForm;

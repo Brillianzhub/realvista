@@ -3,11 +3,14 @@ import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from "expo-router";
+import { useTheme } from '@/context/ThemeContext';
 
 const AuthLayout = () => {
 
+    const { theme, toggleTheme, colors } = useTheme();
+
     const handleBackPress = () => {
-        router.replace('/Home');
+        router.replace('/HomeScreen');
     };
 
     return (
@@ -21,7 +24,7 @@ const AuthLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Ionicons name="arrow-back" size={24} color={colors.tint} />
                             </TouchableOpacity>
                         ),
                     }}
@@ -34,7 +37,7 @@ const AuthLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Ionicons name="arrow-back" size={24} color={colors.tint} />
                             </TouchableOpacity>
                         ),
                     }}
@@ -47,7 +50,7 @@ const AuthLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Ionicons name="arrow-back" size={24} color={colors.tint} />
                             </TouchableOpacity>
                         ),
                     }}
@@ -60,7 +63,7 @@ const AuthLayout = () => {
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#000" />
+                                <Ionicons name="arrow-back" size={24} color={colors.tint} />
                             </TouchableOpacity>
                         ),
                     }}
@@ -70,6 +73,20 @@ const AuthLayout = () => {
                     options={{
                         headerShown: false,
                         title: "Forgot Password",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color={colors.tint} />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+
+                <Stack.Screen
+                    name="update-profile"
+                    options={{
+                        headerShown: true,
+                        title: "Update Profile",
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>

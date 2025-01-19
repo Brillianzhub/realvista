@@ -32,7 +32,7 @@ import sellOrder from '../assets/images/sell.png';
 import welcome from '../assets/images/welcome.png';
 
 import house from '../assets/images/house.png';
-import loss from '../assets/images/profit.png';
+import loss from '../assets/images/loss.png';
 import profit from '../assets/images/profit.png';
 import fingerprint from '../assets/images/fingerprint.png';
 import portfolio from '../assets/images/portfolio.png';
@@ -62,6 +62,18 @@ import onboardCarTwo from '../assets/images/onboarding-carousel-two.png';
 import onboardCarThree from '../assets/images/onboarding-carousel-three.png';
 import closeModal from '../assets/images/closemodal.png';
 import wishList from '../assets/images/wishlist.png';
+import businessInvestor from '../assets/images/business-investor.gif';
+import businessSales from '../assets/images/business-sales.gif';
+import scooter from '../assets/images/scooter.gif';
+import income from '../assets/images/income.png';
+import expense from '../assets/images/expense.png';
+import add from '../assets/images/add.png';
+import remove from '../assets/images/remove.png';
+import sale from '../assets/images/sale.png';
+import update from '../assets/images/update.png';
+import ftarget from '../assets/images/ftarget.png';
+import savings from '../assets/images/savings.png';
+
 
 
 
@@ -70,6 +82,7 @@ import wishList from '../assets/images/wishlist.png';
 
 
 export default {
+    savings,
     closeModal,
     wishList,
     onboardCarOne,
@@ -77,6 +90,9 @@ export default {
     onboardCarThree,
     onboarding,
     manager,
+    businessInvestor,
+    businessSales,
+    scooter,
     menuSettings,
     carouselOne,
     carouselTwo,
@@ -128,5 +144,12 @@ export default {
     loss,
     profit,
     fingerprint,
-    portfolio
+    portfolio,
+    income,
+    expense,
+    add,
+    remove,
+    update,
+    sale,
+    ftarget
 };

@@ -4,23 +4,25 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import ChatScreen from '../Enterprise/ChatScreen';
 import PropertiesListScreen from '../Enterprise/PropertiesListScreen';
 import ManageMembersScreen from '../Enterprise/ManageMembersScreen';
+import { useTheme } from '@/context/ThemeContext';
+
 
 const Tab = createMaterialTopTabNavigator();
 
 const GroupDashboardScreen = ({ route, navigation }) => {
     const { uniqueGroupId, groupId, role } = route.params;
-
+    const { colors } = useTheme();
     return (
         <Tab.Navigator
             screenOptions={{
                 lazy: true,
                 tabBarStyle: {
-                    backgroundColor: '#358B8B'
+                    backgroundColor: colors.background
                 },
                 tabBarLabelStyle: { fontSize: 16, fontWeight: 'bold' },
                 tabBarIndicatorStyle: { backgroundColor: '#FB902E' },
                 tabBarActiveTintColor: '#FB902E',
-                tabBarInactiveTintColor: 'white',
+                tabBarInactiveTintColor: '#358B8B',
             }}
         >
             <Tab.Screen name="Properties" component={PropertiesListScreen} initialParams={{ groupId, uniqueGroupId, role }} />

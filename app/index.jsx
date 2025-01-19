@@ -5,11 +5,12 @@ import PagerView from 'react-native-pager-view';
 import images from '../constants/images';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '../context/GlobalProvider';
-import FingerprintAuth from '../components/FingerprintAuth';
 
 
 
 const { width, height } = Dimensions.get('window');
+
+const dynamicFontSize = width < 380 ? 25 : 36;
 
 const Index = () => {
   const { setUser, isLogged, setIsLogged } = useGlobalContext();
@@ -55,16 +56,12 @@ const Index = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ImageBackground
-        source={images.onboarding}
-        style={styles.topSection}
-        resizeMode="cover"
-      >
+      <View style={styles.topSection}>
         <Text style={styles.welcomeTitle}>Welcome to Realvista</Text>
         <Animated.Text style={[styles.titleText, { opacity: fadeAnim }]}>
           {messages[currentMessageIndex]}
         </Animated.Text>
-      </ImageBackground>
+      </View>
 
       <View style={styles.middleSection}>
         <PagerView
@@ -74,21 +71,21 @@ const Index = () => {
         >
           <View key="1" style={styles.page}>
             <Image
-              source={images.onboardCarOne}
+              source={images.businessInvestor}
               style={styles.middleImage}
               resizeMode="contain"
             />
           </View>
           <View key="2" style={styles.page}>
             <Image
-              source={images.onboardCarTwo}
+              source={images.businessSales}
               style={styles.middleImage}
               resizeMode="contain"
             />
           </View>
           <View key="3" style={styles.page}>
             <Image
-              source={images.onboardCarThree}
+              source={images.scooter}
               style={styles.middleImage}
               resizeMode="contain"
             />
@@ -121,13 +118,15 @@ const Index = () => {
 
 export default Index;
 
+const dynamicFlexSize = width < 380 ? 1.0 : 1.6
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
   topSection: {
-    flex: 2,
+    flex: dynamicFlexSize,
     justifyContent: 'center',
     alignItems: 'flex-start',
     paddingBottom: height * 0.03,
@@ -136,25 +135,26 @@ const styles = StyleSheet.create({
     fontFamily: 'RobotoSerif-Regular',
     fontWeight: '600',
     fontSize: 18,
-    color: 'white',
+    color: '#358B8B',
     paddingHorizontal: width * 0.075,
   },
   titleText: {
     fontFamily: 'RobotoSerif-Regular',
     fontWeight: '400',
-    fontSize: 36,
-    color: 'white',
+    fontSize: dynamicFontSize,
+    color: '#358B8B',
     paddingHorizontal: width * 0.075,
   },
   middleSection: {
-    flex: 2.5,
+    flex: width < 380 ? 2 : 2.5,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: width * 0.05,
   },
   pagerView: {
     width: '100%',
-    height: '75%',
+    height: '85%',
+    borderRadius: 10
   },
   page: {
     flex: 1,
@@ -162,15 +162,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   middleImage: {
-    width: '90%',
-    aspectRatio: 0.42,
+    width: '85%',
+    aspectRatio: width < 380 ? 0.5 : 0.80,
     resizeMode: 'contain',
   },
   progressDots: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    // marginTop: 10,
+    marginTop: 20,
   },
   dot: {
     width: 8,

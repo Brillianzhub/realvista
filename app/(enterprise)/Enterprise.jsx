@@ -18,12 +18,13 @@ import AddGroupPropertyIncome from '../../screens/Enterprise/Manage/AddGroupProp
 import AddGroupPropertyExpense from '../../screens/Enterprise/Manage/AddGroupPropertyExpense';
 import ManageAllocations from '../../screens/Enterprise/Manage/ManageAllocations';
 
+import { useTheme } from '@/context/ThemeContext';
 
 
 const Stack = createStackNavigator();
 
 export default function EnterpriseNavigator() {
-
+    const { colors } = useTheme();
     const handleBackPress = () => {
         router.replace('HomeScreen');
     };
@@ -37,11 +38,11 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "My Groups",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                     headerLeft: () => (
                         <TouchableOpacity onPress={handleBackPress} style={{ paddingLeft: 10 }}>
-                            <Ionicons name="arrow-back" size={24} color="#fff" />
+                            <Ionicons name="arrow-back" size={24} color={colors.tint} />
                         </TouchableOpacity>
                     ),
                 }}
@@ -53,8 +54,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Group Information",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -64,8 +65,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Create New Group",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -83,8 +84,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Members Booking",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -94,8 +95,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Manage Group Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -105,8 +106,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Add Group Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -116,8 +117,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Remove Group Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -127,8 +128,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Update Group Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -138,8 +139,8 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Add Group Property Income",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
@@ -149,19 +150,19 @@ export default function EnterpriseNavigator() {
                     headerShown: true,
                     title: "Add Group Property Expense",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
             <Stack.Screen
-                name="ManageAllocations" 
+                name="ManageAllocations"
                 component={ManageAllocations}
                 options={{
                     headerShown: true,
                     title: "Manage Allocations",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
         </Stack.Navigator>

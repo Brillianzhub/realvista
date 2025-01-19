@@ -22,9 +22,6 @@ const WelcomeView = () => (
 const PropertyListScreen = ({ route, navigation }) => {
     const { groupId, uniqueGroupId, role } = route.params;
     const { deviceTokens } = useFetchAdminDeviceTokens(uniqueGroupId);
-
-    console.log(role)
-
     const [selectedItem, setSelectedItem] = useState(null);
     const [mapType, setMapType] = useState('standard');
     const bottomSheetRef = useRef(null);

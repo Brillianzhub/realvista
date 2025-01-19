@@ -9,6 +9,7 @@ import RemovePropertyScreen from '../../screens/Manage/RemovePropertyScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import TargetListScreen from '../../screens/Manage/TargetList';
 
 
 const Stack = createStackNavigator();
@@ -29,11 +30,11 @@ const ManageNavigator = () => {
                     headerShown: true,
                     title: "Manage Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
                     headerLeft: () => (
                         <TouchableOpacity onPress={handleBackPress} style={{ paddingLeft: 10 }}>
-                            <Ionicons name="arrow-back" size={24} color="#fff" />
+                            <Ionicons name="arrow-back" size={24} color="#358B8B" />
                         </TouchableOpacity>
                     ),
                 }}
@@ -45,8 +46,8 @@ const ManageNavigator = () => {
                     headerShown: true,
                     title: "Add Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
                 }}
             />
             <Stack.Screen
@@ -56,8 +57,8 @@ const ManageNavigator = () => {
                     headerShown: true,
                     title: "Add Expenses",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
                 }}
             />
             <Stack.Screen
@@ -67,8 +68,8 @@ const ManageNavigator = () => {
                     headerShown: true,
                     title: "Add Income",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
                 }}
             />
 
@@ -79,8 +80,8 @@ const ManageNavigator = () => {
                     headerShown: true,
                     title: "Update Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
                 }}
             />
             <Stack.Screen
@@ -90,8 +91,20 @@ const ManageNavigator = () => {
                     headerShown: true,
                     title: "Delete Property",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
+                }}
+            />
+
+            <Stack.Screen
+                name="TargetList"
+                component={TargetListScreen}
+                options={{
+                    headerShown: true,
+                    title: "Financial Target",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
                 }}
             />
         </Stack.Navigator>

@@ -1,132 +1,131 @@
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
-import { TextInput, HelperText, Text, Button } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import CustomForm from '../components/CustomForm';
 
 
-const AddExpenseForm = ({ property, onSubmit }) => {
+const PropertyExpensesForm = ({ property, onSubmit }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const validationSchema = Yup.object({
-        property: Yup.string().required('Property is required'),
-        amount: Yup.number().required('Amount is required').positive('Must be positive'),
-        description: Yup.string().required('Description is required'),
-        date_incurred: Yup.string()
-            .required('Date is required')
-            .matches(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+
+    const [formData, setFormData] = useState({
+        property: property?.id || '',
+        amount: '',
+        currency: property?.currency || 'NGN',
+        description: '',
+        date_incurred: '',
     });
 
     const [date, setDate] = useState(new Date());
-    const [isEditable, setIsEditable] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const handleInputChange = (field, value) => {
+        setFormData((prevData) => ({ ...prevData, [field]: value }));
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.property) {
+            newErrors.property = 'Property is required.';
+        }
+        if (!formData.amount || isNaN(formData.amount) || Number(formData.amount) <= 0) {
+            newErrors.amount = 'Amount must be a valid positive number.';
+        }
+        if (!formData.currency) {
+            newErrors.currency = 'Currency is required.';
+        }
+        if (!formData.description) {
+            newErrors.description = 'Description is required.';
+        }
+        if (!formData.date_incurred) {
+            newErrors.date_incurred = 'Date incurred is required.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = () => {
+        if (validateForm()) {
+            onSubmit(formData);
+        } else {
+            Alert.alert('Validation Error', 'Please correct the highlighted fields.');
+        }
+    };
 
     return (
-        <Formik
-            initialValues={{
-                property: property?.id || '',
-                amount: '',
-                currency: property?.currency || '',
-                description: '',
-                date_incurred: '',
-            }}
-            validationSchema={validationSchema}
-            onSubmit={(values) => onSubmit({ ...values, property: property.id })}
+        <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
         >
-            {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                setFieldValue,
-            }) => (
-                <ScrollView contentContainerStyle={styles.container}>
-                    <HelperText type="error" visible={touched.property && errors.property}>
-                        {errors.property}
-                    </HelperText>
-
-                    <TextInput label="Currency"
-                        value={values.currency}
-                        onChangeText={handleChange('currency')}
-                        onBlur={handleBlur('currency')}
-                        mode="outlined"
-                        style={[styles.input, !isEditable && styles.disabledInput]}
-                        error={touched.currency && errors.currency}
-                        editable={isEditable}
-                    />
-                    <HelperText type="error" visible={touched.currency && errors.currency}>
-                        {errors.currency}
-                    </HelperText>
-
-                    <TextInput
-                        label="Amount"
-                        value={values.amount}
-                        onChangeText={handleChange('amount')}
-                        onBlur={handleBlur('amount')}
-                        mode="outlined"
-                        style={styles.input}
-                        keyboardType="numeric"
-                        error={touched.amount && errors.amount}
-                    />
-                    <HelperText type="error" visible={touched.amount && errors.amount}>
-                        {errors.amount}
-                    </HelperText>
-
-                    <TextInput label="Description"
-                        value={values.description}
-                        onChangeText={handleChange('description')}
-                        onBlur={handleBlur('description')}
-                        mode="outlined"
-                        style={styles.input}
-                        error={touched.description && errors.description}
-                    />
-                    <HelperText type="error" visible={touched.description && errors.description}>
-                        {errors.description}
-                    </HelperText>
-
-                    <Button
-                        mode="outlined"
-                        onPress={() => setShowDatePicker(true)}
-                        style={styles.dateButton}
-                    >
-                        {values.date_incurred
-                            ? `Date: ${values.date_incurred}`
-                            : 'Select Date Incurred'}
-                    </Button>
-                    <HelperText type="error" visible={touched.date_incurred && errors.date_incurred}>
-                        {errors.date_incurred}
-                    </HelperText>
-                    <Text>Selected Date: {date?.toLocaleDateString()}</Text>
-                    {showDatePicker && (
-                        <DateTimePicker
-                            value={date}
-                            mode="date"
-                            display="default"
-                            onChange={(event, selectedDate) => {
-                                setShowDatePicker(false);
-                                const formattedDate = selectedDate ? selectedDate.toISOString().split('T')[0] : date.toISOString().split('T')[0];
-                                setDate(selectedDate || date);
-                                setFieldValue('date_incurred', formattedDate);
-                            }}
-                        />
-                    )}
-                    <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
-                        <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Submit</Text>
-                    </Pressable>
-                </ScrollView>
+            <CustomForm
+                label="Currency"
+                value={formData.currency}
+                error={errors.currency}
+                editable={false}
+            />
+            <CustomForm
+                label="Amount"
+                required
+                placeholder="Amount incurred"
+                keyboardType="numeric"
+                value={formData.amount}
+                onChangeText={(value) => handleInputChange('amount', value)}
+                error={errors.amount}
+            />
+            <CustomForm
+                label="Description"
+                required
+                placeholder="Development fee ..."
+                keyboardType="default"
+                value={formData.description}
+                onChangeText={(value) => handleInputChange('description', value)}
+                error={errors.description}
+            />
+            <TouchableOpacity
+                style={[styles.dateButton]}
+                onPress={() => setShowDatePicker(true)}
+            >
+                <Text style={styles.buttonText}>
+                    {formData.date_incurred ? `Date: ${formData.date_incurred}` : 'Select Date Incurred'}
+                </Text>
+            </TouchableOpacity>
+            {errors.date_incurred && (
+                <Text style={styles.errorText}>{errors.date_incurred}</Text>
             )}
-        </Formik>
-    );
-};
+
+            {showDatePicker && (
+                <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                        setShowDatePicker(false);
+
+                        if (selectedDate) {
+                            const formattedDate = selectedDate.toISOString().split('T')[0];
+                            setDate(selectedDate);
+                            handleInputChange('date_incurred', formattedDate);
+                        }
+                    }}
+                />
+            )}
+            <Pressable
+                mode="contained"
+                style={styles.button}
+                onPress={handleSubmit}
+            >
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Submit</Text>
+            </Pressable>
+        </ScrollView>
+    )
+}
+
+export default PropertyExpensesForm
+
 
 const styles = StyleSheet.create({
-    container: {
-        // padding: 20,
-    },
-    input: {
-        marginBottom: 10,
-    },
     disabledInput: {
         backgroundColor: '#f0f0f0',
         color: '#a0a0a0',
@@ -139,20 +138,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 5,
     },
-    dropdownContainer: {
-        marginBottom: 15,
-    },
-    dropdownButton: {
-        width: '100%',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        borderRadius: 5,
-    },
     dateButton: {
         marginBottom: 15,
+        padding: 10,
+        borderWidth: 1,
+        borderRadius: 30,
+        borderColor: '#ccc',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: '#000',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 14,
+        marginBottom: 10,
     },
 });
-
-export default AddExpenseForm;

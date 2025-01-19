@@ -1,8 +1,11 @@
 import images from '@/constants/images';
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
+
+
     if (!properties || properties.length === 0) {
         return (
             <View style={styles.emptyContainer}>
@@ -22,25 +25,30 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <View>
                         <Text style={styles.title}>{item.title}
-                            {item.user_slots && item.group_owner_name ? (
-                                <Text style={{ fontWeight: '400', fontSize: 12, fontStyle: 'italic' }}>{' '}({item.group_owner_name} - {item.user_slots} Slots)</Text>
-                            ) : (
-                                <Text style={{ fontWeight: '400', fontSize: 12, fontStyle: 'italic' }}>{' '}(Personal Property)</Text>
-                            )}
                         </Text>
-                        <Text style={styles.subtitle}>{item.address}</Text>
+                        {item.user_slots && item.group_owner_name ? (
+                            <Text style={{ fontWeight: '400', fontSize: 12 }}>{item.group_owner_name} - {item.user_slots} Slots</Text>
+                        ) : (
+                            <Text style={{ fontWeight: '400', fontSize: 12, color: 'gray' }}>Personal Property</Text>
+                        )}
+                        <Text style={{ fontWeight: '600', color: '#358B8B' }}>{formatCurrency(item.current_value, item.currency)}</Text>
+
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+                        <Image
+                            source={item.percentage_performance > 0 ? images.profit : images.loss}
+                            style={{ alignItems: 'center', width: 12, height: 12 }}
+                        />
                         <Text
                             style={[
                                 styles.percentageReturn,
-                                { color: item.percentageReturn < 0 ? 'red' : styles.percentageReturn.color }
+                                { color: item.percentage_performance < 0 ? 'red' : styles.percentageReturn.color }
                             ]}
                         >
-                            Return: {item.percentage_performance ? item.percentage_performance.toFixed(2) : '0.00'}%
+                            {item.percentage_performance ? item.percentage_performance.toFixed(2) : '0.00'}%
                         </Text>
                     </View>
-                    <View>
-                        <Image source={images.profit} />
-                    </View>
+
                 </View>
             </TouchableOpacity>
         );
@@ -63,14 +71,12 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
 
 const styles = StyleSheet.create({
     listContainer: {
-        padding: 8,
+        // padding: 8,
     },
     propertyItem: {
         backgroundColor: '#fff',
-        padding: 15,
+        padding: 10,
         marginVertical: 8,
-        borderRadius: 8,
-        elevation: 2,
     },
     title: {
         fontSize: 18,
@@ -94,7 +100,6 @@ const styles = StyleSheet.create({
     percentageReturn: {
         fontSize: 14,
         color: '#358B8B',
-        marginTop: 10,
         fontWeight: 'bold',
     },
 });

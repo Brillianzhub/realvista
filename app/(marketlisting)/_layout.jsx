@@ -19,11 +19,11 @@ const MarketListingLayout = () => {
                         headerShown: true,
                         title: "Market Listing",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
-                                <Ionicons name="arrow-back" size={24} color="#fff" style={{ marginLeft: 5 }} />
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" style={{ marginLeft: 5 }} />
                             </TouchableOpacity>
                         ),
                         // headerBackVisible: true
@@ -35,8 +35,8 @@ const MarketListingLayout = () => {
                         headerShown: true,
                         title: "Add Listing",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerBackVisible: true
                     }}
                 />
@@ -46,14 +46,14 @@ const MarketListingLayout = () => {
                         headerShown: true,
                         title: "Update Listing",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
                         headerBackVisible: true
                     }}
                 />
             </Stack>
 
-            <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         </>
     );
 };

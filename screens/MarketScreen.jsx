@@ -2,10 +2,10 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import useFetchProperties from "../hooks/useFetchProperties";
-import { useCurrency } from '../context/CurrencyContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '@/context/ThemeContext';
 
 
 const MarketScreen = () => {
@@ -13,8 +13,8 @@ const MarketScreen = () => {
     const [priceFilter, setPriceFilter] = useState('');
     const [locationFilter, setLocationFilter] = useState('');
     const { properties, loading, error } = useFetchProperties();
-    const { currency } = useCurrency();
     const navigation = useNavigation();
+    const { colors } = useTheme();
 
 
     const filteredProperties = properties.filter((property) => {
@@ -74,7 +74,7 @@ const MarketScreen = () => {
                         Location: {item.city}, {item.state}
                     </Text>
                     <Text style={styles.propertyDetails}>
-                        Price: {formatCurrency(item.price, currency)}
+                        Price: {formatCurrency(item.price, item.currency)}
                     </Text>
                     <TouchableOpacity
                         style={styles.contactButton}
@@ -90,7 +90,7 @@ const MarketScreen = () => {
 
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <TextInput
                 style={styles.searchInput}
                 placeholder="Search by title"
@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#f9f9f9',
     },
     searchInput: {
         height: 40,

@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import useFetchUserListedProperties from '../../hooks/useFetchUserListedProperties';
 import ListingModal from './ListingModal';
+import moment from 'moment';
+
 
 const ManageListingsScreen = ({ navigation }) => {
     const [selectedListing, setSelectedListing] = useState(null);
@@ -41,15 +43,25 @@ const ManageListingsScreen = ({ navigation }) => {
         setModalVisible(false);
     };
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity
-            style={styles.listingItem}
-            onPress={() => openModal(item)}
-        >
-            <Text style={styles.listingTitle}>{item.title}</Text>
-            <Text style={styles.listingViews}>{item.views} Views</Text>
-        </TouchableOpacity>
-    );
+
+    const renderItem = ({ item }) => {
+        const formattedDate = moment(item.listed_date).format('DD-MM-YYYY');
+
+        return (
+            <TouchableOpacity
+                style={styles.listingItem}
+                onPress={() => openModal(item)}
+            >
+                <View>
+                    <Text style={styles.listingTitle}>{item.title}</Text>
+                    <Text style={{ color: 'gray', fontSize: 14 }}>{formattedDate}</Text>
+                </View>
+
+                <Text style={styles.listingViews}>{item.views} Views</Text>
+            </TouchableOpacity>
+        );
+    };
+
 
     return (
         <View style={styles.container}>
@@ -87,7 +99,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#FFFFFF',
     },
     header: {
         fontSize: 18,

@@ -26,6 +26,7 @@ const RegistrationForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [form, setForm] = useState({
         name: '',
+        first_name: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -34,20 +35,6 @@ const RegistrationForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const [validation, setValidation] = useState({
-        passwordLength: false,
-        passwordUppercase: false,
-        passwordLowercase: false,
-        passwordNumber: false,
-        passwordSpecialChar: false,
-    });
-
-
-    // Regex patterns
-    const uppercaseRegex = /[A-Z]/;
-    const lowercaseRegex = /[a-z]/;
-    const numberRegex = /\d/;
-    const specialCharRegex = /[@$!%*?&]/;
 
     const configureGoogleSignIn = async () => {
         GoogleSignin.configure({
@@ -61,30 +48,16 @@ const RegistrationForm = () => {
     }, []);
 
     const handleGoogleAuth = async () => {
-        setIsSubmitting(true); // Start loading state
+        setIsSubmitting(true);
         try {
             await googleAuthSignIn({ setUser, setIsLogged, router });
         } catch (error) {
             console.error('Google Auth Error:', error);
         } finally {
-            setIsSubmitting(false); // Reset loading state
+            setIsSubmitting(false);
         }
     };
 
-    const handlePasswordChange = (password) => {
-        setForm((prev) => ({ ...prev, password }));
-
-        // Validate password
-        setValidation({
-            passwordLength: password.length >= 8,
-            passwordUppercase: uppercaseRegex.test(password),
-            passwordLowercase: lowercaseRegex.test(password),
-            passwordNumber: numberRegex.test(password),
-            passwordSpecialChar: specialCharRegex.test(password),
-        });
-    };
-
-    const isPasswordStrong = Object.values(validation).every((val) => val);
 
     const validateForm = (form) => {
         const { email, password, confirmPassword } = form;
@@ -130,6 +103,7 @@ const RegistrationForm = () => {
                 },
                 body: JSON.stringify({
                     name: form.name,
+                    first_name: form.first_name,
                     email: form.email,
                     password: form.password,
                     auth_provider: 'email'
@@ -165,6 +139,7 @@ const RegistrationForm = () => {
                 id: result.id,
                 email: result.email,
                 name: result.name,
+                first_name: result.first_name,
                 authProvider: 'email'
             });
             setIsLogged(true);
@@ -197,9 +172,15 @@ const RegistrationForm = () => {
                             </View>
                             <TextInput
                                 style={[styles.input]}
-                                placeholder="Full Name"
+                                placeholder="Last Name"
                                 value={form.name}
                                 onChangeText={(e) => setForm({ ...form, name: e })}
+                            />
+                            <TextInput
+                                style={[styles.input]}
+                                placeholder="First Name"
+                                value={form.first_name}
+                                onChangeText={(e) => setForm({ ...form, first_name: e })}
                             />
                             <TextInput
                                 style={[styles.input]}

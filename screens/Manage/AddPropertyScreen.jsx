@@ -4,10 +4,12 @@ import PropertyForm from '../../components/PropertyForm';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 
 const AddPropertyScreen = ({ navigation }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { colors } = useTheme();
 
     const handleFormSubmit = async (values) => {
         const token = await AsyncStorage.getItem('authToken');
@@ -46,7 +48,7 @@ const AddPropertyScreen = ({ navigation }) => {
 
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             {isSubmitting ? (
                 <View
                     style={{
@@ -67,6 +69,11 @@ const AddPropertyScreen = ({ navigation }) => {
     );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+    },
+});
 
 export default AddPropertyScreen;

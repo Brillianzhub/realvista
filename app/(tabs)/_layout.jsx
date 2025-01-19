@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StatusBar, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { StatusBar, View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Portfolio from './Portfolio';
 import MarketScreen from './market';
@@ -9,33 +9,44 @@ import HomeScreen from './HomeScreen';
 import { useTheme } from '@react-navigation/native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import NavigationView from '../../lib/NavigationView';
+import { useGlobalContext } from '@/context/GlobalProvider';
+import UserInitials from '@/components/UserInitials';
 
-import { router, useNavigation } from 'expo-router';
+import { router } from 'expo-router';
 import { useNotifications } from '../../context/NotificationContext';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
 
 const RealVistaTabs = () => {
-  const { colors } = useTheme();
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         lazy: true,
         tabBarStyle: {
-          backgroundColor: '#358B8B',
+          backgroundColor: '#FFFFFF',
           paddingHorizontal: 10,
         },
-        tabBarLabelStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          textAlign: 'center',
-        },
-        tabBarIndicatorStyle: { backgroundColor: '#FB902E' },
-        tabBarActiveTintColor: '#FB902E',
-        tabBarInactiveTintColor: 'white',
-      }}
+        tabBarLabel: ({ focused }) => (
+          <View
+            style={[
+              styles.tabLabelContainer,
+              focused && styles.activeTab,
+            ]}
+          >
+            <Text
+              style={[
+                styles.tabLabelText,
+                { color: focused ? '#FFFFFF' : '#358B8B' },
+              ]}
+            >
+              {route.name}
+            </Text>
+          </View>
+        ),
+        tabBarIndicatorStyle: { height: 0 },
+      })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Portfolio" component={Portfolio} />
@@ -49,6 +60,7 @@ const RealVistaStack = () => {
   const drawerRef = useRef(null);
   const navigationView = NavigationView();
   const { hasUnread } = useNotifications();
+  const { user } = useGlobalContext();
 
 
   const openDrawer = () => {
@@ -70,8 +82,8 @@ const RealVistaStack = () => {
 
     <React.Fragment>
       <StatusBar
-        barStyle="light-content"
-        backgroundColor="#358B8B"
+        barStyle="dark-content"
+        backgroundColor="#FFFFFF"
       />
       <DrawerLayout
         ref={drawerRef}
@@ -88,28 +100,29 @@ const RealVistaStack = () => {
               headerTitleAlign: 'center',
               headerLeft: () => (
                 <TouchableOpacity onPress={openDrawer}>
-                  <Ionicons name="menu" size={30} color="white" style={{ marginLeft: 15 }} />
+                  <Ionicons name="menu" size={30} color="#358B8B" style={{ marginLeft: 15 }} />
                 </TouchableOpacity>
               ),
               headerRight: () => (
-                <View style={{ flexDirection: 'row', marginRight: 15 }}>
+                <View style={{ flexDirection: 'row', marginRight: 20 }}>
                   <TouchableOpacity onPress={handleNavNot}>
                     <View style={styles.notificationWrapper}>
-                      <Ionicons name="notifications" size={30} color="white" style={{ marginHorizontal: 10 }} />
+                      <Ionicons name="notifications" size={30} color="#358B8B" style={{ marginHorizontal: 10 }} />
                       {hasUnread && <View style={styles.dot} />}
                     </View>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={handleNav}>
-                    <Ionicons name="person" size={30} color="white" />
-                  </TouchableOpacity>
+                  <UserInitials
+                    user={user}
+                    onPress={handleNav}
+                  />
                 </View>
               ),
               headerStyle: {
-                backgroundColor: '#358B8B',
+                backgroundColor: '#FFFFFF',
               },
               headerTitleStyle: {
                 fontSize: 24,
-                color: 'white',
+                color: '#358B8B',
                 fontWeight: 'bold',
               },
             }}
@@ -137,5 +150,36 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: 'red',
     borderRadius: 5,
+  },
+
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#358B8B',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  initialsText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  tabLabelContainer: {
+    borderRadius: 40,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#FB902E',
+  },
+  tabLabelText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

@@ -7,6 +7,7 @@ import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useNavigation } from '@react-navigation/native';
 import TargetDetail from './TargetDetail';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { router } from 'expo-router';
 
 const TargetListScreen = () => {
     const [targets, setTargets] = useState([]);
@@ -85,8 +86,6 @@ const TargetListScreen = () => {
     return (
         <View style={styles.outerContainer}>
             <View style={styles.contentContainer}>
-                <Text style={styles.header}>Financial Targets</Text>
-
                 {loading ? (
                     <ActivityIndicator size="large" color="#358B8B" style={styles.activityIndicator} />
                 ) : (
@@ -108,7 +107,7 @@ const TargetListScreen = () => {
 
                 <TouchableOpacity
                     style={styles.addButton}
-                    onPress={() => navigation.navigate('FinancialTarget')}
+                    onPress={() => router.replace('Analysis')}
                 >
                     <Ionicons name="add" size={30} color="white" />
                 </TouchableOpacity>

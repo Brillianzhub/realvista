@@ -1,25 +1,35 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Dimensions } from 'react-native';
+import React, { useState } from 'react';
 import { router, useNavigation } from 'expo-router';
+import images from '../../constants/images';
 
 const ManageProperty = () => {
-
     const navigation = useNavigation();
+    const [refreshing, setRefreshing] = useState(false);
 
     const actions = [
-        { id: '1', label: 'Add Property', onPress: () => navigation.navigate('AddProperty') },
-        { id: '2', label: 'Add Income', onPress: () => navigation.navigate('AddPropertyIncome') },
-        { id: '3', label: 'Add Expenses', onPress: () => navigation.navigate('AddPropertyExpenses') },
-        { id: '4', label: 'Remove Property', onPress: () => navigation.navigate('RemoveProperty') },
-        { id: '5', label: 'Update Property', onPress: () => navigation.navigate('UpdateProperty') },
-        { id: '6', label: 'Publish Property for Sale', onPress: () => router.replace('MarketListing') },
+        { id: '1', label: 'Add Property', icon: images.add, onPress: () => navigation.navigate('AddProperty') },
+        { id: '2', label: 'Add Income', icon: images.income, onPress: () => navigation.navigate('AddPropertyIncome') },
+        { id: '3', label: 'Add Expenses', icon: images.expense, onPress: () => navigation.navigate('AddPropertyExpenses') },
+        { id: '4', label: 'Remove Property', icon: images.remove, onPress: () => navigation.navigate('RemoveProperty') },
+        { id: '5', label: 'Update Property', icon: images.update, onPress: () => navigation.navigate('UpdateProperty') },
+        { id: '6', label: 'List for Sale', icon: images.sale, onPress: () => router.replace('MarketListing') },
+        { id: '7', label: 'Target List', icon: images.ftarget, onPress: () => navigation.navigate('TargetList') },
     ];
 
     const renderAction = ({ item }) => (
         <TouchableOpacity style={styles.box} onPress={item.onPress}>
+            <Image source={item.icon} style={styles.iconStyle} />
             <Text style={styles.boxText}>{item.label}</Text>
         </TouchableOpacity>
     );
+
+    const handleRefresh = () => {
+        setRefreshing(true);
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 1000);
+    };
 
     return (
         <View style={styles.container}>
@@ -30,6 +40,9 @@ const ManageProperty = () => {
                 numColumns={2}
                 contentContainerStyle={styles.grid}
                 columnWrapperStyle={styles.row}
+                bounces={true}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
             />
         </View>
     );
@@ -37,18 +50,16 @@ const ManageProperty = () => {
 
 export default ManageProperty;
 
+
+const { width: screenWidth } = Dimensions.get('window');
+
+const dynamicFontSize = screenWidth < 380 ? 12 : 14;
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 10,
-        backgroundColor: '#f7f7f7',
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 20,
-        color: '#333',
+        backgroundColor: '#FFFFFF',
     },
     grid: {
         justifyContent: 'space-between',
@@ -57,18 +68,25 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     box: {
-        flex: 1,
-        height: 120,
-        margin: 5,
-        justifyContent: 'center',
+        flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#358B8B',
-        borderRadius: 8,
+        justifyContent: 'center',
+        height: 80,
+        width: '48%',
+        paddingLeft: 15,
+        backgroundColor: '#358B8B0D',
+        borderRadius: 15,
+        margin: 5,
+        gap: 5
     },
     boxText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-        textAlign: 'center',
+        flex: 1,
+        color: '#358B8B',
+        fontSize: dynamicFontSize,
+        textAlign: 'left',
+    },
+    iconStyle: {
+        height: 24,
+        width: 24,
     },
 });

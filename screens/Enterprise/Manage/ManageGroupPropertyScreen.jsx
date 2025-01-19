@@ -1,15 +1,17 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
+import { useTheme } from '@/context/ThemeContext'
 
 const ManageGroupPropertyScreen = ({ route, navigation }) => {
     const { uniqueGroupId } = route.params;
+    const { colors } = useTheme();
 
     const handleManageProperty = (action) => {
         navigation.navigate(action, { uniqueGroupId: uniqueGroupId });
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <TouchableOpacity
                 style={styles.button}
                 onPress={() => handleManageProperty('AddGroupProperty')}
@@ -61,20 +63,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        backgroundColor: '#f8f9fa',
         padding: 20,
     },
     button: {
-        backgroundColor: '#358B8B',
+        backgroundColor: '#D9D9D9',
         padding: 15,
-        borderRadius: 8,
+        borderRadius: 30,
         marginVertical: 10,
         width: '100%',
         alignItems: 'center',
     },
     buttonText: {
-        color: '#ffffff',
         fontSize: 16,
-        fontWeight: '600',
     },
 });

@@ -10,9 +10,8 @@ const GlobalProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Fetch user and groups function
     const fetchGroups = async () => {
-        setLoading(true); // Optional: show loading state
+        setLoading(true); 
         try {
             const res = await getCurrentUser();
             if (res) {
@@ -29,7 +28,10 @@ const GlobalProvider = ({ children }) => {
         }
     };
 
-    // Initial fetch on mount
+    const reloadProfile = () => {
+        fetchGroups(); 
+    };
+
     useEffect(() => {
         fetchGroups();
     }, []);
@@ -42,7 +44,8 @@ const GlobalProvider = ({ children }) => {
                 user,
                 setUser,
                 loading,
-                fetchGroups, // Provide fetchGroups in context
+                fetchGroups, 
+                reloadProfile,
             }}
         >
             {children}

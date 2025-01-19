@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import useUserProperty from '../../hooks/useUserProperty';
 import ListingForm from '../../screens/Market/ListingForm';
@@ -13,6 +13,11 @@ const AddListing = ({ route, navigation }) => {
     const { properties } = useUserProperty();
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showFormWithoutProperty, setShowFormWithoutProperty] = useState(false);
+
+    const handleContinueWithoutProperty = () => {
+        setShowFormWithoutProperty(true);
+    };
 
     const handleSubmit = async (values) => {
         const token = await AsyncStorage.getItem('authToken');
@@ -59,23 +64,42 @@ const AddListing = ({ route, navigation }) => {
                 </View>
             ) : (
                 <>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={selectedPropertyId}
-                            onValueChange={(itemValue) => setSelectedPropertyId(itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Select a property to list" value={null} />
-                            {properties.map((property) => (
-                                <Picker.Item key={property.id} label={property.title} value={property.id} />
-                            ))}
-                        </Picker>
-                    </View>
+                    {!showFormWithoutProperty && (
+                        <>
+                            <View style={styles.pickerContainer}>
+                                <Picker
+                                    selectedValue={selectedPropertyId}
+                                    onValueChange={(itemValue) => setSelectedPropertyId(itemValue)}
+                                    style={styles.picker}
+                                >
+                                    <Picker.Item label="Select a property to list" value={null} />
+                                    {properties.map((property) => (
+                                        <Picker.Item key={property.id} label={property.title} value={property.id} />
+                                    ))}
+                                </Picker>
+                            </View>
 
-                    {selectedProperty ? (
-                        <ListingForm property={selectedProperty} onSubmit={handleSubmit} />
-                    ) : (
-                        <Text style={styles.infoText}>Use the dropdown menu to select the property you'd like to list.</Text>
+                            {!selectedProperty && (
+                                <View>
+                                    <Text style={styles.infoText}>
+                                        Use the dropdown menu to select the property you'd like to list.
+                                    </Text>
+                                    <Text style={styles.infoText}>OR</Text>
+                                    <TouchableOpacity onPress={handleContinueWithoutProperty}>
+                                        <Text style={[styles.infoText, styles.linkText]}>
+                                            Click here to Continue
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                        </>
+                    )}
+
+                    {(selectedProperty || showFormWithoutProperty) && (
+                        <ListingForm
+                            property={selectedProperty || {}}
+                            onSubmit={handleSubmit}
+                        />
                     )}
                 </>
             )}
@@ -89,7 +113,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
     },
     loadingContainer: {
         flex: 1,
