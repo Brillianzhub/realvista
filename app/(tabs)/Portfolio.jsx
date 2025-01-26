@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetail from '../../components/PropertyDetail';
 import useUserProperty from '../../hooks/useUserProperty';
@@ -31,11 +31,11 @@ const Portfolio = () => {
   const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
   const userReturns = calculateReturns(properties)
   const [refreshing, setRefreshing] = useState(false);
-  const { result, setLoading, currency, fetchPortfolioDetails } = usePortfolioDetail();
+  const { result, setLoading, currency } = usePortfolioDetail();
 
   const overallSummary = result?.overall_summary;
 
-  const { theme, toggleTheme, colors } = useTheme();
+  const { colors } = useTheme();
 
   const totalInvestment = formatCurrency(
     overallSummary?.totalInitialCost + overallSummary?.totalExpenses,
@@ -154,7 +154,6 @@ const Portfolio = () => {
         handleIndicatorStyle={styles.handleIndicator}
       >
         <BottomSheetScrollView
-          contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
           <PropertyDetail

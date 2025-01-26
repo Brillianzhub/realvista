@@ -1,11 +1,9 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, Image, Dimensions, Animated } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Image, Dimensions, Animated } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import PagerView from 'react-native-pager-view';
 import images from '../constants/images';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useGlobalContext } from '../context/GlobalProvider';
-
 
 
 const { width, height } = Dimensions.get('window');
@@ -13,8 +11,6 @@ const { width, height } = Dimensions.get('window');
 const dynamicFontSize = width < 380 ? 25 : 36;
 
 const Index = () => {
-  const { setUser, isLogged, setIsLogged } = useGlobalContext();
-
   const router = useRouter();
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -163,7 +159,7 @@ const styles = StyleSheet.create({
   },
   middleImage: {
     width: '85%',
-    aspectRatio: width < 380 ? 0.5 : 0.80,
+    aspectRatio: width < 380 ? 0.5 : 0.75,
     resizeMode: 'contain',
   },
   progressDots: {

@@ -51,6 +51,17 @@ const MarketListingLayout = () => {
                         headerBackVisible: true
                     }}
                 />
+                 <Stack.Screen
+                    name="MarketFeatures"
+                    options={{
+                        headerShown: true,
+                        title: "Property Features",
+                        headerTitleAlign: "center",
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
+                        headerBackVisible: true
+                    }}
+                />
             </Stack>
 
             <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />

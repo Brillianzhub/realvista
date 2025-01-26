@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import axios from 'axios';
 import useUserProperty from '../../hooks/useUserProperty';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -75,12 +74,16 @@ const RemoveGroupProperty = ({ navigation }) => {
         </TouchableOpacity>
     );
 
+    const filteredProperties = properties.filter(
+        (property) => property.group_owner_name === null
+    );
+
     return (
         <View style={styles.container}>
             <Text style={[styles.title]}>Select the property you wish to remove.</Text>
             {loading && <ActivityIndicator size="large" color="#358B8B" />}
             <FlatList
-                data={properties}
+                data={filteredProperties}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderProperty}
                 contentContainerStyle={styles.listContainer}
@@ -134,7 +137,7 @@ const styles = StyleSheet.create({
     },
     deleteButtonText: {
         color: '#ffffff',
-        fontWeight: 'bold',
+        fontWeight: '400',
         fontSize: 16,
     },
 });

@@ -10,6 +10,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import TargetListScreen from '../../screens/Manage/TargetList';
+import AddCoordinates from '../../screens/Manage/AddCoordinates';
+import AddImages from '../../screens/Manage/AddImages';
 
 
 const Stack = createStackNavigator();
@@ -102,6 +104,29 @@ const ManageNavigator = () => {
                 options={{
                     headerShown: true,
                     title: "Financial Target",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
+                }}
+            />
+
+            <Stack.Screen
+                name="AddCoordinates"
+                component={AddCoordinates}
+                options={{
+                    headerShown: true,
+                    title: "Add Coordinates",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: '#FFFFFF' },
+                    headerTintColor: '#358B8B',
+                }}
+            />
+            <Stack.Screen
+                name="AddImages"
+                component={AddImages}
+                options={{
+                    headerShown: true,
+                    title: "Add Images",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#FFFFFF' },
                     headerTintColor: '#358B8B',

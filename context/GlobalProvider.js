@@ -11,12 +11,12 @@ const GlobalProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchGroups = async () => {
-        setLoading(true); 
+        setLoading(true);
         try {
             const res = await getCurrentUser();
             if (res) {
                 setIsLogged(true);
-                setUser(res); // Update user and groups
+                setUser(res);
             } else {
                 setIsLogged(false);
                 setUser(null);
@@ -24,12 +24,12 @@ const GlobalProvider = ({ children }) => {
         } catch (error) {
             console.error("Error fetching groups:", error);
         } finally {
-            setLoading(false); // End loading state
+            setLoading(false);
         }
     };
 
     const reloadProfile = () => {
-        fetchGroups(); 
+        fetchGroups();
     };
 
     useEffect(() => {
@@ -44,7 +44,7 @@ const GlobalProvider = ({ children }) => {
                 user,
                 setUser,
                 loading,
-                fetchGroups, 
+                fetchGroups,
                 reloadProfile,
             }}
         >

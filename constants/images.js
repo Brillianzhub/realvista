@@ -73,15 +73,20 @@ import sale from '../assets/images/sale.png';
 import update from '../assets/images/update.png';
 import ftarget from '../assets/images/ftarget.png';
 import savings from '../assets/images/savings.png';
-
-
-
-
-
+import coordinate from '../assets/images/coordinate.png';
+import addfile from '../assets/images/addfile.png';
+import call from '../assets/images/call.png';
+import email from '../assets/images/email.png';
+import heart from '../assets/images/heart.png';
 
 
 
 export default {
+    heart,
+    email,
+    call,
+    addfile,
+    coordinate,
     savings,
     closeModal,
     wishList,

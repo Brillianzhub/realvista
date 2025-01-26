@@ -33,9 +33,36 @@ const AddPropertyScreen = ({ navigation }) => {
                 }
             );
 
-            Alert.alert('Success', 'Property added successfully!');
+            Alert.alert(
+                'Success',
+                'Property added successfully! Would you like to add coordinates?',
+                [
+                    {
+                        text: 'Yes',
+                        onPress: () => navigation.navigate('AddCoordinates', { property: response.data.id }),
+                    },
+                    {
+                        text: 'No',
+                        onPress: () => {
+                            Alert.alert(
+                                'Add Images',
+                                'Would you like to add images?',
+                                [
+                                    {
+                                        text: 'Yes',
+                                        onPress: () => navigation.navigate('AddImages', { property: response.data.id }),
+                                    },
+                                    {
+                                        text: 'No',
+                                        onPress: () => navigation.goBack(),
+                                    },
+                                ]
+                            );
+                        },
+                    },
+                ]
+            );
 
-            navigation.goBack();
             return response.data;
         } catch (error) {
             console.error('Error adding property:', error.response?.data || error.message);

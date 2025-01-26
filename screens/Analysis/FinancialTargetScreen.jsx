@@ -51,6 +51,16 @@ const FinancialTargetScreen = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
+    };
+
+    const removeCommas = (value) => value.replace(/,/g, '');
+
 
     const calculateContribution = (values) => {
         const { target_amount, current_savings, timeframe, rate_of_return } = values;
@@ -162,19 +172,23 @@ const FinancialTargetScreen = () => {
                 <CustomForm
                     label="Target Amount"
                     required
-                    placeholder="50,000,000.00"
+                    placeholder="e.g. 50,000.000.00"
                     keyboardType="numeric"
-                    value={formData.target_amount}
-                    onChangeText={(value) => handleInputChange('target_amount', value)}
+                    value={formatNumberWithCommas(formData.target_amount)}
+                    onChangeText={(value) =>
+                        handleInputChange('target_amount', removeCommas(value))
+                    }
                     error={errors.target_amount}
                 />
                 <CustomForm
                     label="Current Savings"
                     required
-                    placeholder="500,000.00"
+                    placeholder="e.g. 500,000.00"
                     keyboardType="numeric"
-                    value={formData.current_savings}
-                    onChangeText={(value) => handleInputChange('current_savings', value)}
+                    value={formatNumberWithCommas(formData.current_savings)}
+                    onChangeText={(value) =>
+                        handleInputChange('current_savings', removeCommas(value))
+                    }
                     error={errors.current_savings}
                 />
                 <CustomForm

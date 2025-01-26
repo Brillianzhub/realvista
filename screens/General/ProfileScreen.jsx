@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform, ActivityIndicator } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
-import images from '../../constants/images'
+import images from '../../constants/images';
 import { TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { router } from 'expo-router';

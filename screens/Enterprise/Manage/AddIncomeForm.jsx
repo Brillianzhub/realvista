@@ -20,6 +20,17 @@ const PropertyIncomeForm = ({ property, onSubmit }) => {
     const [date, setDate] = useState(new Date());
     const [errors, setErrors] = useState({});
 
+
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
+    };
+
+    const removeCommas = (value) => value.replace(/,/g, '');
+
     const handleInputChange = (field, value) => {
         setFormData((prevData) => ({ ...prevData, [field]: value }));
     };
@@ -55,7 +66,7 @@ const PropertyIncomeForm = ({ property, onSubmit }) => {
                 
     We kindly suggest that you either add the income to the current value of the property using the update page or contact our support team for further assistance. Thank you for your understanding.`
             );
-            return; 
+            return;
         }
 
         if (validateForm()) {
@@ -85,8 +96,10 @@ const PropertyIncomeForm = ({ property, onSubmit }) => {
                 required
                 placeholder="Amount received"
                 keyboardType="numeric"
-                value={formData.amount}
-                onChangeText={(value) => handleInputChange('amount', value)}
+                value={formatNumberWithCommas(formData.amount)}
+                onChangeText={(value) =>
+                    handleInputChange('amount', removeCommas(value))
+                }
                 error={errors.amount}
             />
             <CustomForm

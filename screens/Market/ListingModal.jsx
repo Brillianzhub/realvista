@@ -28,6 +28,16 @@ const ListingModal = ({ selectedListing, modalVisible, closeModal, setLoading, h
     };
 
 
+    const handleFeaturesUpdate = () => {
+        const propertyId = selectedListing.id;
+        router.push({
+            pathname: '/MarketFeatures',
+            params: { property: propertyId },
+        });
+        closeModal();
+    };
+
+
     const handleDelete = async () => {
         setLoading(true);
 
@@ -109,9 +119,32 @@ const ListingModal = ({ selectedListing, modalVisible, closeModal, setLoading, h
                                 <Text style={styles.buttonText}>Update</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
+                                style={[styles.button, styles.updateFeaturesButton]}
+                                onPress={() => {
+                                    handleFeaturesUpdate();
+                                }}
+                            >
+                                <Text style={{
+                                    color: '#FB902E',
+                                    fontSize: 16,
+                                    fontWeight: 'bold',
+                                }}>Update Features</Text>
+                            </TouchableOpacity>
+
+                        </View>
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
                                 style={[styles.button, styles.delistButton]}
                                 onPress={() => {
-                                    handleDelete();
+                                    Alert.alert(
+                                        'Confirm Delist',
+                                        'Are you sure you want to delist this property?',
+                                        [
+                                            { text: 'Cancel', style: 'cancel' },
+                                            { text: 'Yes, Delist', onPress: handleDelete },
+                                        ]
+                                    );
                                 }}
                             >
                                 <Text style={styles.buttonText}>Delist</Text>
@@ -169,7 +202,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     updateButton: {
-        backgroundColor: '#358B8B',
+        backgroundColor: '#FB902E',
+    },
+    updateFeaturesButton: {
+        borderWidth: 1.5,
+        borderColor: '#FB902E',
     },
     delistButton: {
         backgroundColor: '#F44336',

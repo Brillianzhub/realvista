@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 
-const formatNumber = (value) => {
-    if (!value) return;
-    const parts = parseFloat(value.replace(/,/g, '')).toFixed(2).split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    return parts.join('.');
-}
+// const formatNumber = (value) => {
+//     if (!value) return;
+//     const parts = parseFloat(value.replace(/,/g, '')).toFixed(2).split('.');
+//     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+//     return parts.join('.');
+// }
 
-const parseNumber = (value) => {
-    return value.replace(/,/g, '');
-};
+// const parseNumber = (value) => {
+//     return value.replace(/,/g, '');
+// };
 
 
 const CustomForm = ({
@@ -30,15 +30,6 @@ const CustomForm = ({
     multiline = false,
     numberOfLines = 1,
 }) => {
-    const [formattedValue, setFormattedValue] = useState(formatNumber(value));
-
-    const handleChangeText = (text) => {
-        const rawValue = parseNumber(text); // Remove commas
-        if (!isNaN(rawValue) || rawValue === '') {
-            setFormattedValue(formatNumber(rawValue)); // Update the formatted value
-            onChangeText(rawValue); // Pass the raw value to the parent component
-        }
-    };
 
     return (
         <View style={styles.container}>
@@ -65,11 +56,9 @@ const CustomForm = ({
                         error && { borderColor: 'red' },
                     ]}
                     placeholder={placeholder}
-                    // keyboardType={keyboardType}
-                    keyboardType={keyboardType === 'numeric' ? 'decimal-pad' : keyboardType}
+                    keyboardType={keyboardType}
                     value={value}
-                    onChangeText={handleChangeText}
-                    // onChangeText={onChangeText}
+                    onChangeText={onChangeText}
                     secureTextEntry={secureTextEntry}
                     editable={editable}
                     multiline={multiline}

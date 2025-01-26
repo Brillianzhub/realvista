@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import PagerView from 'react-native-pager-view';
 import MapViewer from '../components/MapViewer';
-import { useCurrency } from '../context/CurrencyContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import images from '@/constants/images';
 
@@ -21,8 +20,6 @@ const PropertyDetail = ({
     const toggleExpanded = () => {
         setExpanded(!expanded);
     };
-
-    const { currency } = useCurrency();
 
     const formattedInitialCost = formatCurrency(selectedItem.initial_cost, selectedItem.currency);
     const formattedCurrentCost = formatCurrency(selectedItem.current_value, selectedItem.currency);
@@ -208,10 +205,10 @@ const PropertyDetail = ({
                             <Text style={styles.dividendsHeader}>Map Location</Text>
                         </View>
                         <MapViewer
-                            // latitude={48.7758}
-                            // longitude={9.1829}
+                            latitude={selectedItem.coordinates[0]?.latitude}
+                            longitude={selectedItem.coordinates[0]?.longitude}
                             title={selectedItem.title}
-                            virtual_tour_url={selectedItem.virtual_tour_url}
+                        // virtual_tour_url={selectedItem.virtual_tour_url}
                         />
                     </>
                 )}

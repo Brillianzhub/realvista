@@ -7,13 +7,65 @@ import { useCurrency } from '../../../context/CurrencyContext';
 import CurrencyModal from "../../../components/CurrencyModal";
 import CustomForm from '@/components/CustomForm';
 import CustomRadioButton from '@/components/CustomRadioButton';
+import CustomPicker from '@/components/CustomPicker';
 
+const statesOfNigeria = [
+    { label: 'Abia', value: 'abia' },
+    { label: 'Adamawa', value: 'adamawa' },
+    { label: 'Akwa Ibom', value: 'akwa_ibom' },
+    { label: 'Anambra', value: 'anambra' },
+    { label: 'Bauchi', value: 'bauchi' },
+    { label: 'Bayelsa', value: 'bayelsa' },
+    { label: 'Benue', value: 'benue' },
+    { label: 'Borno', value: 'borno' },
+    { label: 'Cross River', value: 'cross_river' },
+    { label: 'Delta', value: 'delta' },
+    { label: 'Ebonyi', value: 'ebonyi' },
+    { label: 'Edo', value: 'edo' },
+    { label: 'Ekiti', value: 'ekiti' },
+    { label: 'Enugu', value: 'enugu' },
+    { label: 'Gombe', value: 'gombe' },
+    { label: 'Imo', value: 'imo' },
+    { label: 'Jigawa', value: 'jigawa' },
+    { label: 'Kaduna', value: 'kaduna' },
+    { label: 'Kano', value: 'kano' },
+    { label: 'Katsina', value: 'katsina' },
+    { label: 'Kebbi', value: 'kebbi' },
+    { label: 'Kogi', value: 'kogi' },
+    { label: 'Kwara', value: 'kwara' },
+    { label: 'Lagos', value: 'lagos' },
+    { label: 'Nasarawa', value: 'nasarawa' },
+    { label: 'Niger', value: 'niger' },
+    { label: 'Ogun', value: 'ogun' },
+    { label: 'Ondo', value: 'ondo' },
+    { label: 'Osun', value: 'osun' },
+    { label: 'Oyo', value: 'oyo' },
+    { label: 'Plateau', value: 'plateau' },
+    { label: 'Rivers', value: 'rivers' },
+    { label: 'Sokoto', value: 'sokoto' },
+    { label: 'Taraba', value: 'taraba' },
+    { label: 'Yobe', value: 'yobe' },
+    { label: 'Zamfara', value: 'zamfara' },
+    { label: 'Federal Capital Territory', value: 'fct' },
+];
 
 const propertyTypes = [
+    { label: 'House', value: 'house' },
+    { label: 'Apartment', value: 'apartment' },
     { label: 'Land', value: 'land' },
-    { label: 'Private House', value: 'private' },
     { label: 'Commercial Property', value: 'commercial' },
-    { label: 'Residential Property', value: 'residential' },
+    { label: 'Office Space', value: 'office' },
+    { label: 'Warehouse', value: 'warehouse' },
+    { label: 'Shop/Store', value: 'shop' },
+    { label: 'Duplex', value: 'duplex' },
+    { label: 'Bungalow', value: 'bungalow' },
+    { label: 'Terrace', value: 'terrace' },
+    { label: 'Semi-Detached House', value: 'semi_detached' },
+    { label: 'Detached House', value: 'detached' },
+    { label: 'Farm Land', value: 'farm_land' },
+    { label: 'Industrial Property', value: 'industrial' },
+    { label: 'Short Let', value: 'short_let' },
+    { label: 'Studio Apartment', value: 'studio' },
 ];
 
 const statusTypes = [
@@ -28,7 +80,6 @@ const currencyOptions = Object.entries(CurrencyData.symbols).map(([key, value]) 
 }))
 
 const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
-    const { currency } = useCurrency();
 
     const [formData, setFormData] = useState({
         property_id: property?.id || '',
@@ -69,9 +120,6 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
 
     const [modalVisible, setModalVisible] = useState(false);
 
-    const [isFetchingLocation, setIsFetchingLocation] = useState(false);
-
-
     const validateForm = (formData) => {
         const errors = {};
 
@@ -93,10 +141,6 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
 
         if (!formData.status || formData.status.trim() === '') {
             errors.status = 'Status is required';
-        }
-
-        if (!['land', 'private', 'commercial', 'residential'].includes(formData.property_type)) {
-            errors.property_type = 'Invalid property type';
         }
 
         if (!formData.property_type || formData.property_type.trim() === '') {
@@ -132,46 +176,16 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
         return errors;
     };
 
-    const handlePickCoordinates = async () => {
-        setIsFetchingLocation(true);
 
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            setIsFetchingLocation(false);
-            Alert.alert('Permission Denied', 'Location permission is required to fetch coordinates.');
-            return;
-        }
-
-        try {
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High,
-            });
-            const { latitude, longitude } = location.coords;
-            const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-            setFormData((prevData) => ({
-                ...prevData,
-                virtual_tour_url: googleMapsURL,
-            }));
-        } catch (error) {
-            console.error('Location fetching error:', error);
-            Alert.alert('Error', 'Could not get location. Please try again.');
-        } finally {
-            setIsFetchingLocation(false);
-        }
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
     };
 
-
-    const constructGoogleMapsURL = (coordinates) => {
-        const cleanedCoordinates = coordinates.replace(/\s+/g, '').trim();
-        const isValidCoordinates = /^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(cleanedCoordinates);
-
-        if (isValidCoordinates) {
-            const [latitude, longitude] = cleanedCoordinates.split(',');
-            return `https://www.google.com/maps?q=${latitude},${longitude}`;
-        }
-        return null;
-    };
+    const removeCommas = (value) => value.replace(/,/g, '');
 
 
     const handleSubmit = () => {
@@ -208,14 +222,30 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
                 onChangeText={(value) => handleInputChange('address', value)}
                 error={errors.address}
             />
+            <CustomPicker
+                label="State"
+                required={true}
+                options={statesOfNigeria}
+                selectedValue={formData.location}
+                placeholder="Choose a state"
+                onValueChange={(value) => handleInputChange('location', value)}
+            />
             <CustomForm
-                label="Location"
+                label="City"
                 required
-                placeholder="Location of property"
+                placeholder="City where property is located"
                 keyboardType="default"
-                value={formData.location}
-                onChangeText={(value) => handleInputChange('location', value)}
-                error={errors.location}
+                value={formData.city}
+                onChangeText={(value) => handleInputChange('city', value)}
+                error={errors.city}
+            />
+            <CustomForm
+                label="Postal Code"
+                placeholder="000000"
+                keyboardType="numeric"
+                value={formData.zip_code}
+                onChangeText={(value) => handleInputChange('zip_code', value)}
+                error={errors.zip_code}
             />
             <CustomForm
                 label="Description"
@@ -236,15 +266,15 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
                     handleInputChange('status', value);
                 }}
             />
-            <CustomRadioButton
-                label="Property type"
+            <CustomPicker
+                label="Property Type"
                 required={true}
+                placeholder="Select property type"
                 options={propertyTypes}
                 selectedValue={formData.property_type}
-                onValueChange={(value) => {
-                    handleInputChange('property_type', value);
-                }}
+                onValueChange={(value) => handleInputChange('property_type', value)}
             />
+
             <CustomForm
                 label="Year bought"
                 required
@@ -257,7 +287,7 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
             <CustomForm
                 label="Area (sqm)"
                 required
-                placeholder="450"
+                placeholder="Area of the property (e.g. 450)"
                 keyboardType="numeric"
                 value={formData.area}
                 onChangeText={(value) => handleInputChange('area', value)}
@@ -266,7 +296,7 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
             <CustomForm
                 label="Number of units"
                 required
-                placeholder="1"
+                placeholder="No. of plots for land (e.g. 2)"
                 keyboardType="numeric"
                 value={formData.num_units}
                 onChangeText={(value) => handleInputChange('num_units', value)}
@@ -292,8 +322,10 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
                 required
                 placeholder="Initial cost of property"
                 keyboardType="numeric"
-                value={formData.initial_cost}
-                onChangeText={(value) => handleInputChange('initial_cost', value)}
+                value={formatNumberWithCommas(formData.initial_cost)}
+                onChangeText={(value) =>
+                    handleInputChange('initial_cost', removeCommas(value))
+                }
                 error={errors.initial_cost}
             />
             <CustomForm
@@ -301,8 +333,10 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
                 required
                 placeholder="Current value of property"
                 keyboardType="numeric"
-                value={formData.current_value}
-                onChangeText={(value) => handleInputChange('current_value', value)}
+                value={formatNumberWithCommas(formData.current_value)}
+                onChangeText={(value) =>
+                    handleInputChange('current_value', removeCommas(value))
+                }
                 error={errors.current_value}
             />
             <CustomForm
@@ -324,28 +358,7 @@ const UpdateGroupPropertyForm = ({ property, onSubmit }) => {
                 onChangeText={(value) => handleInputChange('slot_price', value)}
                 error={errors.slot_price}
             />
-            <CustomForm
-                label="Point Coordinate (Google Coordinates)"
-                placeholder="e.g., 40.7128,-74.0060"
-                value={formData.virtual_tour_url}
-                onChangeText={(text) =>
-                    setFormData((prevData) => ({ ...prevData, virtual_tour_url: text }))
-                }
-                error={errors.virtual_tour_url}
-            />
 
-            <Pressable
-                onPress={handlePickCoordinates}
-                disabled={isFetchingLocation}
-                style={({ pressed }) => [
-                    styles.button,
-                    { backgroundColor: pressed ? '#DDDDDD' : '#358B8B' },
-                ]}
-            >
-                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
-                    {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
-                </Text>
-            </Pressable>
             <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
                 <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Submit</Text>
             </Pressable>

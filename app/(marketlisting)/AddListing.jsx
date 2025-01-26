@@ -7,13 +7,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { router } from 'expo-router';
+import uploadImageUrls from '@/hooks/uploadImageUrls';
 
 
-const AddListing = ({ route, navigation }) => {
+const AddListing = () => {
     const { properties } = useUserProperty();
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showFormWithoutProperty, setShowFormWithoutProperty] = useState(false);
+    const filteredProperties = properties.filter((property) => property.group_owner_name === null);
+    const selectedProperty = filteredProperties.find((property) => property.id === selectedPropertyId);
 
     const handleContinueWithoutProperty = () => {
         setShowFormWithoutProperty(true);
@@ -28,6 +31,7 @@ const AddListing = ({ route, navigation }) => {
         }
 
         setIsSubmitting(true);
+
         try {
             const response = await axios.post(
                 `https://www.realvistamanagement.com/market/list-property/`,
@@ -40,9 +44,29 @@ const AddListing = ({ route, navigation }) => {
                 }
             );
 
-            Alert.alert('Success', 'Property updated successfully!');
-            router.replace('/MarketListing');
-            return response.data;
+            const updatedProperty = response.data;
+
+            const propertyId = updatedProperty.data.id;
+            if (!propertyId) {
+                throw new Error('Property ID is missing in the response');
+            }
+
+            const imageUrls = selectedProperty.images?.map((item) => item.image).filter(Boolean) || [];
+
+            if (imageUrls.length > 0) {
+                await uploadImageUrls(token, propertyId, imageUrls);
+                Alert.alert('Success', 'Property and images updated successfully!');
+            } else {
+                console.warn('No images to upload.');
+                Alert.alert('Success', 'Property updated successfully without images!');
+            }
+
+            router.push({
+                pathname: '/MarketFeatures',
+                params: { property: propertyId },
+            });
+
+            return updatedProperty;
         } catch (error) {
             console.error('Error updating property:', error.response?.data || error.message);
             Alert.alert('Error', 'Failed to update property. Please try again.');
@@ -53,7 +77,7 @@ const AddListing = ({ route, navigation }) => {
     };
 
 
-    const selectedProperty = properties.find((property) => property.id === selectedPropertyId);
+
 
     return (
         <View style={styles.container}>
@@ -73,7 +97,7 @@ const AddListing = ({ route, navigation }) => {
                                     style={styles.picker}
                                 >
                                     <Picker.Item label="Select a property to list" value={null} />
-                                    {properties.map((property) => (
+                                    {filteredProperties.map((property) => (
                                         <Picker.Item key={property.id} label={property.title} value={property.id} />
                                     ))}
                                 </Picker>

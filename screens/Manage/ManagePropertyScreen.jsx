@@ -13,8 +13,11 @@ const ManageProperty = () => {
         { id: '3', label: 'Add Expenses', icon: images.expense, onPress: () => navigation.navigate('AddPropertyExpenses') },
         { id: '4', label: 'Remove Property', icon: images.remove, onPress: () => navigation.navigate('RemoveProperty') },
         { id: '5', label: 'Update Property', icon: images.update, onPress: () => navigation.navigate('UpdateProperty') },
-        { id: '6', label: 'List for Sale', icon: images.sale, onPress: () => router.replace('MarketListing') },
-        { id: '7', label: 'Target List', icon: images.ftarget, onPress: () => navigation.navigate('TargetList') },
+        { id: '6', label: 'List to the Market', icon: images.sale, onPress: () => router.replace('MarketListing') },
+        { id: '7', label: 'Add Coordinates', icon: images.coordinate, onPress: () => navigation.navigate('AddCoordinates') },
+        { id: '8', label: 'Add Images', icon: images.addfile, onPress: () => navigation.navigate('AddImages') },
+        { id: '9', label: 'Target List', icon: images.ftarget, onPress: () => navigation.navigate('TargetList') },
+
     ];
 
     const renderAction = ({ item }) => (

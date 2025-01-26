@@ -22,6 +22,16 @@ const PropertyExpensesForm = ({ property, onSubmit }) => {
         setFormData((prevData) => ({ ...prevData, [field]: value }));
     };
 
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
+    };
+
+    const removeCommas = (value) => value.replace(/,/g, '');
+
     const validateForm = () => {
         const newErrors = {};
 
@@ -70,8 +80,10 @@ const PropertyExpensesForm = ({ property, onSubmit }) => {
                 required
                 placeholder="Amount incurred"
                 keyboardType="numeric"
-                value={formData.amount}
-                onChangeText={(value) => handleInputChange('amount', value)}
+                value={formatNumberWithCommas(formData.amount)}
+                onChangeText={(value) =>
+                    handleInputChange('amount', removeCommas(value))
+                }
                 error={errors.amount}
             />
             <CustomForm
@@ -116,7 +128,7 @@ const PropertyExpensesForm = ({ property, onSubmit }) => {
                 style={styles.button}
                 onPress={handleSubmit}
             >
-                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Submit</Text>
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '400' }}>Submit</Text>
             </Pressable>
         </ScrollView>
     )

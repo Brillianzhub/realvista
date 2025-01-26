@@ -82,11 +82,8 @@ const listingPurposeChoices = [
 
 const UpdateListingForm = ({ property, onSubmit }) => {
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
-    const [isEditable, setIsEditable] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const { currency } = useCurrency();
-
-    console.log(property)
 
     const [formData, setFormData] = useState({
         property_id: property?.id || '',
@@ -201,45 +198,15 @@ const UpdateListingForm = ({ property, onSubmit }) => {
         return errors;
     };
 
-    const handlePickCoordinates = async () => {
-        setIsFetchingLocation(true);
-
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            setIsFetchingLocation(false);
-            Alert.alert('Permission Denied', 'Location permission is required to fetch coordinates.');
-            return;
-        }
-
-        try {
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High,
-            });
-            const { latitude, longitude } = location.coords;
-            const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-            setFormData((prevData) => ({
-                ...prevData,
-                virtual_tour_url: googleMapsURL,
-            }));
-        } catch (error) {
-            console.error('Location fetching error:', error);
-            Alert.alert('Error', 'Could not get location. Please try again.');
-        } finally {
-            setIsFetchingLocation(false);
-        }
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
     };
 
-    const constructGoogleMapsURL = (coordinates) => {
-        const cleanedCoordinates = coordinates.replace(/\s+/g, '').trim();
-        const isValidCoordinates = /^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(cleanedCoordinates);
-
-        if (isValidCoordinates) {
-            const [latitude, longitude] = cleanedCoordinates.split(',');
-            return `https://www.google.com/maps?q=${latitude},${longitude}`;
-        }
-        return null; // Return null if invalid
-    };
+    const removeCommas = (value) => value.replace(/,/g, '');
 
     const handleSubmit = () => {
         let updatedFormData = { ...formData };
@@ -264,8 +231,6 @@ const UpdateListingForm = ({ property, onSubmit }) => {
             onSubmit(updatedFormData);
         }
     };
-
-
 
     return (
         <ScrollView
@@ -307,8 +272,10 @@ const UpdateListingForm = ({ property, onSubmit }) => {
                 required
                 placeholder="Selling price of property"
                 keyboardType="numeric"
-                value={formData.price}
-                onChangeText={(value) => handleInputChange('price', value)}
+                value={formatNumberWithCommas(formData.price)}
+                onChangeText={(value) =>
+                    handleInputChange('price', removeCommas(value))
+                }
                 error={errors.price}
             />
             <CustomForm
@@ -437,7 +404,7 @@ const UpdateListingForm = ({ property, onSubmit }) => {
                 <CustomForm
                     label="Year Built"
                     required
-                    placeholder="1998"
+                    placeholder="e.g. 1998"
                     keyboardType="numeric"
                     value={formData.year_built}
                     onChangeText={(value) => handleInputChange('year_built', value)}
@@ -450,30 +417,8 @@ const UpdateListingForm = ({ property, onSubmit }) => {
                 errors={errors}
             />
 
-            <CustomForm
-                label="Point Coordinate (Google Coordinates)"
-                placeholder="e.g., 40.7128,-74.0060"
-                value={formData.virtual_tour_url}
-                onChangeText={(text) =>
-                    setFormData((prevData) => ({ ...prevData, virtual_tour_url: text }))
-                }
-                error={errors.virtual_tour_url}
-            />
-
-            <Pressable
-                onPress={handlePickCoordinates}
-                disabled={isFetchingLocation}
-                style={({ pressed }) => [
-                    styles.button,
-                    { backgroundColor: pressed ? '#DDDDDD' : '#358B8B' },
-                ]}
-            >
-                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
-                    {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
-                </Text>
-            </Pressable>
             <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
-                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Update Listing</Text>
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '400' }}>Update Listing</Text>
             </Pressable>
 
         </ScrollView>
@@ -536,6 +481,7 @@ const styles = StyleSheet.create({
     },
     selectedDot: {
         borderColor: '#358B8B',
+        backgroundColor: '#358B8B',
     },
     radioButtonText: {
         fontSize: 15,

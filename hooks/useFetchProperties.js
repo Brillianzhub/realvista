@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -7,36 +7,39 @@ const useFetchProperties = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchProperties = async () => {
+    const fetchProperties = useCallback(async () => {
+        setLoading(true); 
+        setError(null); 
 
-            const token = await AsyncStorage.getItem('authToken');
+        try {
+            const token = await AsyncStorage.getItem("authToken");
             if (!token) {
-                return;
+                throw new Error("Authentication token not found!");
             }
-            const url = `https://www.realvistamanagement.com/market/fetch-listed-properties`
 
-            try {
-                const response = await axios.get(url, {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                        'Content-Type': 'application/json',
+            const url = `https://www.realvistamanagement.com/market/fetch-listed-properties`;
 
-                    },
-                });
-                setProperties(response.data);
-            } catch (err) {
-                console.error("Error fetching properties:", err);
-                setError(err.message || "Something went wrong!");
-            } finally {
-                setLoading(false);
-            }
-        };
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Token ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
-        fetchProperties();
+            setProperties(response.data.results);
+        } catch (err) {
+            console.error("Error fetching properties:", err);
+            setError(err.message || "Something went wrong!");
+        } finally {
+            setLoading(false); 
+        }
     }, []);
 
-    return { properties, loading, error };
+    useEffect(() => {
+        fetchProperties();
+    }, [fetchProperties]);
+
+    return { properties, fetchProperties, loading, error };
 };
 
 export default useFetchProperties;

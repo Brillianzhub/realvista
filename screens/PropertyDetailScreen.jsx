@@ -17,11 +17,10 @@ const PropertyDetailScreen = ({ route }) => {
 
     const [isRecordingInquiry, setIsRecordingInquiry] = useState(false);
 
-
     const { user } = useGlobalContext()
     const placeholderImage = "https://via.placeholder.com/400x200?text=No+Image";
     const images = property.images && property.images.length > 0
-        ? property.images
+        ? property.images.map((img) => img.image)
         : [placeholderImage];
 
     const [activeIndex, setActiveIndex] = useState(0);
@@ -69,7 +68,7 @@ const PropertyDetailScreen = ({ route }) => {
     };
 
     const contactPropertyOwner = async () => {
-        if (!property || !property.owner || !user || !user.name || !user.email) {
+        if (!property || !property.owner.email || !user || !user.name || !user.email) {
             Alert.alert('Error', 'Property or user information is missing.');
             return;
         }
@@ -85,7 +84,7 @@ const PropertyDetailScreen = ({ route }) => {
         }
         setIsRecordingInquiry(false);
 
-        const ownerEmail = property.owner;
+        const ownerEmail = property.owner.email;
         const propertyName = property.title;
         const propertyLocation = property.address;
         const propertyType = property.property_type;

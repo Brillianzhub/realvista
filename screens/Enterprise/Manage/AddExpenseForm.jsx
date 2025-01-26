@@ -14,6 +14,16 @@ const AddExpenseForm = ({ property, onSubmit }) => {
         date_incurred: '',
     });
 
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
+    };
+
+    const removeCommas = (value) => value.replace(/,/g, '');
+
     const [date, setDate] = useState(new Date());
     const [errors, setErrors] = useState({});
 
@@ -52,10 +62,9 @@ const AddExpenseForm = ({ property, onSubmit }) => {
                 
     We kindly suggest that you either add the expenses to the initial value of the property using the update page or contact our support team for further assistance. Thank you for your understanding.`
             );
-            return; // Prevent form submission
+            return;
         }
 
-        // Proceed with validation and submission
         if (validateForm()) {
             onSubmit(formData);
         } else {
@@ -80,8 +89,10 @@ const AddExpenseForm = ({ property, onSubmit }) => {
                 required
                 placeholder="Amount incurred"
                 keyboardType="numeric"
-                value={formData.amount}
-                onChangeText={(value) => handleInputChange('amount', value)}
+                value={formatNumberWithCommas(formData.amount)}
+                onChangeText={(value) =>
+                    handleInputChange('amount', removeCommas(value))
+                }
                 error={errors.amount}
             />
             <CustomForm

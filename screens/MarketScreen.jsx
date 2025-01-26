@@ -1,33 +1,89 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList, RefreshControl } from 'react-native';
 import useFetchProperties from "../hooks/useFetchProperties";
 import { formatCurrency } from '../utils/formatCurrency';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@/context/ThemeContext';
-
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import MarketDetailScreen from './MarketDetailScreen';
+import MarketPropertyList from './MarketPropertyList';
+import SearchFilterModal from '@/components/SearchFilterModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const MarketScreen = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [priceFilter, setPriceFilter] = useState('');
     const [locationFilter, setLocationFilter] = useState('');
-    const { properties, loading, error } = useFetchProperties();
-    const navigation = useNavigation();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const { properties, fetchProperties, loading, error } = useFetchProperties();
+    const [selectedItem, setSelectedItem] = useState(null);
+
+    const bottomSheetRef = useRef(null);
     const { colors } = useTheme();
 
+    // const openBottomSheet = (item) => {
+    //     setSelectedItem(item);
+    //     console.log(item.id)
+    //     bottomSheetRef.current?.expand();
+    // };
+
+
+    const openBottomSheet = (item) => {
+        try {
+            setSelectedItem(item);
+            handleViewProperty(item.id);
+            bottomSheetRef.current?.expand();
+        } catch (error) {
+            console.error('Error opening bottom sheet:', error);
+        }
+    };
+
+    const handleViewProperty = async (propertyId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Authentication token is missing');
+            }
+
+            const response = await axios.get(
+                `https://www.realvistamanagement.com/market/view-property/${propertyId}/`,
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+
+        } catch (error) {
+            console.error('Error viewing property:', error.response?.data || error.message);
+        }
+    };
+
+    const closeBottomSheet = () => {
+        bottomSheetRef.current?.close();
+        setSelectedItem(null);
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchProperties();
+        setRefreshing(false);
+    };
 
     const filteredProperties = properties.filter((property) => {
         const matchesLocation = locationFilter
             ? property.city.toLowerCase().includes(locationFilter.toLowerCase())
             : true;
-        const matchesPrice = priceFilter ? parseInt(property.price.replace(/,/g, '')) <= parseInt(priceFilter) : true;
+        const matchesPrice = priceFilter
+            ? parseInt(property.price.replace(/,/g, '')) <= parseInt(priceFilter)
+            : true;
         const matchesSearch = searchQuery
             ? property.title.toLowerCase().includes(searchQuery.toLowerCase())
             : true;
         return matchesLocation && matchesPrice && matchesSearch;
     });
-
 
     if (loading) {
         return (
@@ -41,87 +97,76 @@ const MarketScreen = () => {
         return (
             <View style={styles.center}>
                 <Text style={styles.errorText}>{error}</Text>
+                <TouchableOpacity onPress={fetchProperties} style={styles.retryButton}>
+                    <Text style={styles.retryText}>Retry</Text>
+                </TouchableOpacity>
             </View>
         );
     }
 
-    const renderProperty = ({ item }) => {
-        const handleViewProperty = async (propertyId) => {
-            try {
-
-                const token = await AsyncStorage.getItem('authToken');
-                await axios.get(`https://www.realvistamanagement.com/market/view-property/${propertyId}/`, {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                    },
-                });
-
-                navigation.navigate('PropertyDetail', { property: item });
-            } catch (error) {
-                console.error('Error viewing property:', error.response?.data || error.message);
-            }
-        };
-
-        return (
-            <View style={styles.propertyCard}>
-                <Image
-                    source={{ uri: item.image || 'https://via.placeholder.com/150' }}
-                    style={styles.propertyImage}
-                />
-                <View style={styles.propertyInfo}>
-                    <Text style={styles.propertyTitle}>{item.title}</Text>
-                    <Text style={styles.propertyDetails}>
-                        Location: {item.city}, {item.state}
-                    </Text>
-                    <Text style={styles.propertyDetails}>
-                        Price: {formatCurrency(item.price, item.currency)}
-                    </Text>
-                    <TouchableOpacity
-                        style={styles.contactButton}
-                        onPress={() => handleViewProperty(item.id)}
-                    >
-                        <Text style={styles.contactButtonText}>View Details</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        );
-    };
-
-
-
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <TextInput
-                style={styles.searchInput}
-                placeholder="Search by title"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-            />
-
-            <View style={styles.filtersContainer}>
-                <TextInput
-                    style={styles.filterInput}
-                    placeholder="Filter by location"
-                    value={locationFilter}
-                    onChangeText={setLocationFilter}
-                />
-                <TextInput
-                    style={styles.filterInput}
-                    placeholder="Filter by max price"
-                    value={priceFilter}
-                    keyboardType="numeric"
-                    onChangeText={setPriceFilter}
-                />
-            </View>
-
             <FlatList
                 data={filteredProperties}
-                renderItem={renderProperty}
-                keyExtractor={(item) => item.id}
-                style={styles.propertiesList}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <MarketPropertyList
+                        properties={[item]}
+                        openBottomSheet={openBottomSheet}
+                        formatCurrency={formatCurrency}
+                    />
+                )}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={["#358B8B"]}
+                    />
+                }
+                ListEmptyComponent={
+                    <Text style={styles.emptyText}>No properties found. Try adjusting your filters.</Text>
+                }
                 showsVerticalScrollIndicator={false}
-                ListEmptyComponent={<Text style={styles.emptyText}>No properties found</Text>}
+                contentContainerStyle={styles.listContainer}
             />
+
+            <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => setIsModalVisible(true)}
+            >
+                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Filter</Text>
+            </TouchableOpacity>
+
+            <SearchFilterModal
+                isVisible={isModalVisible}
+                onClose={() => setIsModalVisible(false)}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                locationFilter={locationFilter}
+                setLocationFilter={setLocationFilter}
+                priceFilter={priceFilter}
+                setPriceFilter={setPriceFilter}
+            />
+
+            <BottomSheet
+                ref={bottomSheetRef}
+                index={-1}
+                snapPoints={['25%', '50%', '100%']}
+                enablePanDownToClose={true}
+                onClose={closeBottomSheet}
+                handleStyle={styles.handleContainer}
+                handleIndicatorStyle={styles.handleIndicator}
+            >
+                <BottomSheetScrollView
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <MarketDetailScreen
+                        selectedItem={selectedItem}
+                        closeBottomSheet={closeBottomSheet}
+                    />
+                </BottomSheetScrollView>
+            </BottomSheet>
         </View>
     );
 };
@@ -133,73 +178,57 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
-    searchInput: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        marginBottom: 16,
-    },
-    filtersContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 16,
-    },
-    filterInput: {
+    center: {
         flex: 1,
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        marginHorizontal: 4,
-    },
-    propertiesList: {
-        flex: 1,
-    },
-    propertyCard: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        marginBottom: 16,
-        overflow: 'hidden',
-        elevation: 2,
-    },
-    propertyImage: {
-        width: 100,
-        height: 100,
-    },
-    propertyInfo: {
-        flex: 1,
-        padding: 8,
-    },
-    propertyTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    propertyDetails: {
-        fontSize: 14,
-        marginBottom: 4,
-        color: '#555',
-    },
-    contactButton: {
-        backgroundColor: '#FB902E',
-        padding: 8,
-        borderRadius: 4,
+        justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 8,
     },
-    contactButtonText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: 'bold',
+    errorText: {
+        color: 'red',
+        fontSize: 16,
+        marginBottom: 20,
+    },
+    listContainer: {
+        paddingBottom: 50,
+    },
+    retryButton: {
+        padding: 10,
+        backgroundColor: '#358B8B',
+        borderRadius: 5,
+    },
+    retryText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
     },
     emptyText: {
         textAlign: 'center',
-        color: '#777',
+        marginTop: 20,
+        color: '#888',
         fontSize: 16,
-        marginTop: 32,
+    },
+    addButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        backgroundColor: '#FB902E',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5,
+    },
+
+    handleIndicator: {
+        backgroundColor: '#358B8B',
+        width: 50,
+        height: 5,
+        borderRadius: 3,
+    },
+    handleContainer: {
+        backgroundColor: '#358B8B1A',
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
     },
 });

@@ -4,9 +4,8 @@ import MapView, { Marker } from 'react-native-maps';
 
 const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const [mapType, setMapType] = useState('hybrid'); // Default map type
+    const [mapType, setMapType] = useState('hybrid'); 
 
-    // Extract coordinates from virtual_tour_url if provided
     const extractCoordinatesFromUrl = (url) => {
         const regex = /(?:q=)([-+]?[0-9]*\.?[0-9]+),([-+]?[0-9]*\.?[0-9]+)/;
         const match = url.match(regex);
@@ -19,7 +18,6 @@ const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }
         return null;
     };
 
-    // Determine latitude and longitude
     if (!latitude || !longitude) {
         if (virtual_tour_url) {
             const coordinates = extractCoordinatesFromUrl(virtual_tour_url);
@@ -33,7 +31,6 @@ const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }
         }
     }
 
-    // Toggle fullscreen modal
     const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
     // Toggle map type

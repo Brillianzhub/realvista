@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     },
     selectedDot: {
         borderColor: '#358B8B',
-        // backgroundColor: '#358B8B',
+        backgroundColor: '#358B8B',
     },
     radioButtonText: {
         fontSize: 15,

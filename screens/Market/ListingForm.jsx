@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, Alert, TouchableOpacity, Text } from 'react-native';
-import * as Location from 'expo-location';
 import CustomForm from '../../components/CustomForm';
 import CurrencyModal from "../../components/CurrencyModal";
 import { useCurrency } from '../../context/CurrencyContext';
@@ -87,8 +86,6 @@ const listingPurposeChoices = [
 ];
 
 const ListingForm = ({ property, onSubmit }) => {
-    const [isFetchingLocation, setIsFetchingLocation] = useState(false);
-    const [isEditable, setIsEditable] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const { currency } = useCurrency();
 
@@ -100,8 +97,8 @@ const ListingForm = ({ property, onSubmit }) => {
         currency: property?.currency || `${currency}`,
         listing_purpose: '',
         address: property?.address || '',
-        city: '',
-        state: '',
+        city: property?.city || '',
+        state: property?.location || '',
         zip_code: '',
         bedrooms: '',
         bathrooms: '',
@@ -110,7 +107,6 @@ const ListingForm = ({ property, onSubmit }) => {
         year_built: '',
         availability: '',
         availability_date: '',
-        coordinate_url: property?.virtual_tour_url || '',
     });
 
     const [errors, setErrors] = useState({});
@@ -119,7 +115,6 @@ const ListingForm = ({ property, onSubmit }) => {
         setFormData((prevData) => {
             const updatedData = { ...prevData, [field]: value };
 
-            // Conditional logic when property_type is changed
             if (field === 'property_type' && value === 'land') {
                 updatedData.bedrooms = null;
                 updatedData.bathrooms = null;
@@ -130,9 +125,6 @@ const ListingForm = ({ property, onSubmit }) => {
             return updatedData;
         });
     };
-
-
-
 
     const validateFormData = (data) => {
         const errors = {};
@@ -207,45 +199,15 @@ const ListingForm = ({ property, onSubmit }) => {
         return errors;
     };
 
-    const handlePickCoordinates = async () => {
-        setIsFetchingLocation(true);
-
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            setIsFetchingLocation(false);
-            Alert.alert('Permission Denied', 'Location permission is required to fetch coordinates.');
-            return;
-        }
-
-        try {
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High,
-            });
-            const { latitude, longitude } = location.coords;
-            const googleMapsURL = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-            setFormData((prevData) => ({
-                ...prevData,
-                virtual_tour_url: googleMapsURL,
-            }));
-        } catch (error) {
-            console.error('Location fetching error:', error);
-            Alert.alert('Error', 'Could not get location. Please try again.');
-        } finally {
-            setIsFetchingLocation(false);
-        }
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
     };
 
-    const constructGoogleMapsURL = (coordinates) => {
-        const cleanedCoordinates = coordinates.replace(/\s+/g, '').trim();
-        const isValidCoordinates = /^-?\d{1,2}\.\d+,-?\d{1,3}\.\d+$/.test(cleanedCoordinates);
-
-        if (isValidCoordinates) {
-            const [latitude, longitude] = cleanedCoordinates.split(',');
-            return `https://www.google.com/maps?q=${latitude},${longitude}`;
-        }
-        return null; // Return null if invalid
-    };
+    const removeCommas = (value) => value.replace(/,/g, '');
 
     const handleSubmit = () => {
         let updatedFormData = { ...formData };
@@ -312,8 +274,10 @@ const ListingForm = ({ property, onSubmit }) => {
                 required
                 placeholder="Selling price of property"
                 keyboardType="numeric"
-                value={formData.price}
-                onChangeText={(value) => handleInputChange('price', value)}
+                value={formatNumberWithCommas(formData.price)}
+                onChangeText={(value) =>
+                    handleInputChange('price', removeCommas(value))
+                }
                 error={errors.price}
             />
             <CustomForm
@@ -379,7 +343,6 @@ const ListingForm = ({ property, onSubmit }) => {
                 onChangeText={(value) => handleInputChange('city', value)}
                 error={errors.city}
             />
-
             <CustomPicker
                 label="State"
                 required={true}
@@ -455,30 +418,8 @@ const ListingForm = ({ property, onSubmit }) => {
                 handleInputChange={handleInputChange}
                 errors={errors}
             />
-            <CustomForm
-                label="Point Coordinate (Google Coordinates)"
-                placeholder="e.g., 40.7128,-74.0060"
-                value={formData.virtual_tour_url}
-                onChangeText={(text) =>
-                    setFormData((prevData) => ({ ...prevData, virtual_tour_url: text }))
-                }
-                error={errors.virtual_tour_url}
-            />
-
-            <Pressable
-                onPress={handlePickCoordinates}
-                disabled={isFetchingLocation}
-                style={({ pressed }) => [
-                    styles.button,
-                    { backgroundColor: pressed ? '#DDDDDD' : '#358B8B' },
-                ]}
-            >
-                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>
-                    {isFetchingLocation ? 'Fetching Location...' : 'Pick Coordinates from Phone'}
-                </Text>
-            </Pressable>
             <Pressable mode="contained" onPress={handleSubmit} style={styles.button}>
-                <Text style={{ color: 'white', fontSize: 20, fontWeight: '600' }}>Add Listing</Text>
+                <Text style={{ color: 'white', fontSize: 20, fontWeight: '400' }}>Add and continue</Text>
             </Pressable>
         </ScrollView>
     )
@@ -541,6 +482,7 @@ const styles = StyleSheet.create({
     },
     selectedDot: {
         borderColor: '#358B8B',
+        backgroundColor: '#358B8B',
     },
     radioButtonText: {
         fontSize: 15,
@@ -550,4 +492,3 @@ const styles = StyleSheet.create({
         color: '#358B8B',
     },
 });
-          

@@ -155,7 +155,7 @@ export default HomeMenu;
 
 const styles = StyleSheet.create({
     container: {
-        padding: 16,
+        padding: 20,
 
     },
     mainMenu: {
@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     mainMenuImage: {
-        height: 50,
-        width: 50,
+        height: 40,
+        width: 40,
     },
     menuText: {
         fontSize: 14,

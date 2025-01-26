@@ -20,7 +20,7 @@
     "expo-env.d.ts",
     "app/_layout.jsx",
     "app/index.jsx",
-    "app/(tabs)/_layout.jsx",
+    "app/(tabs)/_layoutold.jsx",
     "app/(tabs)/Portfolio.jsx"
   ],
   "extends": "expo/tsconfig.base"
