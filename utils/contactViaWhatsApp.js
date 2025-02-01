@@ -2,8 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Alert, Linking } from 'react-native';
 
-export const contactViaWhatsApp = async ({ selectedItem, user, setIsRecordingInquiry }) => {
-    if (!selectedItem || !selectedItem.owner?.phone_number || !user || !user.name) {
+export const contactViaWhatsApp = async ({ property, user, setIsRecordingInquiry }) => {
+    if (!property || !property.owner?.phone_number || !user || !user.name) {
         Alert.alert('Error', 'Phone number or user information is missing.');
         return;
     }
@@ -11,7 +11,7 @@ export const contactViaWhatsApp = async ({ selectedItem, user, setIsRecordingInq
     setIsRecordingInquiry?.(true);
 
     try {
-        await recordInquiry(selectedItem.id);
+        await recordInquiry(property.id);
     } catch (error) {
         console.error('Error recording inquiry:', error.response?.data || error.message);
         Alert.alert('Error', 'Unable to record inquiry. Please try again.');
@@ -21,10 +21,10 @@ export const contactViaWhatsApp = async ({ selectedItem, user, setIsRecordingInq
 
     setIsRecordingInquiry?.(false);
 
-    const phoneNumber = selectedItem.owner.phone_number;
-    const propertyName = selectedItem.title;
-    const propertyLocation = selectedItem.address;
-    const propertyType = selectedItem.property_type;
+    const phoneNumber = property.owner.phone_number;
+    const propertyName = property.title;
+    const propertyLocation = property.address;
+    const propertyType = property.property_type;
     const userName = user.name;
 
     const message = `Hello, I am ${userName}, and I am interested in your property titled "${propertyName}" (${propertyType}) located at ${propertyLocation}. I would like to learn more about the property, including availability and pricing.`;

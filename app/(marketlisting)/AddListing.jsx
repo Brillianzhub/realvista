@@ -51,13 +51,13 @@ const AddListing = () => {
                 throw new Error('Property ID is missing in the response');
             }
 
-            const imageUrls = selectedProperty.images?.map((item) => item.image).filter(Boolean) || [];
+            const imageUrls = selectedProperty?.images?.map((item) => item.image).filter(Boolean) || [];
 
             if (imageUrls.length > 0) {
                 await uploadImageUrls(token, propertyId, imageUrls);
                 Alert.alert('Success', 'Property and images updated successfully!');
             } else {
-                console.warn('No images to upload.');
+                // console.warn('No images to upload.');
                 Alert.alert('Success', 'Property updated successfully without images!');
             }
 
@@ -75,8 +75,6 @@ const AddListing = () => {
             setIsSubmitting(false);
         }
     };
-
-
 
 
     return (

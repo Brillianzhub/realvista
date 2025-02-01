@@ -2,8 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Alert, Linking } from 'react-native';
 
-export const contactPropertyOwner = async ({ selectedItem, user, setIsRecordingInquiry }) => {
-    if (!selectedItem || !selectedItem.owner?.email || !user || !user.name || !user.email) {
+export const contactPropertyOwner = async ({ property, user, setIsRecordingInquiry }) => {
+    if (!property || !property.owner?.email || !user || !user.name || !user.email) {
         Alert.alert('Error', 'Property or user information is missing.');
         return;
     }
@@ -11,7 +11,7 @@ export const contactPropertyOwner = async ({ selectedItem, user, setIsRecordingI
     setIsRecordingInquiry?.(true);
 
     try {
-        await recordInquiry(selectedItem.id);
+        await recordInquiry(property.id);
     } catch (error) {
         console.error('Error recording inquiry:', error.response?.data || error.message);
         Alert.alert('Error', 'Unable to record inquiry. Please try again.');
@@ -21,10 +21,10 @@ export const contactPropertyOwner = async ({ selectedItem, user, setIsRecordingI
 
     setIsRecordingInquiry?.(false);
 
-    const ownerEmail = selectedItem.owner.email;
-    const propertyName = selectedItem.title;
-    const propertyLocation = selectedItem.address;
-    const propertyType = selectedItem.property_type;
+    const ownerEmail = property.owner.email;
+    const propertyName = property.title;
+    const propertyLocation = property.address;
+    const propertyType = property.property_type;
     const userName = user.name;
     const userEmail = user.email;
 

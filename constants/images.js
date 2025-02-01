@@ -78,11 +78,19 @@ import addfile from '../assets/images/addfile.png';
 import call from '../assets/images/call.png';
 import email from '../assets/images/email.png';
 import heart from '../assets/images/heart.png';
+import menu from '../assets/images/menu.png';
+import paystack from '../assets/images/paystack.png';
+import paypal from '../assets/images/paypal.png';
+
+
 
 
 
 export default {
+    paystack,
+    paypal,
     heart,
+    menu,
     email,
     call,
     addfile,

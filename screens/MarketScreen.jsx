@@ -1,9 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList, RefreshControl } from 'react-native';
 import useFetchProperties from "../hooks/useFetchProperties";
 import { formatCurrency } from '../utils/formatCurrency';
 import { useTheme } from '@/context/ThemeContext';
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import MarketDetailScreen from './MarketDetailScreen';
 import MarketPropertyList from './MarketPropertyList';
 import SearchFilterModal from '@/components/SearchFilterModal';
@@ -20,25 +19,9 @@ const MarketScreen = () => {
     const { properties, fetchProperties, loading, error } = useFetchProperties();
     const [selectedItem, setSelectedItem] = useState(null);
 
-    const bottomSheetRef = useRef(null);
     const { colors } = useTheme();
 
-    // const openBottomSheet = (item) => {
-    //     setSelectedItem(item);
-    //     console.log(item.id)
-    //     bottomSheetRef.current?.expand();
-    // };
 
-
-    const openBottomSheet = (item) => {
-        try {
-            setSelectedItem(item);
-            handleViewProperty(item.id);
-            bottomSheetRef.current?.expand();
-        } catch (error) {
-            console.error('Error opening bottom sheet:', error);
-        }
-    };
 
     const handleViewProperty = async (propertyId) => {
         try {
@@ -61,10 +44,6 @@ const MarketScreen = () => {
         }
     };
 
-    const closeBottomSheet = () => {
-        bottomSheetRef.current?.close();
-        setSelectedItem(null);
-    };
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -87,7 +66,7 @@ const MarketScreen = () => {
 
     if (loading) {
         return (
-            <View style={styles.center}>
+            <View style={{ backgroundColor: '#FFFFFF' }}>
                 <ActivityIndicator size="large" color="#358B8B" />
             </View>
         );
@@ -95,7 +74,7 @@ const MarketScreen = () => {
 
     if (error) {
         return (
-            <View style={styles.center}>
+            <View style={{ backgroundColor: '#FFFFFF' }}>
                 <Text style={styles.errorText}>{error}</Text>
                 <TouchableOpacity onPress={fetchProperties} style={styles.retryButton}>
                     <Text style={styles.retryText}>Retry</Text>
@@ -112,7 +91,6 @@ const MarketScreen = () => {
                 renderItem={({ item }) => (
                     <MarketPropertyList
                         properties={[item]}
-                        openBottomSheet={openBottomSheet}
                         formatCurrency={formatCurrency}
                     />
                 )}
@@ -147,26 +125,9 @@ const MarketScreen = () => {
                 priceFilter={priceFilter}
                 setPriceFilter={setPriceFilter}
             />
-
-            <BottomSheet
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={['25%', '50%', '100%']}
-                enablePanDownToClose={true}
-                onClose={closeBottomSheet}
-                handleStyle={styles.handleContainer}
-                handleIndicatorStyle={styles.handleIndicator}
-            >
-                <BottomSheetScrollView
-                    contentContainerStyle={styles.contentContainer}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <MarketDetailScreen
-                        selectedItem={selectedItem}
-                        closeBottomSheet={closeBottomSheet}
-                    />
-                </BottomSheetScrollView>
-            </BottomSheet>
+            <MarketDetailScreen
+                selectedItem={selectedItem}
+            />
         </View>
     );
 };

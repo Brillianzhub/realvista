@@ -8,29 +8,31 @@ import LessonQuestions from '../../screens/Learn/LessonQuestions';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import QuizResult from '../../screens/Learn/QuizResult';
+import { useTheme } from "@/context/ThemeContext";
+
 
 const Stack = createStackNavigator();
 
 const LearnNavigator = () => {
-
+  const { colors } = useTheme();
   const handleBackPress = () => {
     router.replace('HomeScreen');
   };
 
   return (
-    <Stack.Navigator initialRouteName="CourseListScreen">
+    <Stack.Navigator>
       <Stack.Screen
         name="CourseListScreen"
         component={CourseListScreen}
         options={{
           headerShown: true,
-          title: "Available Courses",
+          title: "Courses",
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#358B8B' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tint,
           headerLeft: () => (
             <TouchableOpacity onPress={handleBackPress} style={{ paddingLeft: 10 }}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+              <Ionicons name="arrow-back" size={24} color={colors.tint} />
             </TouchableOpacity>
           ),
         }}
@@ -42,8 +44,8 @@ const LearnNavigator = () => {
           headerShown: true,
           title: "Course Modules",
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#358B8B' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tint,
         }}
       />
       <Stack.Screen
@@ -53,8 +55,8 @@ const LearnNavigator = () => {
           headerShown: true,
           title: "Course Modules",
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#358B8B' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tint,
         }}
       />
       <Stack.Screen
@@ -64,8 +66,8 @@ const LearnNavigator = () => {
           headerShown: true,
           title: "Lesson 1/x",
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#358B8B' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tint,
         }}
       />
       <Stack.Screen
@@ -75,8 +77,8 @@ const LearnNavigator = () => {
           headerShown: true,
           title: "Exercise",
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#358B8B' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tint,
         }}
       />
       <Stack.Screen
@@ -86,8 +88,8 @@ const LearnNavigator = () => {
           headerShown: true,
           title: "Quiz Score",
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#358B8B' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tint,
         }}
       />
     </Stack.Navigator>

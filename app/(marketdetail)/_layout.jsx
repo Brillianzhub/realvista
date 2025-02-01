@@ -1,14 +1,16 @@
 import React, { useEffect, useCallback } from "react";
-import { BackHandler, StatusBar } from "react-native";
+import { BackHandler, StatusBar, TouchableOpacity } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
+import { Ionicons } from '@expo/vector-icons';
 
-const EnterpriseLayout = () => {
-    const { colors } = useTheme();
+
+const MarketDetailLayout = () => {
     const router = useRouter();
+    const { colors } = useTheme();
 
     const handleBackPress = useCallback(() => {
-        router.replace("(tabs)/HomeScreen");
+        router.replace("(tabs)/Market");
 
         return true;
     }, [router]);
@@ -26,15 +28,21 @@ const EnterpriseLayout = () => {
         <>
             <Stack>
                 <Stack.Screen
-                    name="Enterprise"
+                    name="MarketListingDetails"
                     options={{
-                        headerShown: false,
-                        title: "Enterprise Account",
+                        headerShown: true,
+                        title: "Property Details",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: colors.background },
+                        headerStyle: {
+                            fontFamily: 'RobotoSerif-SemiBold',
+                            backgroundColor: colors.background
+                        },
                         headerTintColor: colors.tint,
-                        headerLeft: () => null,
-                        headerBackVisible: false,
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" />
+                            </TouchableOpacity>
+                        ),
                     }}
                 />
             </Stack>
@@ -44,4 +52,4 @@ const EnterpriseLayout = () => {
     );
 };
 
-export default EnterpriseLayout;
+export default MarketDetailLayout;

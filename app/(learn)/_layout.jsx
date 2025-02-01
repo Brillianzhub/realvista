@@ -1,7 +1,27 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "react-native";
+import React, { useEffect, useCallback } from "react";
+import { BackHandler, StatusBar } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { useTheme } from "@/context/ThemeContext";
+
 
 const LearnLayout = () => {
+    const router = useRouter();
+    const { colors } = useTheme();
+    const handleBackPress = useCallback(() => {
+        router.replace("(tabs)/HomeScreen");
+
+        return true;
+    }, [router]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            handleBackPress
+        );
+
+        return () => backHandler.remove();
+    }, [handleBackPress]);
+
     return (
         <>
             <Stack>
@@ -11,15 +31,39 @@ const LearnLayout = () => {
                         headerShown: false,
                         title: "Expert Learn",
                         headerTitleAlign: "center",
-                        headerStyle: { backgroundColor: "#358B8B" },
-                        headerTintColor: "#fff",
-                        headerLeft: () => null, 
-                        headerBackVisible: false
+                        headerStyle: { backgroundColor: colors.background },
+                        headerTintColor: colors.tint,
+                        headerLeft: () => null,
+                        headerBackVisible: false,
+                    }}
+                />
+                <Stack.Screen
+                    name="Reviews"
+                    options={{
+                        headerShown: true,
+                        title: "Reviews",
+                        headerTitleAlign: "center",
+                        headerStyle: { backgroundColor: colors.background },
+                        headerTintColor: colors.tint,
+                        headerLeft: () => null,
+                        headerBackVisible: true,
+                    }}
+                />
+                <Stack.Screen
+                    name="Payment"
+                    options={{
+                        headerShown: true,
+                        title: "Payment",
+                        headerTitleAlign: "center",
+                        headerStyle: { backgroundColor: colors.background },
+                        headerTintColor: colors.tint,
+                        headerLeft: () => null,
+                        headerBackVisible: true,
                     }}
                 />
             </Stack>
 
-            <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
+            <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
         </>
     );
 };

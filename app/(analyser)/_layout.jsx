@@ -1,9 +1,26 @@
-import { Stack } from "expo-router";
-import { StatusBar, TouchableOpacity, Image } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useCallback } from "react";
+import { BackHandler, Alert, StatusBar } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 const AnalysisLayout = () => {
+    const router = useRouter();
+    const navigation = useNavigation();
+
+    const handleBackPress = useCallback(() => {
+        router.replace("(tabs)/HomeScreen");
+
+        return true;
+    }, [router]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            handleBackPress
+        );
+
+        return () => backHandler.remove();
+    }, [handleBackPress]);
 
     return (
         <>
@@ -17,7 +34,7 @@ const AnalysisLayout = () => {
                         headerStyle: { backgroundColor: "#FFFFFF" },
                         headerTintColor: "#358B8B",
                         headerLeft: () => null,
-                        headerBackVisible: false
+                        headerBackVisible: false,
                     }}
                 />
             </Stack>

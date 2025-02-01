@@ -1,50 +1,50 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
+import React, { useEffect } from 'react';
 import { router } from 'expo-router';
 import images from '../../constants/images';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const QuizResult = ({ route }) => {
     const { score, total, moduleId } = route.params;
 
     const percentage = Math.round((score / total) * 100);
-    const isPass = percentage >= 60;
+    const isPass = percentage >= 70;
 
     const saveProgress = async () => {
         try {
             const token = await AsyncStorage.getItem('authToken');
             if (!token) {
-                alert('User not authenticated. Please log in.');
+                Alert.alert('Authentication Error', 'User not authenticated. Please log in.');
                 return;
             }
 
-            const response = await fetch('https://www.realvistamanagement.com/courses/save-progress', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Token ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    moduleId,
+            const response = await axios.post(
+                'https://www.realvistamanagement.com/courses/record-progress/',
+                {
+                    module_id: moduleId,
                     score,
                     total,
-                }),
-            });
+                },
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-            if (response.ok) {
-                alert('Progress saved successfully!');
+            if (response.status === 201 || response.status === 200) {
+                Alert.alert('Success', 'Progress saved successfully!');
+                router.replace('(learn)/Learn')
             } else {
-                const errorData = await response.json();
-                console.error('Error response:', errorData);
-                alert(`Failed to save progress: ${errorData.message || 'Unknown error'}`);
+                Alert.alert('Error', response.data?.message || 'Failed to save progress.');
             }
         } catch (error) {
             console.error('Error saving progress:', error);
-            alert('A network error occurred. Please check your connection and try again.');
+            Alert.alert('Error', error.response?.data?.error || 'A network error occurred.');
         }
     };
-
-
 
     return (
         <View style={styles.container}>
@@ -60,15 +60,12 @@ const QuizResult = ({ route }) => {
             {isPass ? (
                 <View style={styles.actionContainer}>
                     <Text style={styles.message}>🎉 Great job! Keep up the good work.</Text>
-                    <TouchableOpacity
-                        style={[styles.button, styles.saveButton]}
-                        onPress={() => saveProgress()}
-                    >
+                    <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={saveProgress}>
                         <Text style={styles.buttonText}>Save Progress</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.button, styles.homeButton]}
-                        onPress={() => router.replace('Home')}
+                        onPress={() => router.replace('(learn)/Learn')}
                     >
                         <Text style={styles.buttonText}>Go to Home</Text>
                     </TouchableOpacity>
@@ -80,7 +77,7 @@ const QuizResult = ({ route }) => {
                     </Text>
                     <TouchableOpacity
                         style={[styles.button, styles.retryButton]}
-                        onPress={() => router.replace('Home')}
+                        onPress={() => router.replace('(learn)/Learn')}
                     >
                         <Text style={styles.buttonText}>Continue</Text>
                     </TouchableOpacity>

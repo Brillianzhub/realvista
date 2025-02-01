@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { SplashScreen, Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
 import GlobalProvider from '../context/GlobalProvider';
 import { ProjectsProvider } from '../context/ProjectsContext';
 import { InvestmentProvider } from '../context/InvestmentProvider';
@@ -11,6 +10,8 @@ import { CurrencyProvider } from '../context/CurrencyContext';
 import { ThemeProvider } from '../context/ThemeContext';
 import { useFonts } from "expo-font";
 import { StatusBar } from 'react-native';
+
+import { StyleSheet } from 'react-native';
 
 const RealVistaLayout = () => {
 
@@ -25,6 +26,8 @@ const RealVistaLayout = () => {
     "Abel-Regular": require("../assets/fonts/Abel-Regular.ttf"),
   });
 
+
+
   useEffect(() => {
     if (error) throw error;
 
@@ -32,6 +35,8 @@ const RealVistaLayout = () => {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, error]);
+
+
 
   if (!fontsLoaded) {
     return null;
@@ -60,6 +65,7 @@ const RealVistaLayout = () => {
                       <Stack.Screen name="(analyser)" options={{ headerShown: false }} />
                       <Stack.Screen name="(trends)" options={{ headerShown: false }} />
                       <Stack.Screen name="(marketlisting)" options={{ headerShown: false }} />
+                      <Stack.Screen name="(marketdetail)" options={{ headerShown: false }} />
                     </Stack>
                   </ThemeProvider>
                   <StatusBar

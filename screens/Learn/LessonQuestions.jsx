@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
@@ -6,12 +6,19 @@ const LessonQuestions = ({ route, navigation }) => {
     const { questions, moduleId } = route.params;
     const [currentPage, setCurrentPage] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState({});
+    const pagerRef = useRef(null);
 
     const handleSelectOption = (questionId, optionId) => {
         setSelectedAnswers((prev) => ({
             ...prev,
             [questionId]: optionId,
         }));
+
+        if (currentPage < questions.length - 1) {
+            setTimeout(() => {
+                pagerRef.current?.setPage(currentPage + 1);
+            }, 300); 
+        }
     };
 
     const handlePageSelected = (e) => {
@@ -37,6 +44,7 @@ const LessonQuestions = ({ route, navigation }) => {
                 style={styles.pagerView}
                 initialPage={0}
                 onPageSelected={handlePageSelected}
+                ref={pagerRef}
             >
                 {questions.map((question, index) => (
                     <View key={index} style={styles.page}>
@@ -51,15 +59,13 @@ const LessonQuestions = ({ route, navigation }) => {
                                     onPress={() => handleSelectOption(question.id, option.id)}
                                     style={[
                                         styles.optionButton,
-                                        selectedAnswers[question.id] === option.id &&
-                                        styles.selectedOption,
+                                        selectedAnswers[question.id] === option.id && styles.selectedOption,
                                     ]}
                                 >
                                     <Text
                                         style={[
                                             styles.optionText,
-                                            selectedAnswers[question.id] === option.id &&
-                                            styles.selectedOptionText,
+                                            selectedAnswers[question.id] === option.id && styles.selectedOptionText,
                                         ]}
                                     >
                                         {option.text}
@@ -89,7 +95,7 @@ const LessonQuestions = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#fff',
         paddingTop: 20,
     },
     pagerView: {
@@ -151,7 +157,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 8,
         alignItems: 'center',
-        width: '50%'
+        width: '50%',
     },
     submitButtonText: {
         color: '#fff',

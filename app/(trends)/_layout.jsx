@@ -1,7 +1,25 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "react-native";
+import React, { useEffect, useCallback } from "react";
+import { BackHandler, StatusBar } from "react-native";
+import { Stack, useRouter } from "expo-router";
 
 const TrendsLayout = () => {
+    const router = useRouter();
+
+    const handleBackPress = useCallback(() => {
+        router.replace("(tabs)/HomeScreen");
+
+        return true;
+    }, [router]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            handleBackPress
+        );
+
+        return () => backHandler.remove();
+    }, [handleBackPress]);
+
     return (
         <>
             <Stack>

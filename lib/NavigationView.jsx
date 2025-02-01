@@ -51,7 +51,7 @@ const NavigationView = () => {
                     source={images.wishList}
                     style={styles.menuImg}
                 />
-                <Text style={styles.menuText}>Wish List</Text>
+                <Text style={styles.menuText}>Favorite Collections</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

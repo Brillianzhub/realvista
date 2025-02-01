@@ -25,7 +25,7 @@ const FinancialAnalysisScreen = () => {
 
     const actions = [
         { id: '1', label: 'Savings Target', icon: images.ftarget, onPress: () => navigation.navigate('FinancialTarget') },
-        { id: '2', label: 'Compound Savings', icon: images.savings, onPress: () => navigation.navigate('CompoundSavings') },
+        { id: '2', label: 'Compound Savings', icon: images.savings, onPress: () => handleComingSoon() },
         { id: '3', label: 'Return on Investment', icon: images.income, onPress: () => handleComingSoon() },
     ];
 

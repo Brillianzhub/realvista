@@ -1,14 +1,26 @@
+import React, { useEffect, useCallback } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "react-native";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, BackHandler } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from "expo-router";
 
 const MarketListingLayout = () => {
 
-    const handleBackPress = () => {
-        router.replace('/Manage');
-    };
+    const handleBackPress = useCallback(() => {
+        router.replace("(manage)/Manage");
+
+        return true;
+    }, [router]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            handleBackPress
+        );
+
+        return () => backHandler.remove();
+    }, [handleBackPress]);
 
     return (
         <>
@@ -26,7 +38,6 @@ const MarketListingLayout = () => {
                                 <Ionicons name="arrow-back" size={24} color="#358B8B" style={{ marginLeft: 5 }} />
                             </TouchableOpacity>
                         ),
-                        // headerBackVisible: true
                     }}
                 />
                 <Stack.Screen
@@ -51,7 +62,7 @@ const MarketListingLayout = () => {
                         headerBackVisible: true
                     }}
                 />
-                 <Stack.Screen
+                <Stack.Screen
                     name="MarketFeatures"
                     options={{
                         headerShown: true,

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
+import CourseDescription from '../../components/Learn/CourseDescription';
+import LessonsList from '../../components/Learn/LessonsList';
 
 import PagerView from 'react-native-pager-view';
 
 const CourseModuleScreen = ({ route, navigation }) => {
     const { modules, selectedModuleIndex: initialIndex = 0 } = route.params;
     const [selectedModuleIndex, setSelectedModuleIndex] = useState(initialIndex);
-
 
     useEffect(() => {
         const module = modules[selectedModuleIndex];
@@ -28,26 +29,22 @@ const CourseModuleScreen = ({ route, navigation }) => {
         >
             {modules.map((module, moduleIndex) => (
                 <View key={module.id} style={styles.page}>
+                    {module.image && (
+                        <Image
+                            source={{ uri: module.image }}
+                            style={styles.moduleImage}
+                        />
+                    )}
                     <Text style={styles.moduleTitle}>{module.title}</Text>
-                    <View style={styles.moduleDescription}>
-                        <Text style={styles.moduleDescriptionText}>{module.description}</Text>
+                    <View>
+                        <Text style={styles.courseTitle}>Focus</Text>
+                        <CourseDescription description={module.description} />
                     </View>
                     <Text style={styles.sectionHeader}>Lessons</Text>
-                    <FlatList
-                        data={module.lessons}
-                        keyExtractor={(item) => item.id.toString()}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                style={styles.lessonCard}
-                                onPress={() => navigation.navigate('LessonDetail', {
-                                    lessons: module.lessons,
-                                    selectedIndex: item.order - 1,
-                                    moduleId: module.id
-                                })}
-                            >
-                                <Text style={styles.lessonTitle}>{item.title}</Text>
-                            </TouchableOpacity>
-                        )}
+                    <LessonsList
+                        lessons={module.lessons}
+                        navigation={navigation}
+                        module={module}
                     />
                 </View>
             ))}
@@ -68,7 +65,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9F9F9',
     },
     moduleTitle: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 10,
@@ -99,9 +96,21 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    moduleImage: {
+        width: '100%',
+        height: 200,
+        borderRadius: 8,
+        marginBottom: 15,
+    },
     lessonTitle: {
         fontSize: 18,
         fontWeight: '500',
         color: '#333',
+    },
+    courseTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        marginVertical: 10,
     },
 });

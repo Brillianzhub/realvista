@@ -1,14 +1,54 @@
-import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, RefreshControl } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, RefreshControl, TouchableOpacity } from 'react-native';
 import React, { useCallback } from 'react';
+import axios from 'axios';
 import useUserBookmarks from '../../hooks/useUserBookmark';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 const Bookmarks = () => {
     const { bookmarks, loading, setLoading, error, fetchBookmarks } = useUserBookmarks();
+    const router = useRouter();
+
+    const capitalizeEachWord = (str) => {
+        return str
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    };
 
     const handleReload = useCallback(() => {
         setLoading(true);
         fetchBookmarks();
     }, [fetchBookmarks, setLoading]);
+
+    const removeBookmark = async (bookmarkId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Authentication token is missing');
+            }
+            const response = await axios.post(
+                `https://realvistamanagement.com/market/remove-bookmark/${bookmarkId}/`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+            if (response.status === 200) {
+                handleReload();
+            } else {
+                console.error(response.data.message || 'Failed to delete bookmark');
+            }
+        } catch (error) {
+            console.error('An error occurred:', error.response?.data || error.message);
+        }
+    };
+
+
 
     if (loading) {
         return (
@@ -39,14 +79,44 @@ const Bookmarks = () => {
     return (
         <FlatList
             data={bookmarks}
-            keyExtractor={(item) => item.property_id.toString()}
+            keyExtractor={(item) => item.bookmark_id.toString()}
             contentContainerStyle={styles.listContainer}
             renderItem={({ item }) => (
-                <View style={styles.card}>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.address}>{item.address}</Text>
+                <View style={styles.itemContainer}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            router.push({
+                                pathname: '/(marketdetail)/MarketListingDetails',
+                                params: { selectedItemId: JSON.stringify(item.property_id) },
+                            })
+                        }
+                        style={styles.card}
+                    >
+                        <Text style={styles.title}>{item.title}</Text>
+                        <Text style={styles.address}>
+                            {capitalizeEachWord(item.address)}, {capitalizeEachWord(item.city)}, {capitalizeEachWord(item.state)} State.
+                        </Text>
+                        <Text style={styles.price}>
+                            {formatCurrency(item.price, item.currency)}
+                        </Text>
+                        <View style={styles.detailsContainer}>
+                            <Text style={styles.detailText}>
+                                {item.property_type.charAt(0).toUpperCase() + item.property_type.slice(1)}
+                            </Text>
+                            <Text style={styles.detailText}>
+                                Listed for {item.listing_purpose.charAt(0).toUpperCase() + item.listing_purpose.slice(1)}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => removeBookmark(item.bookmark_id)}
+                        style={styles.removeButton}
+                    >
+                        <Ionicons name="close-circle-outline" size={24} color="gray" />
+                    </TouchableOpacity>
                 </View>
             )}
+
             refreshControl={
                 <RefreshControl
                     refreshing={loading}
@@ -56,7 +126,7 @@ const Bookmarks = () => {
             }
         />
     );
-}
+};
 
 export default Bookmarks;
 
@@ -65,7 +135,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#fff',
     },
     errorText: {
         color: 'red',
@@ -79,18 +149,10 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         padding: 10,
-        backgroundColor: '#f8f9fa',
     },
     card: {
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 8,
-        backgroundColor: '#ffffff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
+        flex: 1,
+        marginRight: 10,
     },
     title: {
         fontWeight: 'bold',
@@ -102,4 +164,28 @@ const styles = StyleSheet.create({
         color: '#6c757d',
         marginTop: 5,
     },
+    itemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+        backgroundColor: '#fff',
+        padding: 10,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+    },
+    removeButton: {
+        padding: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    price: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#358B8B',
+        marginVertical: 8
+    }
 });

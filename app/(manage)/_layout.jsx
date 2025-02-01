@@ -1,18 +1,31 @@
 import { Stack } from "expo-router";
-import { StatusBar, TouchableOpacity, Image } from "react-native";
+import { StatusBar, TouchableOpacity, BackHandler } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useCallback } from "react";
+
 
 
 const ManageLayout = () => {
 
-    const handleBackPress = () => {
-        router.replace('/HomeScreen');
-    };
-
     const handleBack = () => {
         router.replace('Portfolio');
     };
+
+    const handleBackPress = useCallback(() => {
+        router.replace("(tabs)/HomeScreen");
+
+        return true;
+    }, [router]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            handleBackPress
+        );
+
+        return () => backHandler.remove();
+    }, [handleBackPress]);
 
     return (
         <>

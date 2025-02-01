@@ -7,6 +7,8 @@ import {
     ScrollView,
     Linking,
     SafeAreaView,
+    BackHandler,
+    ToastAndroid
 } from 'react-native';
 import React, { useRef, useEffect, useState } from 'react';
 import images from '../../constants/images';
@@ -16,7 +18,7 @@ import PagerView from 'react-native-pager-view';
 import { usePushNotifications } from '../../usePushNotifications';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { useTheme } from '@/context/ThemeContext';
-
+import { useNavigationState } from '@react-navigation/native';
 
 const ROUTES = {
     PORTFOLIO: 'Portfolio',
@@ -48,6 +50,9 @@ const HomeMenu = () => {
     const { user } = useGlobalContext();
     const { theme, toggleTheme, colors } = useTheme();
 
+    const lastBackPressed = useRef(null);
+    const navigationState = useNavigationState((state) => state);
+
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentPage((prevPage) => {
@@ -61,6 +66,32 @@ const HomeMenu = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        const handleBackPress = () => {
+            const currentRoute = navigationState.routes[navigationState.index]?.name;
+
+            if (currentRoute === 'HomeScreen') {
+                const currentTimestamp = new Date().getTime();
+
+                if (lastBackPressed.current && currentTimestamp - lastBackPressed.current < 2000) {
+                    BackHandler.exitApp();
+                } else {
+                    ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+                    lastBackPressed.current = currentTimestamp;
+                }
+                return true; // Prevent default behavior
+            }
+
+            return false; // Allow default back navigation for other screens
+        };
+
+        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+        };
+    }, [navigationState]);
 
     const { expoPushToken, notification, enableNotifications, disableNotifications, getNotificationStatus } = usePushNotifications();
 

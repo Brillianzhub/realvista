@@ -1,35 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Image } from 'react-native';
-import { TouchableOpacity, ScrollView } from 'react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Image, TouchableOpacity, ScrollView, StyleSheet, Text, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import images from '../../constants/images';
-import Video from 'react-native-video';
-// import { Video } from 'expo-av';
-
 
 const LessonDetail = ({ route, navigation }) => {
     const { lessons, selectedIndex, moduleId } = route.params || {};
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(selectedIndex);
+    const pagerRef = useRef(null);
+
 
     const allQuestions = lessons.reduce((acc, lesson) => acc.concat(lesson.questions), []);
 
     useEffect(() => {
-        const totalLessons = lessons.length;
-        if (selectedIndex < totalLessons) {
-            navigation.setOptions({
-                title: `Lesson ${selectedIndex + 1}/${totalLessons}`,
-            });
-        } else {
-            navigation.setOptions({
-                title: "Questions",
-            });
-        }
-    }, [selectedIndex, lessons, navigation]);
+        updateHeaderTitle(currentPage);
+    }, [currentPage]);
 
     const updateHeaderTitle = (pageIndex) => {
         const totalLessons = lessons.length;
-
         if (pageIndex < totalLessons) {
             navigation.setOptions({
                 title: `Lesson ${pageIndex + 1}/${totalLessons}`,
@@ -41,74 +28,64 @@ const LessonDetail = ({ route, navigation }) => {
         }
     };
 
+    const handleNext = () => {
+        if (pagerRef.current && currentPage < lessons.length) {
+            pagerRef.current.setPage(currentPage + 1);
+        }
+    };
 
     return (
-        <PagerView
-            style={styles.pagerView}
-            initialPage={selectedIndex}
-            onPageSelected={(e) => {
-                const newPage = e.nativeEvent.position;
-                setCurrentPage(newPage);
-                updateHeaderTitle(newPage);
-            }}
-        >
-
-            {lessons.map((lesson, index) => (
-                <View key={lesson.id} style={styles.page}>
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                        <Text style={styles.lessonTitle}>{lesson.title}</Text>
-                        <Text style={styles.lessonDescription}>{lesson.description}</Text>
-
-                        {/* Video content */}
-                        {/* {lesson.video_url && (
-                            <Video
-                                source={{ uri: lesson.video_url }}
-                                style={styles.videoFrame}
-                                useNativeControls
-                                resizeMode="contain"
-                                isLooping
-                                onError={(e) => console.error('Video Error:', e)} // Debugging video errors
-                            />
-
-                        )} */}
-
-                        <Text style={styles.lessonContent}>
-                            {lesson.content || 'Content coming soon...'}
-                        </Text>
-                    </ScrollView>
+        <View style={styles.container}>
+            <PagerView
+                ref={pagerRef}
+                style={styles.pagerView}
+                initialPage={selectedIndex}
+                onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
+            >
+                {lessons.map((lesson, index) => (
+                    <View key={lesson.id} style={styles.page}>
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={styles.lessonTitle}>{lesson.title}</Text>
+                            <Text style={styles.lessonDescription}>{lesson.description}</Text>
+                            <Text style={styles.lessonContent}>{lesson.content || 'Content coming soon...'}</Text>
+                        </ScrollView>
+                    </View>
+                ))}
+                <View style={styles.content}>
+                    <Image source={images.complete} style={styles.gifImage} />
+                    <Text style={styles.lessonTitle}>Congratulations</Text>
+                    <Text style={styles.lessonDescription}>
+                        Test your understanding of the lesson with these questions.
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('LessonQuestions', { questions: allQuestions, moduleId: moduleId })}
+                        style={styles.continueButton}
+                    >
+                        <Text style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>Start Questions</Text>
+                    </TouchableOpacity>
                 </View>
-            ))}
-
-
-            <View style={styles.content}>
-                <Image
-                    source={images.complete}
-                    style={styles.gifImage}
-                />
-                <Text style={styles.lessonTitle}>Congratulations</Text>
-                <Text style={styles.lessonDescription}>
-                    Test your understanding of the lesson with these questions.
-                </Text>
-                <TouchableOpacity
-                    onPress={() =>
-                        navigation.navigate('LessonQuestions', { questions: allQuestions, moduleId: moduleId })
-                    }
-                    style={styles.continueButton}
-                >
-                    <Text style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>Start Questions</Text>
+            </PagerView>
+            {currentPage < lessons.length && (
+                <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                    <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
-            </View>
-        </PagerView>
+            )}
+        </View>
     );
 };
 
 export default LessonDetail;
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        paddingTop: 20,
+    },
     pagerView: {
         flex: 1,
-        backgroundColor: '#F9F9F9',
-        marginBottom: 20
+        backgroundColor: '#FFF',
+        marginBottom: 20,
     },
     page: {
         flex: 1,
@@ -117,9 +94,8 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        padding: 20,
         justifyContent: 'center',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#FFF',
         alignItems: 'center',
     },
     lessonTitle: {
@@ -127,13 +103,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#333',
         textAlign: 'left',
-        marginTop: 20
+        marginTop: 20,
     },
     lessonDescription: {
         fontSize: 16,
         color: '#666',
         lineHeight: 24,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     lessonContent: {
         fontSize: 16,
@@ -153,10 +129,18 @@ const styles = StyleSheet.create({
         height: 50,
         marginBottom: 20,
     },
-    videoFrame: {
-        width: '100%',
-        height: 200,
-        backgroundColor: 'black',
+    nextButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        backgroundColor: '#358B8B',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 8,
     },
-
+    nextButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });

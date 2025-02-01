@@ -2,8 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Alert, Linking } from 'react-native';
 
-export const contactViaPhoneCall = async ({ selectedItem, user, setIsRecordingInquiry }) => {
-    if (!selectedItem || !selectedItem.owner?.phone_number || !user) {
+export const contactViaPhoneCall = async ({ property, user, setIsRecordingInquiry }) => {
+    if (!property || !property.owner?.phone_number || !user) {
         Alert.alert('Error', 'Phone number or user information is missing.');
         return;
     }
@@ -11,7 +11,7 @@ export const contactViaPhoneCall = async ({ selectedItem, user, setIsRecordingIn
     setIsRecordingInquiry?.(true);
 
     try {
-        await recordInquiry(selectedItem.id);
+        await recordInquiry(property.id);
     } catch (error) {
         console.error('Error recording inquiry:', error.response?.data || error.message);
         Alert.alert('Error', 'Unable to record inquiry. Please try again.');
@@ -21,7 +21,7 @@ export const contactViaPhoneCall = async ({ selectedItem, user, setIsRecordingIn
 
     setIsRecordingInquiry?.(false);
 
-    const phoneNumber = selectedItem.owner.phone_number;
+    const phoneNumber = property.owner.phone_number;
     const telURL = `tel:${phoneNumber}`;
 
     Linking.openURL(telURL).catch((err) => {

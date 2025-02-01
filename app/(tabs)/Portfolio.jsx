@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Modal, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetail from '../../components/PropertyDetail';
@@ -61,6 +61,11 @@ const Portfolio = () => {
     setSelectedItem(null);
   };
 
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const openModal = () => setModalVisible(true);
+  const closeModal = () => setModalVisible(false);
+
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -75,7 +80,7 @@ const Portfolio = () => {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={{ backgroundColor: '#FFFFFF' }}>
         <ActivityIndicator size="large" color="#358B8B" />
       </View>
     );
@@ -87,36 +92,61 @@ const Portfolio = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <View style={styles.summaryContainer}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={styles.summaryTitle}>Totals</Text>
-            <TouchableOpacity
-              style={{}}
-              onPress={handleViewDetails}
-            >
-              <Text style={[styles.summaryText, { color: 'gray', fontWeight: 'normal', textDecorationLine: 'underline' }]}>View Details</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText]}>Investment</Text>
-            <Text style={[styles.summaryText, { color: '#000', fontWeight: '600' }]}>{totalInvestment}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[styles.summaryText]}>Current Value</Text>
-            <Text style={[styles.summaryText, { color: '#000', fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
-            <Text style={[styles.summaryText]}>Returns</Text>
-            {userTotalsWithAnalysis.length === 0 ? (
-              <Text style={[styles.summaryText, { color: '#358B8B', fontWeight: 'bold' }]}>0.00 %</Text>
-            ) : (
-              <Text style={[styles.summaryText, { color: userTotalsWithAnalysis.percentageReturn < 0 ? 'red' : '#358B8B', fontWeight: 'bold' }]}>
-                {userTotalsWithAnalysis.percentageReturn}
-              </Text>
-            )}
-          </View>
+      <View style={[styles.header, { marginVertical: 20 }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 20, fontFamily: 'RobotoSerif-Regular', color: 'gray', fontWeight: '600' }}>
+            Total Value
+          </Text>
+          <TouchableOpacity onPress={openModal} style={{ marginLeft: 8 }}>
+            <Ionicons name="help-circle-outline" size={20} color="gray" />
+          </TouchableOpacity>
+        </View>
+        <Text style={[styles.summaryText, { color: '#000', fontSize: 30, fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
+        <Text style={{ fontSize: 18, fontFamily: 'RobotoSerif-Regular', color: 'gray' }}>{`${properties.length} Assets`}</Text>
 
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={closeModal}
+        >
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalContainer}>
+              <TouchableWithoutFeedback>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>
+                    <Text style={styles.modalSubText}>Total Value:</Text>{' '}
+                    The Total Value is the sum of all current values of investments and all recorded incomes.
+                    {"\n\n"}
+                    <Text style={styles.modalSubText}>Investment:</Text>{' '}
+                    Investment refers to the total sum of all initial costs of all assets, along with all recorded expenses.
+                    {"\n\n"}
+                    <Text style={styles.modalSubText}>Returns:</Text>{' '}
+                    Returns represent the percentage returns for all investments in relation to the total value.
+                  </Text>
+                  <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      </View>
+      <View style={styles.subheader}>
+        <View style={styles.subheaderItem}>
+          <Text style={{ fontFamily: 'RobotoSerif-Regular', fontSize: 17, color: '#FB902E' }}>Investment</Text>
+          <Text style={[styles.summaryText, { color: '#000', fontWeight: 'bold', fontSize: 16 }]}>{totalInvestment}</Text>
+        </View>
+        <View style={styles.subheaderItem}>
+          <Text style={{ fontFamily: 'RobotoSerif-Regular', fontSize: 17, color: '#FB902E' }}>Returns</Text>
+          {userTotalsWithAnalysis.length === 0 ? (
+            <Text style={[styles.summaryText, { color: '#358B8B', fontWeight: 'bold' }]}>0.00 %</Text>
+          ) : (
+            <Text style={[styles.summaryText, { color: userTotalsWithAnalysis.percentageReturn < 0 ? 'red' : '#358B8B', fontWeight: 'bold' }]}>
+              {userTotalsWithAnalysis.percentageReturn}
+            </Text>
+          )}
         </View>
       </View>
       <View style={styles.container}>
@@ -183,6 +213,20 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'left',
   },
+  subheader: {
+    marginVertical: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  subheaderItem: {
+    backgroundColor: '#358B8B0D',
+    padding: 15,
+    borderRadius: 8,
+    width: '45%',
+    alignItems: 'center',
+
+  },
   summaryContainer: {
     width: '95%',
     padding: 15,
@@ -201,32 +245,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   summaryText: {
-    fontSize: 15,
+    fontFamily: 'RobotoSerif-Regular',
     color: '#555',
-    marginBottom: 5,
   },
   propertiesList: {
     flex: 1,
     padding: 10,
   },
-  propertyItem: {
-    marginBottom: 20,
-    borderRadius: 10,
-    backgroundColor: '#358B8B1A',
-    padding: 10
-  },
-  propertyHeadText: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 8,
-    color: '#FB902E',
-    fontWeight: 'bold'
-  },
-  propertyText: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 8,
-  },
+
   listTitle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -273,6 +299,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  modalSubText: {
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#000',
+    textAlign: 'left',
+    marginBottom: 20,
+  },
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -286,15 +322,31 @@ const styles = StyleSheet.create({
     color: '#555',
     paddingHorizontal: 20,
   },
-  addButton1: {
-    backgroundColor: '#007bff',
+  
+
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '80%',
+  },
+  
+  closeButton: {
+    backgroundColor: '#FB902E',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
   },
-  addButtonText: {
+  closeButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
