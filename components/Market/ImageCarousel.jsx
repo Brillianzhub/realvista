@@ -4,12 +4,13 @@ import { Image } from 'expo-image';
 import PagerView from 'react-native-pager-view';
 import { PinchGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import moment from 'moment';
 
 const { width: screenWidth } = Dimensions.get('window');
 const aspectRatio = 1.5;
 const carouselImageHeight = screenWidth / aspectRatio;
 
-const ImageCarousel = ({ images }) => {
+const ImageCarousel = ({ images, listed_date }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -17,8 +18,8 @@ const ImageCarousel = ({ images }) => {
 
     const scale = useSharedValue(1);
 
-    const handleImagePress = (image) => {
-        setSelectedImage(image);
+    const handleImagePress = (file) => {
+        setSelectedImage(file);
         setModalVisible(true);
     };
 
@@ -27,38 +28,33 @@ const ImageCarousel = ({ images }) => {
         setActiveIndex(index);
     };
 
-    // Render carousel item
-    const renderCarouselItem = (item, index) => {
-        return (
-            <View key={index} style={styles.carouselItemContainer}>
-                <TouchableOpacity onPress={() => handleImagePress(item)}>
-                    <Image
-                        source={{ uri: item.image }}
-                        style={styles.carouselImage}
-                        contentFit="cover"
-                    />
-                </TouchableOpacity>
-            </View>
-        );
-    };
+    const formattedDate = moment(listed_date).fromNow();
 
-    const renderDots = () => {
-        return (
-            <View style={styles.dotsContainer}>
-                {images.map((_, index) => (
-                    <View
-                        key={index}
-                        style={[
-                            styles.dot,
-                            index === activeIndex ? styles.activeDot : styles.inactiveDot,
-                        ]}
-                    />
-                ))}
+    const renderCarouselItem = (item, index) => (
+        <View key={index} style={styles.carouselItemContainer}>
+            <TouchableOpacity onPress={() => handleImagePress(item)}>
+                <Image source={{ uri: item.file }} style={styles.carouselImage} contentFit="cover" />
+            </TouchableOpacity>
+            <View style={styles.listedDateContainer}>
+                <Text style={styles.listedDateText}>Listed - {formattedDate}</Text>
             </View>
-        );
-    };
+        </View>
+    );
 
-    // Animated styles for zoom
+    const renderDots = () => (
+        <View style={styles.dotsContainer}>
+            {images.map((_, index) => (
+                <View
+                    key={index}
+                    style={[
+                        styles.dot,
+                        index === activeIndex ? styles.activeDot : styles.inactiveDot,
+                    ]}
+                />
+            ))}
+        </View>
+    );
+
     const animatedImageStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
     }));
@@ -68,7 +64,7 @@ const ImageCarousel = ({ images }) => {
     };
 
     const onPinchGestureEnd = () => {
-        scale.value = withTiming(1); // Reset zoom on release
+        scale.value = withTiming(1);
     };
 
     if (!images || images.length === 0) {
@@ -89,29 +85,18 @@ const ImageCarousel = ({ images }) => {
             >
                 {images.map((item, index) => renderCarouselItem(item, index))}
             </PagerView>
-
             {renderDots()}
 
-            <Modal
-                visible={isModalVisible}
-                transparent={true}
-                onRequestClose={() => setModalVisible(false)}
-            >
+            <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
                 <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
                     <View style={styles.modalContainer}>
-                        <TouchableOpacity
-                            style={styles.closeButton}
-                            onPress={() => setModalVisible(false)}
-                        >
+                        <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
                         <TouchableWithoutFeedback>
-                            <PinchGestureHandler
-                                onGestureEvent={onPinchGestureEvent}
-                                onEnded={onPinchGestureEnd}
-                            >
+                            <PinchGestureHandler onGestureEvent={onPinchGestureEvent} onEnded={onPinchGestureEnd}>
                                 <Animated.Image
-                                    source={{ uri: selectedImage?.image }}
+                                    source={{ uri: selectedImage?.file }}
                                     style={[styles.expandedImage, animatedImageStyle]}
                                     resizeMode="contain"
                                 />
@@ -142,22 +127,39 @@ const styles = StyleSheet.create({
         height: carouselImageHeight,
         borderRadius: 8,
     },
+    listedDateContainer: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+    },
+    listedDateText: {
+        color: '#fff',
+        fontSize: 14,
+    },
     dotsContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 10,
+        position: 'absolute',
+        bottom: 10,
+        alignSelf: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        padding: 5,
+        borderRadius: 10,
     },
     dot: {
-        width: 24,
+        width: 8,
         height: 8,
         borderRadius: 4,
         marginHorizontal: 4,
     },
     activeDot: {
-        backgroundColor: '#358B8B',
+        backgroundColor: '#ffffff',
     },
     inactiveDot: {
-        backgroundColor: '#ccc',
+        backgroundColor: '#bbbbbb',
     },
     placeholderContainer: {
         alignItems: 'center',

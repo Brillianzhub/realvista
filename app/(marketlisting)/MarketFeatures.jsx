@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Switch, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, Switch, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -115,12 +115,13 @@ const MarketFeaturesForm = () => {
         />
       </View>
 
-      <Text style={styles.label}>Electricity Proximity</Text>
+      <Text style={styles.label}>Electricity Availability</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={formData.electricity_proximity}
           onValueChange={(value) => handleInputChange('electricity_proximity', value)}
         >
+          <Picker.Item label="Yes" value="available" />
           <Picker.Item label="Nearby (Less than 100m)" value="nearby" />
           <Picker.Item label="Moderate (100m - 500m)" value="moderate" />
           <Picker.Item label="Far (Above 500m)" value="far" />
@@ -164,16 +165,6 @@ const MarketFeaturesForm = () => {
           onValueChange={(value) => handleInputChange('security', value)}
         />
       </View>
-
-      <Text style={styles.label}>Additional Features</Text>
-      <TextInput
-        style={styles.textInput}
-        value={formData.additional_features}
-        onChangeText={(text) => handleInputChange('additional_features', text)}
-        placeholder="Add any additional features"
-        multiline
-      />
-
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
@@ -187,7 +178,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f9f9f9', // Slightly off-white for better aesthetics
+    backgroundColor: '#f9f9f9',
   },
   title: {
     fontSize: 20,

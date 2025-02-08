@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform, ActivityIndicator } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images';
 import { TouchableOpacity } from 'react-native';
@@ -16,7 +16,7 @@ import { useTheme } from '@/context/ThemeContext';
 
 const Profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
-    const { theme, toggleTheme, colors } = useTheme();
+    const { colors } = useTheme();
     const [selectedItem, setSelectedItem] = useState(null);
     const bottomSheetRef = useRef(null);
     const { orders, fetchUserOrders } = useUserOrders();
@@ -93,7 +93,7 @@ const Profile = () => {
     const handleShare = async () => {
         try {
             const result = await Share.share({
-                message: 'Check out this amazing app! Download it now from https://play.google.com/store/apps/details?id=com.brillianzhub.realvista', // Replace with your app's details
+                message: 'Manage your properties with Realvista App. It makes real estate investment/management simple and efficient. Get it now: https://play.google.com/store/apps/details?id=com.brillianzhub.realvista',
             });
 
             if (result.action === Share.sharedAction) {
@@ -111,7 +111,7 @@ const Profile = () => {
     };
 
     const handleRateUs = async () => {
-        const appStoreUrl = 'https://apps.apple.com/app/idYOUR_APP_ID'; // Replace with your App Store URL
+        const appStoreUrl = 'https://apps.apple.com/app/idYOUR_APP_ID';
         const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.brillianzhub.realvista';
 
         try {
@@ -182,9 +182,14 @@ const Profile = () => {
             showsVerticalScrollIndicator={false}
         >
             <View style={[styles.container, { backgroundColor: colors.background }]}>
-                <View style={styles.userInitialNameView}>
-                    <Text style={styles.userInitialName}>{initialName}</Text>
-                </View>
+
+                <TouchableOpacity style={styles.imageContainer}>
+                    {user?.profile.avatar ? (
+                        <Image source={{ uri: user.profile.avatar }} style={styles.avatar} />
+                    ) : (
+                        <Text style={{ textAlign: 'center' }}>Select Profile Picture</Text>
+                    )}
+                </TouchableOpacity>
                 <View style={styles.userNameView}>
                     <Text style={styles.userName}>
                         {user?.name && user?.first_name ? `${user.name} ${user.first_name}` : user?.name || user?.first_name}
@@ -283,17 +288,6 @@ const Profile = () => {
                     </View>
                 </View>
 
-                {/* If I have a group */}
-                {/* <View style={styles.portfolioSummary}>
-                    <View style={styles.portfolioNet}>
-                        <Text style={styles.portfolioNetText}>My Corporate Groups</Text>
-                    </View>
-                    <View style={styles.portfolioItem}>
-                        <TouchableOpacity onPress={() => router.replace('/enterprise')}>
-                            <Text style={[styles.portfolioItemText]}>Example Group</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View> */}
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
                         <Text style={styles.portfolioNetText}>Personal details</Text>
@@ -326,10 +320,10 @@ const Profile = () => {
 
             </View>
 
-            <BottomSheet
+            {/* <BottomSheet
                 ref={bottomSheetRef}
                 index={-1}
-                snapPoints={['50%', '100%']}
+                snapPoints={['25%', '50%', '100%']}
                 enablePanDownToClose={true}
                 onClose={closeBottomSheet}
                 enableContentPanningGesture={true}
@@ -341,7 +335,7 @@ const Profile = () => {
                     closeBottomSheet={closeBottomSheet}
                     refreshData={fetchUserOrders}
                 />
-            </BottomSheet>
+            </BottomSheet> */}
 
         </ScrollView>
     )
@@ -354,22 +348,22 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
     },
-    userInitialNameView: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#358B8B',
-        width: 40,
-        height: 40,
+    imageContainer: {
+        width: 100,
+        height: 100,
         borderRadius: 50,
+        backgroundColor: '#ddd',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
     },
-    userInitialName: {
-        color: 'white',
-        fontSize: 25,
-        fontWeight: '600'
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50
     },
     userNameView: {
-        marginVertical: 20,
-
+        marginVertical: 10,
     },
     userName: {
         fontSize: 30,

@@ -8,8 +8,11 @@ import { contactViaPhoneCall } from '../../utils/contactViaPhoneCall';
 const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
     const { contact_by_email, contact_by_phone, contact_by_whatsapp, email, phone_number, owner_name, owner_photo } = owner;
 
+    const featuresData = property.features?.[0];
+    const { verified_user } = featuresData || {};
+
     const handlePhoneCallContact = async () => {
-        if (contact_by_phone === "True" && phone_number) {
+        if (contact_by_phone && phone_number) {
             await contactViaPhoneCall({
                 property,
                 user,
@@ -23,7 +26,7 @@ const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
     };
 
     const handleEmailContact = () => {
-        if (contact_by_email === "True" && email) {
+        if (contact_by_email && email) {
             contactPropertyOwner({
                 property,
                 user,
@@ -37,7 +40,7 @@ const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
     };
 
     const handleWhatsAppContact = async () => {
-        if (contact_by_whatsapp === "True" && phone_number) {
+        if (contact_by_whatsapp && phone_number) {
             await contactViaWhatsApp({
                 property,
                 user,
@@ -61,6 +64,11 @@ const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
                     ) : (
                         <View style={styles.ownerPhotoPlaceholder}>
                             <Text style={styles.ownerPhotoPlaceholderText}>👤</Text>
+                        </View>
+                    )}
+                    {verified_user && (
+                        <View style={styles.verifiedBadge}>
+                            <FontAwesome name="check-circle" size={18} color="#27ae60" />
                         </View>
                     )}
                 </View>
@@ -97,7 +105,7 @@ const styles = StyleSheet.create({
     container: {
         borderRadius: 12,
         marginVertical: 10,
-        backgroundColor: "#fff", 
+        backgroundColor: "#fff",
     },
     ownerInfoContainer: {
         alignItems: "center",
@@ -107,7 +115,7 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: "#f0f0f0", 
+        backgroundColor: "#f0f0f0",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 8,
@@ -140,20 +148,28 @@ const styles = StyleSheet.create({
     contactsContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
-    
+
     },
     contactItem: {
         alignItems: "center",
         width: '30%',
         paddingVertical: 10,
         borderRadius: 12,
-        backgroundColor: "#f9f9f9", 
+        backgroundColor: "#f9f9f9",
     },
     contactText: {
         marginTop: 5,
         fontSize: 14,
         color: "#333",
         fontWeight: "500",
+    },
+    verifiedBadge: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 2,
     },
 });
 

@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import useUserProperty from '../../hooks/useUserProperty';
 import { useTheme } from '@/context/ThemeContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
-import ImageUploader from '@/components/ImageUploader';
+import DocumentUploader from '@/components/DocumentUploader';
 
-
-const AddImages = () => {
+const AddFiles = () => {
     const route = useRoute();
     const { properties } = useUserProperty();
     const { colors } = useTheme();
@@ -47,9 +44,11 @@ const AddImages = () => {
                     </View>
 
                     {selectedPropertyId ? (
-                        <ImageUploader propertyId={selectedPropertyId} />
+                        <>
+                            <DocumentUploader propertyId={selectedPropertyId} />
+                        </>
                     ) : (
-                        <Text style={styles.infoText}>Select a property to add coordinates using the dropdown menu above.</Text>
+                        <Text style={styles.infoText}>Select a property to add files using the dropdown menu above.</Text>
                     )}
                 </>
             )}
@@ -57,7 +56,7 @@ const AddImages = () => {
     );
 };
 
-export default AddImages;
+export default AddFiles;
 
 const styles = StyleSheet.create({
     container: {

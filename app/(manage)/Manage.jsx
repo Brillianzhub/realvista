@@ -9,9 +9,8 @@ import RemovePropertyScreen from '../../screens/Manage/RemovePropertyScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-import TargetListScreen from '../../screens/Manage/TargetList';
 import AddCoordinates from '../../screens/Manage/AddCoordinates';
-import AddImages from '../../screens/Manage/AddImages';
+import AddFiles from '../../screens/Manage/AddFiles';
 
 
 const Stack = createStackNavigator();
@@ -20,7 +19,7 @@ const ManageNavigator = () => {
 
 
     const handleBackPress = () => {
-        router.replace('HomeScreen');
+        router.replace('/HomeScreen');
     };
 
     return (
@@ -99,18 +98,6 @@ const ManageNavigator = () => {
             />
 
             <Stack.Screen
-                name="TargetList"
-                component={TargetListScreen}
-                options={{
-                    headerShown: true,
-                    title: "Financial Target",
-                    headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#FFFFFF' },
-                    headerTintColor: '#358B8B',
-                }}
-            />
-
-            <Stack.Screen
                 name="AddCoordinates"
                 component={AddCoordinates}
                 options={{
@@ -122,11 +109,11 @@ const ManageNavigator = () => {
                 }}
             />
             <Stack.Screen
-                name="AddImages"
-                component={AddImages}
+                name="AddFiles"
+                component={AddFiles}
                 options={{
                     headerShown: true,
-                    title: "Add Images",
+                    title: "Upload Files & Images",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: '#FFFFFF' },
                     headerTintColor: '#358B8B',

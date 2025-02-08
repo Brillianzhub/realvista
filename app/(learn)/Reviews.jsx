@@ -6,6 +6,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import WriteReview from '../../screens/Learn/WriteReview';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGlobalContext } from '@/context/GlobalProvider';
+
 
 
 const Reviews = () => {
@@ -42,7 +44,6 @@ const Reviews = () => {
             setRefreshing(false);
         }
     };
-
 
     useEffect(() => {
         fetchReviews();
@@ -98,7 +99,7 @@ const Reviews = () => {
         <View style={styles.reviewItem} key={item.id.toString()}>
             <View style={styles.userInfo}>
                 <Image
-                    source={{ uri: 'https://via.placeholder.com/40' }}
+                    source={{ uri: item.user_avatar ? item.user_avatar : 'https://via.placeholder.com/40' }}
                     style={styles.avatar}
                 />
                 <View style={styles.userDetails}>
@@ -121,12 +122,19 @@ const Reviews = () => {
                 <Text style={styles.voteCount}>{item.upvotes}</Text>
 
                 <TouchableOpacity onPress={() => handleVote(item.id, 'downvote')}>
-                    <FontAwesome name="thumbs-down" size={20} color={item.user_vote === 'downvote' ? '#358B8B' : '#ccc'} />
+                    <FontAwesome
+                        name="thumbs-down"
+                        size={20}
+                        color={item.user_vote === 'downvote' ? '#358B8B' : '#ccc'}
+                        style={{ transform: [{ scaleX: -1 }] }} 
+                    />
                 </TouchableOpacity>
+
                 <Text style={styles.voteCount}>{item.downvotes}</Text>
             </View>
         </View>
     );
+
 
     return (
         <LinearGradient colors={['#f9f9f9', '#eaeaea']} style={styles.container}>

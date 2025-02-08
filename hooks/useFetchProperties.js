@@ -6,10 +6,18 @@ const useFetchProperties = () => {
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [filters, setFilters] = useState({
+        description: '',
+        city: '',
+        state: '',
+        minPrice: null,
+        maxPrice: null,
+        generalSearch: '',
+    });
 
     const fetchProperties = useCallback(async () => {
-        setLoading(true); 
-        setError(null); 
+        setLoading(true);
+        setError(null);
 
         try {
             const token = await AsyncStorage.getItem("authToken");
@@ -24,6 +32,14 @@ const useFetchProperties = () => {
                     Authorization: `Token ${token}`,
                     "Content-Type": "application/json",
                 },
+                params: {
+                    description: filters.description,
+                    city: filters.city,
+                    state: filters.state,
+                    min_price: filters.minPrice,
+                    max_price: filters.maxPrice,
+                    general_search: filters.generalSearch
+                },
             });
 
             setProperties(response.data.results);
@@ -31,15 +47,20 @@ const useFetchProperties = () => {
             console.error("Error fetching properties:", err);
             setError(err.message || "Something went wrong!");
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
-    }, []);
+    }, [filters]);
 
     useEffect(() => {
         fetchProperties();
     }, [fetchProperties]);
 
-    return { properties, fetchProperties, loading, error };
+    const applyFilters = useCallback((newFilters) => {
+        setFilters(newFilters);
+        // console.log("Applied Filters:", newFilters)
+    }, []);
+
+    return { properties, fetchProperties, loading, error, applyFilters };
 };
 
 export default useFetchProperties;

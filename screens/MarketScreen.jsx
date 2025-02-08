@@ -3,66 +3,50 @@ import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList, 
 import useFetchProperties from "../hooks/useFetchProperties";
 import { formatCurrency } from '../utils/formatCurrency';
 import { useTheme } from '@/context/ThemeContext';
-import MarketDetailScreen from './MarketDetailScreen';
 import MarketPropertyList from './MarketPropertyList';
-import SearchFilterModal from '@/components/SearchFilterModal';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import SearchFilterModal from '@/components/Market/SearchFilterModal';
+import SearchBarComponent from './Market/SearchBarComponent';
+
 
 const MarketScreen = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [priceFilter, setPriceFilter] = useState('');
-    const [locationFilter, setLocationFilter] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
-    const { properties, fetchProperties, loading, error } = useFetchProperties();
-    const [selectedItem, setSelectedItem] = useState(null);
+    const { properties, fetchProperties, loading, error, applyFilters } = useFetchProperties();
 
+    const [filters, setFilters] = useState({
+        description: '',
+        city: '',
+        state: '',
+        minPrice: null,
+        maxPrice: null,
+        generalSearch: '',
+    });
+
+    
     const { colors } = useTheme();
-
-
-
-    const handleViewProperty = async (propertyId) => {
-        try {
-            const token = await AsyncStorage.getItem('authToken');
-            if (!token) {
-                throw new Error('Authentication token is missing');
-            }
-
-            const response = await axios.get(
-                `https://www.realvistamanagement.com/market/view-property/${propertyId}/`,
-                {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                    },
-                }
-            );
-
-        } catch (error) {
-            console.error('Error viewing property:', error.response?.data || error.message);
-        }
-    };
-
 
     const onRefresh = async () => {
         setRefreshing(true);
+
+        const defaultFilters = {
+            description: '',
+            city: '',
+            state: '',
+            minPrice: null,
+            maxPrice: null,
+            generalSearch: '',
+        };
+        setFilters(defaultFilters);
+        applyFilters(defaultFilters);
         await fetchProperties();
         setRefreshing(false);
     };
 
-    const filteredProperties = properties.filter((property) => {
-        const matchesLocation = locationFilter
-            ? property.city.toLowerCase().includes(locationFilter.toLowerCase())
-            : true;
-        const matchesPrice = priceFilter
-            ? parseInt(property.price.replace(/,/g, '')) <= parseInt(priceFilter)
-            : true;
-        const matchesSearch = searchQuery
-            ? property.title.toLowerCase().includes(searchQuery.toLowerCase())
-            : true;
-        return matchesLocation && matchesPrice && matchesSearch;
-    });
+    const updateSearchQuery = (query) => {
+        setFilters((prev) => ({ ...prev, generalSearch: query }));
+      };
+      
 
     if (loading) {
         return (
@@ -85,8 +69,15 @@ const MarketScreen = () => {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <SearchBarComponent
+                searchQuery={filters.generalSearch}
+                setSearchQuery={updateSearchQuery}
+                onFilterPress={() => setIsModalVisible(true)}
+                onApplyFilters={applyFilters}
+            />
+
             <FlatList
-                data={filteredProperties}
+                data={properties}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <MarketPropertyList
@@ -107,26 +98,12 @@ const MarketScreen = () => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
             />
-
-            <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => setIsModalVisible(true)}
-            >
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Filter</Text>
-            </TouchableOpacity>
-
             <SearchFilterModal
                 isVisible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                locationFilter={locationFilter}
-                setLocationFilter={setLocationFilter}
-                priceFilter={priceFilter}
-                setPriceFilter={setPriceFilter}
-            />
-            <MarketDetailScreen
-                selectedItem={selectedItem}
+                filters={filters}
+                setFilters={setFilters}
+                onApplyFilters={applyFilters}
             />
         </View>
     );

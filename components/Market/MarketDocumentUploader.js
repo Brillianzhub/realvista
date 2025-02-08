@@ -1,73 +1,84 @@
 import React, { useState } from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
+
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ImageUploader = ({ propertyId }) => {
-    const [images, setImages] = useState([]);
+const MarketDocumentUploader = ({ propertyId }) => {
+    const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(false);
 
-
-    const selectImages = async () => {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Permission to access media library is required!');
-            return;
-        }
-
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsMultipleSelection: true,
-            quality: 1,
+    const selectDocuments = async () => {
+        const result = await DocumentPicker.getDocumentAsync({
+            type: '*/*',
+            multiple: true,
         });
 
-        if (!result.canceled) {
-            const maxFileSize = 5 * 1024 * 1024;
-            const selectedImages = result.assets
+        if (result.type !== 'cancel') {
+            const allowedTypes = ['pdf', 'png', 'jpg', 'jpeg', 'mp3', 'mp4'];
+            const maxFileSize = 10 * 1024 * 1024;
+
+            const selectedDocuments = result.assets
                 .filter(asset => {
-                    if ((asset.fileSize || 0) > maxFileSize) {
-                        alert(`The image "${asset.fileName || 'selected'}" exceeds the 5MB size limit.`);
+                    const name = asset.name || `file_${Date.now()}`;
+                    const extension = name.split('.').pop().toLowerCase();
+
+                    if (!allowedTypes.includes(extension)) {
+                        alert(`The file "${name}" is not allowed. Only PDF, JPG, JPEG, MP3, and MP4 files are supported.`);
                         return false;
                     }
+
+                    if ((asset.size || 0) > maxFileSize) {
+                        alert(`The file "${name}" exceeds the 10MB size limit.`);
+                        return false;
+                    }
+
                     return true;
                 })
                 .map(asset => {
                     const uri = asset.uri;
-                    const name = asset.fileName || `image_${Date.now()}.jpg`;
+                    const name = asset.name || `file_${Date.now()}`;
+                    const extension = name.split('.').pop().toLowerCase();
 
-                    const extension = uri.split('.').pop().toLowerCase();
-                    let type = 'image/jpeg';
+                    let type = 'application/octet-stream';
+                    if (['jpg', 'jpeg', 'png'].includes(extension)) {
+                        type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
+                    } else if (extension === 'pdf') {
+                        type = 'application/pdf';
+                    } else if (extension === 'mp3') {
+                        type = 'audio/mpeg';
+                    } else if (extension === 'mp4') {
+                        type = 'video/mp4';
+                    }
 
-                    if (['jpg', 'jpeg'].includes(extension)) type = 'image/jpeg';
-                    else if (extension === 'png') type = 'image/png';
-                    else if (extension === 'gif') type = 'image/gif';
+                    const fileName = name.includes('.') ? name : `${name}.${extension}`;
 
                     return {
                         uri,
                         type,
-                        name,
+                        name: fileName,
                     };
                 });
 
-            setImages([...images, ...selectedImages]);
+            setDocuments([...documents, ...selectedDocuments]);
         }
     };
 
-    const removeImage = (index) => {
-        const updatedImages = images.filter((_, i) => i !== index);
-        setImages(updatedImages);
+
+
+    const removeDocument = (index) => {
+        setDocuments(documents.filter((_, i) => i !== index));
     };
 
-    const uploadImages = async () => {
-        if (images.length === 0) {
-            alert('Please select images to upload.');
+    const uploadDocuments = async () => {
+        if (documents.length === 0) {
+            alert('Please select documents to upload.');
             return;
         }
 
         if (!propertyId) {
-            alert('Property ID is required to upload images.');
+            alert('Property ID is required to upload documents.');
             return;
         }
 
@@ -76,14 +87,15 @@ const ImageUploader = ({ propertyId }) => {
         const formData = new FormData();
         formData.append('property', propertyId);
 
-        images.forEach((image, index) => {
+        documents.forEach((file, index) => {
             const fileData = {
-                uri: image.uri,
-                type: image.type,
-                name: image.name,
+                uri: file.uri,
+                type: file.type,
+                name: file.name,
             };
-            formData.append('image', fileData);
+            formData.append('file', fileData);
         });
+
         try {
             const token = await AsyncStorage.getItem('authToken');
             if (!token) {
@@ -93,7 +105,7 @@ const ImageUploader = ({ propertyId }) => {
             }
 
             const response = await axios.post(
-                'https://realvistamanagement.com/accounts/profile/create/',
+                'https://realvistamanagement.com/market/upload-file-market/',
                 formData,
                 {
                     headers: {
@@ -103,8 +115,8 @@ const ImageUploader = ({ propertyId }) => {
                 }
             );
 
-            alert('Images uploaded successfully.');
-            setImages([]);
+            alert('Documents uploaded successfully.');
+            setDocuments([]);
         } catch (error) {
             if (error.response) {
                 console.error('Server Error:', error.response.data);
@@ -121,38 +133,37 @@ const ImageUploader = ({ propertyId }) => {
         }
     };
 
-
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={[styles.button, { borderColor: '#FB902E', borderWidth: 1.5 }]} onPress={selectImages}>
-                <Text style={[styles.buttonText, { color: '#FB902E' }]}>Select Images</Text>
+            <TouchableOpacity style={[styles.button, { borderColor: '#FB902E', borderWidth: 1.5 }]} onPress={selectDocuments}>
+                <Text style={[styles.buttonText, { color: '#FB902E' }]}>Select File</Text>
             </TouchableOpacity>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                Maximum file size is 10MB. Ensure files are named accordingly, as these names will be used to list the files.
+                This applies to documents and not necessarily to images. Supported file types: PDF, JPG, JPEG, MP3, and MP4.
+            </Text>
 
-            {images.length > 0 && (
+            {documents.length > 0 && (
                 <FlatList
-                    data={images}
+                    data={documents}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item, index }) => (
-                        <View style={styles.imageItem}>
+                        <View style={styles.fileItem}>
                             <Text style={styles.fileName}>{item.name}</Text>
-                            <TouchableOpacity
-                                style={styles.removeButton}
-                                onPress={() => removeImage(index)}
-                            >
+                            <TouchableOpacity style={styles.removeButton} onPress={() => removeDocument(index)}>
                                 <Text style={styles.removeButtonText}>X</Text>
                             </TouchableOpacity>
                         </View>
                     )}
-                    style={styles.imageList}
                 />
             )}
 
             <TouchableOpacity
                 style={[styles.button, { backgroundColor: '#FB902E' }, loading && styles.disabledButton]}
-                onPress={uploadImages}
-                disabled={loading || images.length === 0}
+                onPress={uploadDocuments}
+                disabled={loading || documents.length === 0}
             >
-                <Text style={styles.buttonText}>{loading ? 'Uploading...' : 'Upload Images'}</Text>
+                <Text style={styles.buttonText}>{loading ? 'Uploading...' : 'Upload Files'}</Text>
             </TouchableOpacity>
         </View>
     );
@@ -176,10 +187,7 @@ const styles = StyleSheet.create({
     disabledButton: {
         backgroundColor: '#B0C4DE',
     },
-    imageList: {
-        marginVertical: 10,
-    },
-    imageItem: {
+    fileItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -208,4 +216,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ImageUploader;
+export default MarketDocumentUploader;

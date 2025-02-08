@@ -1,17 +1,15 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
-import React, { useRef, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Modal, ActivityIndicator, TouchableWithoutFeedback, Dimensions } from 'react-native';
+import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import PropertyDetail from '../../components/PropertyDetail';
 import useUserProperty from '../../hooks/useUserProperty';
 import PropertiesList from '../../components/PropertiesList';
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { router } from 'expo-router';
 import { calculateUserTotalsWithAnalysis } from '../../utils/calculateUserTotalsWithAnalysis';
 import { calculateReturns } from '../../utils/calculateReturns';
 import { formatCurrency } from '../../utils/formatCurrency';
 import usePortfolioDetail from '../../hooks/usePortfolioDetail';
 import { useTheme } from '@/context/ThemeContext';
-
+import DragableAddButton from '../../components/Portfolio/DragableAddButton'
 
 const WelcomeView = () => (
   <View style={styles.welcomeContainer}>
@@ -24,9 +22,6 @@ const WelcomeView = () => (
 
 
 const Portfolio = () => {
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [mapType, setMapType] = useState('standard');
-  const bottomSheetRef = useRef(null);
   const { properties, fetchUserProperties, loading } = useUserProperty();
   const userTotalsWithAnalysis = calculateUserTotalsWithAnalysis(properties);
   const userReturns = calculateReturns(properties)
@@ -46,19 +41,8 @@ const Portfolio = () => {
     currency
   );
 
-
   const handleAddProperty = () => {
     router.replace('/Manage');
-  };
-
-  const openBottomSheet = (item) => {
-    setSelectedItem(item);
-    bottomSheetRef.current?.expand();
-  };
-
-  const closeBottomSheet = () => {
-    bottomSheetRef.current?.close();
-    setSelectedItem(null);
   };
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -66,6 +50,12 @@ const Portfolio = () => {
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
 
+  const handlePortfolioDetail = ({ item }) => {
+    router.push({
+      pathname: '/(portfoliodetail)/PortfolioDetails',
+      params: { selectedItem: JSON.stringify(item) },
+    })
+  }
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -86,9 +76,6 @@ const Portfolio = () => {
     );
   }
 
-  const handleViewDetails = () => {
-    router.replace('/PortfolioDetails')
-  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -101,7 +88,7 @@ const Portfolio = () => {
             <Ionicons name="help-circle-outline" size={20} color="gray" />
           </TouchableOpacity>
         </View>
-        <Text style={[styles.summaryText, { color: '#000', fontSize: 30, fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
+        <Text style={[styles.summaryText, { color: '#000', fontSize: 24, fontWeight: 'bold' }]}>{totalCurrentValue}</Text>
         <Text style={{ fontSize: 18, fontFamily: 'RobotoSerif-Regular', color: 'gray' }}>{`${properties.length} Assets`}</Text>
 
         <Modal
@@ -119,10 +106,10 @@ const Portfolio = () => {
                     The Total Value is the sum of all current values of investments and all recorded incomes.
                     {"\n\n"}
                     <Text style={styles.modalSubText}>Investment:</Text>{' '}
-                    Investment refers to the total sum of all initial costs of all assets, along with all recorded expenses.
+                    Total Investment refers to the total sum of all initial costs of all assets, along with all recorded expenses.
                     {"\n\n"}
                     <Text style={styles.modalSubText}>Returns:</Text>{' '}
-                    Returns represent the percentage returns for all investments in relation to the total value.
+                    Total Returns represent the percentage returns for all investments in relation to the total value.
                   </Text>
                   <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
                     <Text style={styles.closeButtonText}>Close</Text>
@@ -135,11 +122,11 @@ const Portfolio = () => {
       </View>
       <View style={styles.subheader}>
         <View style={styles.subheaderItem}>
-          <Text style={{ fontFamily: 'RobotoSerif-Regular', fontSize: 17, color: '#FB902E' }}>Investment</Text>
-          <Text style={[styles.summaryText, { color: '#000', fontWeight: 'bold', fontSize: 16 }]}>{totalInvestment}</Text>
+          <Text style={{ fontFamily: 'RobotoSerif-Regular', fontSize: 17, color: '#FB902E' }}>Total Invested</Text>
+          <Text style={[styles.summaryText, { color: '#000', fontWeight: 'bold', fontSize: 14 }]}>{totalInvestment}</Text>
         </View>
         <View style={styles.subheaderItem}>
-          <Text style={{ fontFamily: 'RobotoSerif-Regular', fontSize: 17, color: '#FB902E' }}>Returns</Text>
+          <Text style={{ fontFamily: 'RobotoSerif-Regular', fontSize: 17, color: '#FB902E' }}>Total Returns</Text>
           {userTotalsWithAnalysis.length === 0 ? (
             <Text style={[styles.summaryText, { color: '#358B8B', fontWeight: 'bold' }]}>0.00 %</Text>
           ) : (
@@ -161,7 +148,7 @@ const Portfolio = () => {
 
             <PropertiesList
               properties={userReturns}
-              onPress={openBottomSheet}
+              onPress={handlePortfolioDetail}
               refreshing={refreshing}
               onRefresh={onRefresh}
             />
@@ -169,35 +156,18 @@ const Portfolio = () => {
         )}
       </View>
 
-      <TouchableOpacity style={styles.addButton} onPress={handleAddProperty}>
-        <Ionicons name="add" size={30} color="white" />
-      </TouchableOpacity>
-
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={['25%', '50%', '100%']}
-        enablePanDownToClose={true}
-        onClose={closeBottomSheet}
-        enableContentPanningGesture={true}
-        handleStyle={styles.handleContainer}
-        handleIndicatorStyle={styles.handleIndicator}
-      >
-        <BottomSheetScrollView
-          showsVerticalScrollIndicator={false}
-        >
-          <PropertyDetail
-            selectedItem={selectedItem}
-            closeBottomSheet={closeBottomSheet}
-            mapType={mapType}
-          />
-        </BottomSheetScrollView>
-      </BottomSheet>
+      <DragableAddButton
+        handleAddProperty={handleAddProperty}
+      />
     </View>
   );
 };
 
 export default Portfolio;
+
+const { width: screenWidth } = Dimensions.get('window');
+
+const dynamicFontSize = screenWidth < 380 ? 10 : 12;
 
 const styles = StyleSheet.create({
   container: {
@@ -220,11 +190,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
   },
   subheaderItem: {
-    backgroundColor: '#358B8B0D',
+    backgroundColor: '#f9f9f9',
     padding: 15,
     borderRadius: 8,
     width: '45%',
     alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
 
   },
   summaryContainer: {
@@ -322,7 +297,7 @@ const styles = StyleSheet.create({
     color: '#555',
     paddingHorizontal: 20,
   },
-  
+
 
   modalContainer: {
     flex: 1,
@@ -337,7 +312,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '80%',
   },
-  
+
   closeButton: {
     backgroundColor: '#FB902E',
     paddingVertical: 10,

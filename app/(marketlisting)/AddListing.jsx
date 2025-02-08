@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useUserProperty from '../../hooks/useUserProperty';
 import ListingForm from '../../screens/Market/ListingForm';
 import { Picker } from '@react-native-picker/picker';
@@ -8,7 +8,7 @@ import { ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { router } from 'expo-router';
 import uploadImageUrls from '@/hooks/uploadImageUrls';
-
+import { useGlobalContext } from '@/context/GlobalProvider';
 
 const AddListing = () => {
     const { properties } = useUserProperty();
@@ -17,8 +17,55 @@ const AddListing = () => {
     const [showFormWithoutProperty, setShowFormWithoutProperty] = useState(false);
     const filteredProperties = properties.filter((property) => property.group_owner_name === null);
     const selectedProperty = filteredProperties.find((property) => property.id === selectedPropertyId);
+    const { user } = useGlobalContext();
+
+    useEffect(() => {
+        checkMandatoryProfileFields();
+    }, []);
+
+    const checkMandatoryProfileFields = () => {
+        if (!user.profile) {
+            Alert.alert(
+                'Profile Incomplete',
+                'Before you can list a property, please complete your profile information.',
+                [
+                    {
+                        text: 'Go to Profile',
+                        onPress: () => router.push('/(auth)/update-profile'),
+                    },
+                    {
+                        text: 'Cancel',
+                        onPress: () => router.push('/(tabs)/HomeScreen'),
+                    },
+                ]
+            );
+            return;
+        }
+
+        const mandatoryFields = ['city', 'country_of_residence', 'phone_number', 'street'];
+        const missingFields = mandatoryFields.filter(field => !user.profile[field]);
+
+        if (missingFields.length > 0) {
+            Alert.alert(
+                'Profile Incomplete',
+                `Before you can list a property, please complete the mandatory fields in your profile. This information is essential for potential buyers or renters to contact you.`,
+                [
+                    {
+                        text: 'Go to Profile',
+                        onPress: () => router.push('/(auth)/update-profile'),
+                    },
+                    {
+                        text: 'Cancel',
+                        onPress: () => router.push('/(tabs)/HomeScreen'),
+                    },
+                ]
+            );
+        }
+    };
+
 
     const handleContinueWithoutProperty = () => {
+        checkMandatoryProfileFields();
         setShowFormWithoutProperty(true);
     };
 
@@ -57,7 +104,6 @@ const AddListing = () => {
                 await uploadImageUrls(token, propertyId, imageUrls);
                 Alert.alert('Success', 'Property and images updated successfully!');
             } else {
-                // console.warn('No images to upload.');
                 Alert.alert('Success', 'Property updated successfully without images!');
             }
 
@@ -75,7 +121,6 @@ const AddListing = () => {
             setIsSubmitting(false);
         }
     };
-
 
     return (
         <View style={styles.container}>
@@ -163,5 +208,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#888',
         marginTop: 16,
+    },
+    linkText: {
+        color: '#358B8B',
+        textDecorationLine: 'underline',
     },
 });

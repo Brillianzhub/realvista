@@ -78,7 +78,9 @@
     "socket.io-client": "^4.8.1",
     "xml2js": "^0.6.2",
     "yup": "^1.5.0",
-    "react-native-webview": "13.8.6"
+    "react-native-webview": "13.8.6",
+    "expo-document-picker": "~12.0.2",
+    "react-native-svg": "15.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

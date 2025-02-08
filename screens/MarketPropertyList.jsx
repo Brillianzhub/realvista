@@ -1,30 +1,91 @@
 import images from '@/constants/images';
 import React from 'react';
-import { FlatList, View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { FlatList, View, Text, Image, TouchableOpacity, StyleSheet, Share } from 'react-native';
 import { router } from 'expo-router';
 import ImageCarousel from '@/components/Market/ImageCarousel';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import * as Linking from 'expo-linking';
 
 const MarketPropertyList = ({ properties, formatCurrency }) => {
+
+
+    const handleViewProperty = async (propertyId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Authentication token is missing');
+            }
+
+            const response = await axios.get(
+                `https://www.realvistamanagement.com/market/view-property/${propertyId}/`,
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+
+        } catch (error) {
+            console.error('Error viewing property:', error.response?.data || error.message);
+        }
+    };
+
+    const handleShareProperty = (property) => {
+        const deepLink = Linking.createURL('/MarketListingDetails', {
+            queryParams: { selectedItemId: property.id },
+        });
+
+        console.log(deepLink)
+
+        const shareOptions = {
+            message: `Check out this property: ${property.title}\n\n${property.description}\n\nPrice: ${formatCurrency(property.price, property.currency)}\nLocation: ${property.city}, ${property.state}\n\nView more details: ${deepLink}`,
+            title: 'Share Property',
+            url: deepLink,
+        };
+
+        Share.share(shareOptions)
+            .then((result) => {
+                if (result.action === Share.sharedAction) {
+                    if (result.activityType) {
+                        // Shared with activity type of result.activityType
+                    } else {
+                        // Shared
+                    }
+                } else if (result.action === Share.dismissedAction) {
+                    // Dismissed
+                }
+            })
+            .catch((error) => {
+                console.error('Error sharing property:', error);
+            });
+    };
+
+
     const renderProperty = ({ item }) => {
-        const validImages = Array.isArray(item.images)
-            ? item.images.filter(img => img.image || img.image_url)
+        const validImages = Array.isArray(item.image_files)
+            ? item.image_files.filter(img => img.file || img.image_url)
             : [];
 
-
         return (
-            <TouchableOpacity
-                style={styles.propertyCard}
-                onPress={() =>
-                    router.push({
-                        pathname: '/(marketdetail)/MarketListingDetails',
-                        params: { selectedItemId: JSON.stringify(item.id) },
-                    })
-                }
-            >
-                <ImageCarousel images={validImages} />
-                <View style={styles.propertyInfo}>
-                    <Text style={[styles.propertyTitle, { color: '#358B8B' }]}>{item.title}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5 }}>
+            <View style={styles.propertyCard}>
+
+                <ImageCarousel images={validImages} listed_date={item.listed_date} />
+
+                <TouchableOpacity
+                    onPress={async () => {
+                        await handleViewProperty(item.id);
+                        router.push({
+                            pathname: '/(marketdetail)/MarketListingDetails',
+                            params: { selectedItemId: JSON.stringify(item.id) },
+                        });
+                    }}
+                >
+                    <View style={styles.propertyInfo}>
+                        <Text style={[styles.propertyTitle, { color: '#358B8B' }]}>
+                            {item.title}
+                        </Text>
+
                         <Text style={[styles.propertyType, { color: '#FB902E', fontWeight: 'bold' }]}>
                             {item?.bedrooms ? `${item?.bedrooms} Bedrooms ` : ''}
                             {item?.property_type
@@ -34,22 +95,32 @@ const MarketPropertyList = ({ properties, formatCurrency }) => {
                                 .replace(/_/g, ' ')
                                 .replace(/\b\w/g, char => char.toUpperCase())}
                         </Text>
-                    </View>
-                    <Text style={[styles.propertyDescription]} numberOfLines={2} ellipsizeMode="tail">
-                        {item.description}
-                    </Text>
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5 }}>
-                        <Image source={images.location} style={{ width: 20, height: 20 }} />
-                        <Text style={styles.propertyDetails}>
-                            {item.state.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}, {' '}
-                            {item.city.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
+                        <Text style={[styles.propertyDescription]} numberOfLines={2} ellipsizeMode="tail">
+                            {item.description}
+                        </Text>
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5 }}>
+                            <Image source={images.location} style={{ width: 20, height: 20 }} />
+                            <Text style={styles.propertyDetails}>
+                                {item.state.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}, {' '}
+                                {item.city.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
+                            </Text>
+                        </View>
+
+                        <Text style={styles.propertyPrice}>
+                            {formatCurrency(item.price, item.currency)}
                         </Text>
                     </View>
+                </TouchableOpacity>
 
-                    <Text style={styles.propertyPrice}>{formatCurrency(item.price, item.currency)}</Text>
-                </View>
-            </TouchableOpacity>
+                {/* <TouchableOpacity
+                    style={styles.shareButton}
+                    onPress={() => handleShareProperty(item)}
+                >
+                    <Text style={styles.shareButtonText}>Share</Text>
+                </TouchableOpacity> */}
+            </View>
         );
     };
 

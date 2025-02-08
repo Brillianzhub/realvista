@@ -5,6 +5,7 @@ import PagerView from 'react-native-pager-view';
 import MapViewer from '../components/MapViewer';
 import { formatCurrency } from '../utils/formatCurrency';
 import images from '@/constants/images';
+import HorizontalScrollViewWithIcons from '../components/Portfolio/HorizontalScrollViewWithIcons';
 
 
 const PropertyDetail = ({
@@ -30,26 +31,27 @@ const PropertyDetail = ({
     const items = [
         {
             label: 'Investment Health',
-            value: `${selectedItem.analysis.investmentHealth}`,
-            style: selectedItem.analysis.investmentHealth === "Excellent returns"
+            value: `${selectedItem?.analysis?.investmentHealth || 'N/A'}`,
+            style: selectedItem?.analysis?.investmentHealth === "Excellent returns"
                 ? styles.excellent
-                : selectedItem.analysis.investmentHealth === "Good returns"
+                : selectedItem?.analysis?.investmentHealth === "Good returns"
                     ? styles.good
-                    : selectedItem.analysis.investmentHealth === "Moderate returns"
+                    : selectedItem?.analysis?.investmentHealth === "Moderate returns"
                         ? styles.moderate
                         : styles.poor
         },
         {
             label: 'Income Health',
-            value: `${selectedItem.analysis.incomeHealth}`,
-            style: selectedItem.analysis.incomeHealth === "Positive cash flow"
+            value: `${selectedItem?.analysis?.incomeHealth || 'N/A'}`,
+            style: selectedItem?.analysis?.incomeHealth === "Positive cash flow"
                 ? styles.positiveCashFlow
                 : styles.negativeCashFlow
         },
-        { label: 'Year Bought', value: `${selectedItem.year_bought}` },
-        { label: 'Number of Units', value: `${selectedItem.num_units}` },
-        { label: 'Property Type', value: `${selectedItem.property_type}` },
+        { label: 'Year Bought', value: `${selectedItem?.year_bought || 'N/A'}` },
+        { label: 'Number of Units', value: `${selectedItem?.num_units || 'N/A'}` },
+        { label: 'Property Type', value: `${selectedItem?.property_type || 'N/A'}` },
     ];
+
 
     return (
         <ScrollView
@@ -127,18 +129,7 @@ const PropertyDetail = ({
                             </View>
                         </View>
 
-                        <PagerView
-                            style={styles.pagerView}
-                            initialPage={0}
-                            onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
-                        >
-                            {items.map((item, index) => (
-                                <View key={index} style={styles.detailItem}>
-                                    <Text style={styles.detailLabel}>{item.label}</Text>
-                                    <Text style={[styles.detailValue, item.style]}>{item.value}</Text>
-                                </View>
-                            ))}
-                        </PagerView>
+                        <HorizontalScrollViewWithIcons items={items} />
                         <View style={styles.dotsContainer}>
                             {items.map((_, index) => (
                                 <View
@@ -208,7 +199,6 @@ const PropertyDetail = ({
                             latitude={selectedItem.coordinates[0]?.latitude}
                             longitude={selectedItem.coordinates[0]?.longitude}
                             title={selectedItem.title}
-                        // virtual_tour_url={selectedItem.virtual_tour_url}
                         />
                     </>
                 )}
@@ -333,6 +323,7 @@ const styles = StyleSheet.create({
     pagerView: {
         flex: 1,
         height: 100,
+        width: '100%',
         marginVertical: 10
     },
     detailItem: {

@@ -2,28 +2,46 @@ import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-const AddContributionModal = ({ visible, onClose, targetId, onSuccess }) => {
+const AddContributionModal = ({ visible, onClose, selectedItemId, fetchTarget }) => {
     const [amount, setAmount] = useState('');
-    const [date, setDate] = useState('');
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const formatNumberWithCommas = (value) => {
+        if (!value) return value;
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        const [whole, decimal] = numericValue.split('.');
+        const formattedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimal !== undefined ? `${formattedWhole}.${decimal}` : formattedWhole;
+    };
+
+    const removeCommas = (value) => value.replace(/,/g, '');
+
+    const handleInputChange = (value) => {
+        const formattedValue = formatNumberWithCommas(value);
+        setAmount(formattedValue);
+    };
 
     const handleAddContribution = async () => {
-        if (!amount || !date) {
-            Alert.alert('Error', 'Please fill in all fields.');
+        if (!amount) {
+            Alert.alert('Error', 'Please enter an amount.');
             return;
         }
 
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+        const cleanAmount = removeCommas(amount); // Clean amount before submission
+
         const payload = {
-            amount,
-            date,
+            amount: cleanAmount,
+            date: formattedDate,
         };
 
         try {
-
-            const token = await AsyncStorage.getItem('authToken')
-
+            const token = await AsyncStorage.getItem('authToken');
             const response = await axios.post(
-                `https://www.realvistamanagement.com/analyser/add-contribution/${targetId}/`,
+                `https://www.realvistamanagement.com/analyser/add-contribution/${selectedItemId}/`,
                 payload,
                 {
                     headers: {
@@ -35,7 +53,7 @@ const AddContributionModal = ({ visible, onClose, targetId, onSuccess }) => {
 
             if (response.status === 201) {
                 Alert.alert('Success', 'Contribution added successfully.');
-                onSuccess();
+                fetchTarget();
                 onClose();
             }
         } catch (error) {
@@ -62,19 +80,34 @@ const AddContributionModal = ({ visible, onClose, targetId, onSuccess }) => {
                         placeholder="Enter amount"
                         keyboardType="numeric"
                         value={amount}
-                        onChangeText={setAmount}
+                        onChangeText={handleInputChange}
                     />
 
-                    {/* Date Input */}
-                    <Text style={styles.label}>Date (YYYY-MM-DD)</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter date"
-                        value={date}
-                        onChangeText={setDate}
-                    />
+                    {/* Date Selection */}
+                    <Text style={styles.label}>Date</Text>
+                    <TouchableOpacity
+                        style={[styles.input, styles.datePickerButton]}
+                        onPress={() => setShowDatePicker(true)}
+                    >
+                        <Text>
+                            {selectedDate ? selectedDate.toISOString().split('T')[0] : 'Select Date'}
+                        </Text>
+                    </TouchableOpacity>
 
-                    {/* Buttons */}
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={selectedDate}
+                            mode="date"
+                            display="default"
+                            onChange={(event, date) => {
+                                setShowDatePicker(false);
+                                if (date) {
+                                    setSelectedDate(date);
+                                }
+                            }}
+                        />
+                    )}
+
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.button} onPress={handleAddContribution}>
                             <Text style={styles.buttonText}>Submit</Text>
@@ -120,6 +153,9 @@ const styles = StyleSheet.create({
         padding: 10,
         fontSize: 16,
         marginBottom: 15,
+    },
+    datePickerButton: {
+        justifyContent: 'center',
     },
     buttonContainer: {
         flexDirection: 'row',

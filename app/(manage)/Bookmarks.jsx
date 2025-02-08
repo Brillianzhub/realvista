@@ -70,8 +70,13 @@ const Bookmarks = () => {
     if (bookmarks.length === 0) {
         return (
             <View style={styles.center}>
-                <Text style={styles.emptyText}>No items found in your wish list.</Text>
-                <Button title="Reload" onPress={handleReload} color="#358B8B" />
+                <Text style={styles.emptyText}>No item found in your favorite collections.</Text>
+                <TouchableOpacity
+                    style={{ backgroundColor: "#FB902E", padding: 10, marginTop: 10, borderRadius: 10, width: '30%', alignItems: 'center' }}
+                    onPress={handleReload}
+                >
+                    <Text style={{color: 'white'}}>Reload </Text>
+                </TouchableOpacity>
             </View>
         );
     }

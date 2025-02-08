@@ -1,17 +1,19 @@
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImageCarousel from '@/components/Market/ImageCarousel';
 import { formatCurrency } from '../../utils/formatCurrency';
-import FeaturesComponent from '../../components/FeaturesComponent';
+import FeaturesComponent from '../../components/Market/FeaturesComponent';
 import DescriptionComponent from '../../components/DescriptionComponent';
 import ContactComponent from '../../components/Market/ContactOwner';
-import DetailsComponent from '../../components/DetailsComponent';
+import DetailsComponent from '../../components/Market/DetailsComponent';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { handleAddBookmark } from '@/utils/handleBookmarks';
 import { MaterialIcons } from "@expo/vector-icons";
+import MapViewer from '../../components/MapViewer';
+import useUserBookmarks from '@/hooks/useUserBookmark';
 
 
 const MarketListingDetails = () => {
@@ -21,19 +23,22 @@ const MarketListingDetails = () => {
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
     const [isRecordingInquiry, setIsRecordingInquiry] = useState(false);
-    const { user } = useGlobalContext()
+    const { user } = useGlobalContext();
+    const { bookmarks, fetchBookmarks } = useUserBookmarks();
     const [isBookmarked, setIsBookmarked] = useState(false);
 
+
+    useEffect(() => {
+        fetchBookmarks();
+    }, []);
+
     const onAddBookmark = async () => {
-        setIsBookmarked((prev) => !prev);
         try {
             const bookmarkStatus = await handleAddBookmark(property.id);
-            if (!bookmarkStatus) {
-                setIsBookmarked((prev) => !prev);
-            }
+            setIsBookmarked(bookmarkStatus);
+            await fetchBookmarks();
         } catch (error) {
-            setIsBookmarked((prev) => !prev);
-            Alert.alert('Error', 'Failed to update bookmark status.');
+            console.error("Bookmark update failed:", error);
         }
     };
 
@@ -71,6 +76,15 @@ const MarketListingDetails = () => {
         }
     }, [selectedItemId]);
 
+
+    useEffect(() => {
+        if (bookmarks?.length > 0) {
+            setIsBookmarked(bookmarks.some(bookmark => bookmark.property_id === id));
+        } else {
+            setIsBookmarked(false);
+        }
+    }, [bookmarks, id]);
+
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         fetchProperty();
@@ -94,6 +108,7 @@ const MarketListingDetails = () => {
     }
 
     const {
+        id,
         address,
         availability,
         availability_date,
@@ -104,7 +119,11 @@ const MarketListingDetails = () => {
         currency,
         description,
         features,
+        market_coordinates,
         images,
+        image_files,
+        videos,
+        documents,
         listed_date,
         listing_purpose,
         lot_size,
@@ -129,7 +148,7 @@ const MarketListingDetails = () => {
         year_built: year_built,
     };
 
-
+    console.log(features)
 
     return (
         <ScrollView
@@ -143,7 +162,10 @@ const MarketListingDetails = () => {
             {property ? (
                 <>
                     <View style={styles.imageWrapper}>
-                        <ImageCarousel images={images} />
+                        <ImageCarousel
+                            images={image_files}
+                            listed_date={listed_date}
+                        />
                     </View>
 
                     <Text style={styles.title}>{title}</Text>
@@ -190,7 +212,18 @@ const MarketListingDetails = () => {
                             <FeaturesComponent features={features} />
                         </View>
                     </View>
-                    <View style={styles.ownerContainer}>
+
+                    <View style={{ marginBottom: 20 }}>
+                        <Text style={styles.sectionTitle}>Map Location</Text>
+                        {market_coordinates?.length > 0 && (
+                            <MapViewer
+                                latitude={market_coordinates[0].latitude}
+                                longitude={market_coordinates[0].longitude}
+                                title={title}
+                            />
+                        )}
+                    </View>
+                    <View style={[styles.ownerContainer, { marginBottom: 20 }]}>
                         <Text style={styles.sectionTitle}>Contact Owner</Text>
                         <ContactComponent
                             owner={owner}

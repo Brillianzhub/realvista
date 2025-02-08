@@ -5,6 +5,8 @@ import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
 const defaultFeatureIcons = {
     furnished: <MaterialIcons name="weekend" size={20} color="#2ecc71" />,
     parking_available: <FontAwesome5 name="car" size={20} color="#e74c3c" />,
+    swimming_pool: <MaterialIcons name="pool" size={20} color="#3498db" />, // Uses a pool icon
+    garden: <MaterialIcons name="nature" size={20} color="#27ae60" />, 
     pet_friendly: <Ionicons name="paw-outline" size={20} color="#e67e22" />,
     security: <Ionicons name="shield-checkmark" size={20} color="#3498db" />,
     electricity_proximity: <Ionicons name="flash" size={20} color="#f1c40f" />,
@@ -14,14 +16,30 @@ const defaultFeatureIcons = {
     negotiable: <MaterialIcons name="attach-money" size={20} color="#2ecc71" />,
 };
 
-const defaultFormatKey = (key) =>
-    key
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase());
+const customLabels = {
+    electricity_proximity: "Electricity Available",
+};
 
-const defaultFormatValue = (value) => {
+const defaultFormatKey = (key) => {
+    const customLabel = customLabels[key];
+    return customLabel
+        ? customLabel
+        : key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const ELECTRICITY_PROXIMITY_LABELS = {
+    nearby: "Less than 100m",
+    moderate: "100m - 500m",
+    far: "Above 500m",
+    available: "Yes",
+};
+
+const defaultFormatValue = (key, value) => {
     if (typeof value === "boolean") {
         return value ? "Yes" : "No";
+    }
+    if (key === "electricity_proximity" && ELECTRICITY_PROXIMITY_LABELS[value]) {
+        return ELECTRICITY_PROXIMITY_LABELS[value];
     }
     if (value === null) {
         return "N/A";
@@ -39,9 +57,8 @@ const FeaturesComponent = ({
         return <Text style={styles.noFeaturesText}>No features available</Text>;
     }
 
-    const featureData = features[0]; // Assuming the first object contains all features
+    const featureData = features[0];
 
-    // Filter out `additional_features` and `verified_user`
     const filteredKeys = Object.keys(featureData).filter(
         (key) => key !== "additional_features" && key !== "verified_user"
     );
@@ -56,7 +73,7 @@ const FeaturesComponent = ({
                 <View key={key} style={styles.featureItem}>
                     <View style={styles.iconWrapper}>{featureIcons[key]}</View>
                     <Text style={styles.key}>{formatKey(key)}</Text>
-                    <Text style={styles.value}>{formatValue(featureData[key])}</Text>
+                    <Text style={styles.value}>{formatValue(key, featureData[key])}</Text>
                 </View>
             ))}
         </ScrollView>
@@ -70,11 +87,11 @@ const styles = StyleSheet.create({
     featureItem: {
         alignItems: "center",
         marginHorizontal: 10,
-        padding: 10, // Add padding for better spacing
-        backgroundColor: "#f9f9f9", // Light background color
-        borderRadius: 8, // Rounded corners for a modern look
-        elevation: 2, // Add a slight shadow for depth (Android)
-        shadowColor: "#000", // Shadow for iOS
+        padding: 10,
+        backgroundColor: "#f9f9f9",
+        borderRadius: 8,
+        elevation: 2,
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,

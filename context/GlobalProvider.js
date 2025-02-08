@@ -44,6 +44,7 @@ const GlobalProvider = ({ children }) => {
                 user,
                 setUser,
                 loading,
+                setLoading,
                 fetchGroups,
                 reloadProfile,
             }}

@@ -137,7 +137,7 @@ const ManageLayout = () => {
                     name="Bookmarks"
                     options={{
                         headerShown: true,
-                        title: "Wish Items",
+                        title: "Favorite Collections",
                         headerTitleAlign: 'center',
                         headerStyle: { backgroundColor: '#FFFFFF' },
                         headerTintColor: '#358B8B',

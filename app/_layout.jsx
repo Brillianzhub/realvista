@@ -8,6 +8,7 @@ import { NotificationProvider } from '../context/NotificationContext';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { CurrencyProvider } from '../context/CurrencyContext';
 import { ThemeProvider } from '../context/ThemeContext';
+
 import { useFonts } from "expo-font";
 import { StatusBar } from 'react-native';
 
@@ -66,6 +67,7 @@ const RealVistaLayout = () => {
                       <Stack.Screen name="(trends)" options={{ headerShown: false }} />
                       <Stack.Screen name="(marketlisting)" options={{ headerShown: false }} />
                       <Stack.Screen name="(marketdetail)" options={{ headerShown: false }} />
+                      <Stack.Screen name="(portfoliodetail)" options={{ headerShown: false }} />
                     </Stack>
                   </ThemeProvider>
                   <StatusBar

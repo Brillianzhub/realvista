@@ -47,7 +47,7 @@ export default function Layout() {
                         tabBarInactiveTintColor: '#358B8B',
                         tabBarStyle: {
                             backgroundColor: '#FFFFFF',
-                            paddingVertical: 5,
+                            // paddingVertical: 5,
                         },
                         headerLeft: () => (
                             <TouchableOpacity onPress={openDrawer}>
@@ -143,19 +143,18 @@ const styles = StyleSheet.create({
         fontSize: 12,
         textAlign: 'center',
     },
-
     topBorder: {
-        width: 30, // Adjust to fit your design
+        width: 30,
         height: 3,
-        backgroundColor: '#FFA001', // Same as your active tint color
-        borderRadius: 2, // Makes the border rounded
+        backgroundColor: '#FFA001',
+        borderRadius: 2,
         position: 'absolute',
-        top: -10, // Adjust to position the border above the icon
+        top: -10,
     },
     tabLabel: {
         fontSize: 12,
         fontWeight: '600',
         textAlign: 'center',
-        marginTop: 4, // Adds spacing between the icon and label
+        marginTop: 4,
     },
 });

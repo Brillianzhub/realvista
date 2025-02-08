@@ -2,9 +2,9 @@ import images from '@/constants/images';
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { formatCurrency } from '@/utils/formatCurrency';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
-
 
     if (!properties || properties.length === 0) {
         return (
@@ -14,25 +14,24 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
         );
     }
 
-
     const renderPropertyItem = ({ item }) => {
-
         return (
             <TouchableOpacity
                 style={styles.propertyItem}
-                onPress={() => onPress(item)}
+                onPress={() => onPress({ item })}
             >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <View>
-                        <Text style={styles.title}>{item.title}
-                        </Text>
-                        {item.user_slots && item.group_owner_name ? (
-                            <Text style={{ fontWeight: '400', fontSize: 12 }}>{item.group_owner_name} - {item.user_slots} Slots</Text>
-                        ) : (
-                            <Text style={{ fontWeight: '400', fontSize: 12, color: 'gray' }}>Personal Property</Text>
-                        )}
-                        <Text style={{ fontWeight: '600', color: '#358B8B' }}>{formatCurrency(item.current_value, item.currency)}</Text>
-
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <MaterialCommunityIcons name="home" size={24} color="#358B8B" />
+                        <View>
+                            <Text style={styles.title}>{item.title}</Text>
+                            {item.user_slots && item.group_owner_name ? (
+                                <Text style={{ fontWeight: '400', fontSize: 12 }}>{item.group_owner_name} - {item.user_slots} Slots</Text>
+                            ) : (
+                                <Text style={{ fontWeight: '400', fontSize: 12, color: 'gray' }}>Personal Property</Text>
+                            )}
+                            <Text style={{ fontWeight: '600', color: '#358B8B' }}>{formatCurrency(item.current_value, item.currency)}</Text>
+                        </View>
                     </View>
                     <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
                         <Image
@@ -48,13 +47,10 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
                             {item.percentage_performance ? item.percentage_performance.toFixed(2) : '0.00'}%
                         </Text>
                     </View>
-
                 </View>
             </TouchableOpacity>
         );
-
     };
-
 
     return (
         <FlatList
@@ -70,16 +66,14 @@ const PropertiesList = ({ properties, onPress, refreshing, onRefresh }) => {
 };
 
 const styles = StyleSheet.create({
-    listContainer: {
-        // padding: 8,
-    },
     propertyItem: {
-        backgroundColor: '#fff',
-        padding: 10,
+        backgroundColor: "#f1f1f1",
+        padding: 12,
         marginVertical: 8,
+        borderRadius: 15,
     },
     title: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
     },
     subtitle: {

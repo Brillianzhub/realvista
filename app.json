@@ -43,7 +43,8 @@
       "expo-font",
       "expo-local-authentication",
       "react-native-video",
-      "expo-image-picker"
+      "expo-image-picker",
+      "expo-document-picker"
     ],
     "experiments": {
       "typedRoutes": true

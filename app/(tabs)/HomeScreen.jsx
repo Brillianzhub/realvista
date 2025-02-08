@@ -8,7 +8,7 @@ import {
     Linking,
     SafeAreaView,
     BackHandler,
-    ToastAndroid
+    ToastAndroid,
 } from 'react-native';
 import React, { useRef, useEffect, useState } from 'react';
 import images from '../../constants/images';
@@ -48,7 +48,7 @@ const HomeMenu = () => {
     const totalPages = 5;
     const autoSlideInterval = 4000;
     const { user } = useGlobalContext();
-    const { theme, toggleTheme, colors } = useTheme();
+    const { colors } = useTheme();
 
     const lastBackPressed = useRef(null);
     const navigationState = useNavigationState((state) => state);
@@ -80,10 +80,10 @@ const HomeMenu = () => {
                     ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
                     lastBackPressed.current = currentTimestamp;
                 }
-                return true; // Prevent default behavior
+                return true;
             }
 
-            return false; // Allow default back navigation for other screens
+            return false;
         };
 
         BackHandler.addEventListener('hardwareBackPress', handleBackPress);

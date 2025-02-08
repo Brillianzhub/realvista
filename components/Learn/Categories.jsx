@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
 const categories = [
@@ -34,6 +34,10 @@ const Categories = () => {
     );
 };
 
+const { width: screenWidth } = Dimensions.get('window');
+
+const dynamicFontSize = screenWidth < 380 ? 10 : 12;
+
 const styles = StyleSheet.create({
     container: {
         marginVertical: 15,
@@ -54,7 +58,7 @@ const styles = StyleSheet.create({
         width: 90,
     },
     categoryText: {
-        fontSize: 12,
+        fontSize: dynamicFontSize,
         fontWeight: '600',
         marginTop: 5,
         textAlign: 'center',
