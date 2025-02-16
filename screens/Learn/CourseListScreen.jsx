@@ -58,7 +58,7 @@ const CourseList = ({ navigation }) => {
 
     return (
         <ScrollView
-            style={styles.container}
+            contentContainerStyle={[styles.container, { paddingBottom: 20 }]}
             refreshControl={
                 <RefreshControl
                     refreshing={refreshing}
@@ -66,6 +66,7 @@ const CourseList = ({ navigation }) => {
                     colors={['#358B8B']}
                 />
             }
+            showsVerticalScrollIndicator={false}
         >
             <SearchCourses
                 query={query}
@@ -76,7 +77,6 @@ const CourseList = ({ navigation }) => {
             />
             <IntroPager />
             <Categories />
-
             <Text style={styles.titleHeader}>Popular Courses</Text>
             <CourseListRenderer
                 filteredCourses={filteredCourses}
@@ -89,7 +89,6 @@ const CourseList = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 16,
         backgroundColor: '#fff',
     },

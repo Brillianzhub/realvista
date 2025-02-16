@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { BackHandler, StatusBar } from "react-native";
 import { Stack, useRouter } from "expo-router";
 
+
 const TrendsLayout = () => {
     const router = useRouter();
 
@@ -31,7 +32,7 @@ const TrendsLayout = () => {
                 />
             </Stack>
 
-            <StatusBar barStyle="light-content" backgroundColor="#358B8B" />
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         </>
     );
 };

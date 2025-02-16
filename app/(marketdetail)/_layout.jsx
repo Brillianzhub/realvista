@@ -45,6 +45,24 @@ const MarketDetailLayout = () => {
                         ),
                     }}
                 />
+                <Stack.Screen
+                    name="OwnerProfile"
+                    options={{
+                        headerShown: true,
+                        title: "Dealer Profile",
+                        headerTitleAlign: "center",
+                        headerStyle: {
+                            fontFamily: 'RobotoSerif-SemiBold',
+                            backgroundColor: colors.background
+                        },
+                        headerTintColor: colors.tint,
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
             </Stack>
 
             <StatusBar barStyle="dark-content" backgroundColor={colors.background} />

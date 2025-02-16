@@ -158,6 +158,7 @@ const SignIn = () => {
         authenticate();
     }, [isLogged]);
 
+
     const handleSubmit = async () => {
         if (!form.email || !form.password) {
             Alert.alert('Error', 'Please fill in all the fields');
@@ -173,7 +174,15 @@ const SignIn = () => {
                     id: result.id,
                     email: result.email,
                     name: result.name,
-                    authProvider: 'email',
+                    firstName: result.first_name,
+                    authProvider: result.auth_provider,
+                    isActive: result.is_active,
+                    isStaff: result.is_staff,
+                    dateJoined: result.date_joined,
+                    profile: result.profile,
+                    preference: result.preference,
+                    subscription: result.subscription,
+                    groups: result.groups,
                 });
                 setIsLogged(true);
                 router.replace('/HomeScreen');

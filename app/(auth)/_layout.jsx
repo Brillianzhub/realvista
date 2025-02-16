@@ -7,7 +7,7 @@ import { useTheme } from '@/context/ThemeContext';
 
 const AuthLayout = () => {
 
-    const { theme, toggleTheme, colors } = useTheme();
+    const { colors } = useTheme();
 
     const handleBackPress = () => {
         router.replace('/HomeScreen');
@@ -42,11 +42,12 @@ const AuthLayout = () => {
                         ),
                     }}
                 />
+
                 <Stack.Screen
-                    name="reset-password"
+                    name="verify-email"
                     options={{
                         headerShown: false,
-                        title: "Reset Password",
+                        title: "Email Verification",
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
@@ -56,10 +57,10 @@ const AuthLayout = () => {
                     }}
                 />
                 <Stack.Screen
-                    name="verify-email"
+                    name="verify-otp"
                     options={{
                         headerShown: false,
-                        title: "Email Verification",
+                        // title: "Email Verification",
                         headerTitleAlign: 'center',
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
@@ -81,7 +82,19 @@ const AuthLayout = () => {
                         ),
                     }}
                 />
-
+                <Stack.Screen
+                    name="reset-password"
+                    options={{
+                        headerShown: false,
+                        // title: "Forgot Password",
+                        headerTitleAlign: 'center',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color={colors.tint} />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
                 <Stack.Screen
                     name="update-profile"
                     options={{
@@ -91,6 +104,21 @@ const AuthLayout = () => {
                         headerLeft: () => (
                             <TouchableOpacity onPress={handleBackPress}>
                                 <Ionicons name="arrow-back" size={24} color="#000" />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+
+                <Stack.Screen
+                    name="change-password"
+                    options={{
+                        headerShown: true,
+                        title: "Change Password",
+                        headerTitleAlign: 'center',
+                        headerTintColor: colors.tint,
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color={colors.tint} />
                             </TouchableOpacity>
                         ),
                     }}

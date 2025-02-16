@@ -4,10 +4,13 @@ import TrendDetailScreen from '../../screens/Trends/TrendDetailScreen.jsx';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { useTheme } from "@/context/ThemeContext";
+
 
 const Stack = createStackNavigator();
 
 const TrendsNavigator = () => {
+    const { colors } = useTheme();
 
     const handleBackPress = () => {
         router.replace('HomeScreen');
@@ -20,13 +23,13 @@ const TrendsNavigator = () => {
                 component={TrendsListScreen}
                 options={{
                     headerShown: true,
-                    title: "Market Trends",
+                    title: "Trends",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                     headerLeft: () => (
                         <TouchableOpacity onPress={handleBackPress} style={{ paddingLeft: 10 }}>
-                            <Ionicons name="arrow-back" size={24} color="#fff" />
+                            <Ionicons name="arrow-back" size={24} color={colors.tint} />
                         </TouchableOpacity>
                     ),
                 }}
@@ -36,10 +39,10 @@ const TrendsNavigator = () => {
                 component={TrendDetailScreen}
                 options={{
                     headerShown: true,
-                    title: "Trend Details",
+                    title: "",
                     headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#358B8B' },
-                    headerTintColor: '#fff',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
                 }}
             />
         </Stack.Navigator>

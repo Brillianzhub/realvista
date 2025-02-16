@@ -20,6 +20,7 @@ import { useGlobalContext } from '../../context/GlobalProvider';
 import { useTheme } from '@/context/ThemeContext';
 import { useNavigationState } from '@react-navigation/native';
 
+
 const ROUTES = {
     PORTFOLIO: 'Portfolio',
     INVESTMENT: 'Investment',

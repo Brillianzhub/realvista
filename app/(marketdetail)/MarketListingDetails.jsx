@@ -148,8 +148,6 @@ const MarketListingDetails = () => {
         year_built: year_built,
     };
 
-    console.log(features)
-
     return (
         <ScrollView
             style={styles.container}

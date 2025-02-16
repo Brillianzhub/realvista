@@ -18,11 +18,9 @@ const VerifyEmail = () => {
     const [appState, setAppState] = useState(AppState.currentState);
 
     useEffect(() => {
-        // Manage app state changes
         const subscription = AppState.addEventListener('change', nextAppState => {
             if (appState === 'background' && nextAppState === 'active') {
                 console.log('App is back in foreground');
-                // Add any additional logic needed when the app resumes
             }
             setAppState(nextAppState);
         });
@@ -74,11 +72,10 @@ const VerifyEmail = () => {
     };
 
 
-
     const handleResendCode = async () => {
 
         if (!canResend) return;
-        const email = 'finegodyson2014@gmail.com';
+        const email = user.email;
         setIsSubmitting(true);
         try {
             const response = await fetch('https://www.realvistamanagement.com/accounts/resend_token/', {
@@ -107,10 +104,10 @@ const VerifyEmail = () => {
     useEffect(() => {
         if (timer > 0) {
             const countdown = setTimeout(() => setTimer(timer - 1), 1000);
-            setCanResend(false); // Disable resend while timer is active
+            setCanResend(false);
             return () => clearTimeout(countdown);
         } else {
-            setCanResend(true); // Enable resend once timer reaches 0
+            setCanResend(true);
         }
     }, [timer]);
 

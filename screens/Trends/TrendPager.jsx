@@ -1,18 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+// TrendPager.js
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Image, StyleSheet } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
-const IntroPager = () => {
+const TrendPager = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const pagerRef = useRef(null);
     const totalPages = 3;
     const autoSlideInterval = 3000;
-
-    const images = [
-        require('../../assets/images/learn-intro-one.jpg'),
-        require('../../assets/images/learn-intro-two.jpg'),
-        require('../../assets/images/learn-intro-three.jpg'),
-    ];
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -29,29 +24,27 @@ const IntroPager = () => {
     }, []);
 
     return (
-        <View style={styles.container}>
+        <View style={styles.pagerContainer}>
             <PagerView
                 style={styles.pagerView}
                 initialPage={0}
                 ref={pagerRef}
                 onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
             >
-                {images.map((image, index) => (
-                    <View key={index} style={styles.page}>
-                        <Image source={image} style={styles.image} resizeMode="cover" />
-                    </View>
-                ))}
+                <View key="1" style={styles.page}>
+                    <Image source={require('../../assets/images/trend-intro-one.jpg')} style={styles.image} />
+                </View>
+                <View key="2" style={styles.page}>
+                    <Image source={require('../../assets/images/trend-intro-two.jpg')} style={styles.image} />
+                </View>
+                <View key="3" style={styles.page}>
+                    <Image source={require('../../assets/images/trend-intro-three.jpg')} style={styles.image} />
+                </View>
             </PagerView>
 
             <View style={styles.progressDots}>
-                {images.map((_, index) => (
-                    <View
-                        key={index}
-                        style={[
-                            styles.dot,
-                            currentPage === index && styles.activeDot,
-                        ]}
-                    />
+                {[...Array(totalPages)].map((_, index) => (
+                    <View key={index} style={[styles.dot, currentPage === index && styles.activeDot]} />
                 ))}
             </View>
         </View>
@@ -59,8 +52,8 @@ const IntroPager = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        marginBottom: 10,
+    pagerContainer: {
+        marginVertical: 10,
         position: 'relative',
     },
     pagerView: {
@@ -75,6 +68,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
+        resizeMode: 'cover',
         borderRadius: 10,
     },
     progressDots: {
@@ -101,4 +95,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default IntroPager;
+export default TrendPager;

@@ -24,6 +24,14 @@ import { googleAuthSignIn } from '../../lib/googleAuthSignIn';
 const RegistrationForm = () => {
     const { setUser, setIsLogged } = useGlobalContext();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [password, setPassword] = useState('');
+
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
     const [form, setForm] = useState({
         name: '',
         first_name: '',
@@ -31,9 +39,6 @@ const RegistrationForm = () => {
         password: '',
         confirmPassword: '',
     });
-
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
     const configureGoogleSignIn = async () => {
@@ -59,31 +64,74 @@ const RegistrationForm = () => {
     };
 
 
+    const validatePassword = (text) => {
+        setForm((prevForm) => ({
+            ...prevForm,
+            password: text,
+        }));
+
+        if (text.length === 0) {
+            setPasswordError('');
+        } else if (text.length < 8) {
+            setPasswordError('Password must be at least 8 characters long.');
+        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(text)) {
+            setPasswordError('Password must contain at least one special character.');
+        } else {
+            setPasswordError('');
+        }
+    };
+
+    const validateConfirmPassword = (text) => {
+        setForm((prevForm) => ({
+            ...prevForm,
+            confirmPassword: text,
+        }));
+
+        if (text.length === 0) {
+            setConfirmPasswordError('');
+        } else if (text !== form.password) {
+            setConfirmPasswordError('Passwords do not match.');
+        } else {
+            setConfirmPasswordError('');
+        }
+    };
+
     const validateForm = (form) => {
         const { email, password, confirmPassword } = form;
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
         const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-        if (!email || !emailRegex.test(email)) {
+        if (!email.trim()) {
+            return { valid: false, message: "Email is required." };
+        }
+
+        if (!emailRegex.test(email)) {
             return { valid: false, message: "Please enter a valid email address." };
         }
 
-        if (!password || !strongPasswordRegex.test(password)) {
+        if (!password.trim()) {
+            return { valid: false, message: "Password is required." };
+        }
+
+        if (!strongPasswordRegex.test(password)) {
             return {
                 valid: false,
-                message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+                message:
+                    "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
             };
         }
 
+        if (!confirmPassword.trim()) {
+            return { valid: false, message: "Confirm password is required." };
+        }
+
         if (password !== confirmPassword) {
-            return { valid: false, message: "Password and confirm password must match." };
+            return { valid: false, message: "Passwords do not match." };
         }
 
         return { valid: true };
     };
-
 
     const handleSubmit = async () => {
         const validation = validateForm(form);
@@ -135,15 +183,37 @@ const RegistrationForm = () => {
 
             await AsyncStorage.setItem('authToken', tokenData.token);
 
+
+            const userResponse = await fetch('https://www.realvistamanagement.com/accounts/current-user/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${tokenData.token}`,
+                },
+            });
+
+            if (!userResponse.ok) {
+                const errorData = await userResponse.json();
+                throw new Error(errorData.error || 'Failed to fetch user details');
+            }
+
+            const userData = await userResponse.json();
+
             setUser({
-                id: result.id,
-                email: result.email,
-                name: result.name,
-                first_name: result.first_name,
-                authProvider: 'email'
+                id: userData.id,
+                email: userData.email,
+                name: userData.name,
+                firstName: userData.first_name,
+                authProvider: userData.auth_provider,
+                isActive: userData.is_active,
+                isStaff: userData.is_staff,
+                dateJoined: userData.date_joined,
+                profile: userData.profile,
+                subscription: userData.subscription,
+                preference: userData.preference,
+                groups: userData.groups,
             });
             setIsLogged(true);
-
             router.replace('/verify-email');
         } catch (error) {
             Alert.alert('Error', error.message);
@@ -189,40 +259,48 @@ const RegistrationForm = () => {
                                 value={form.email}
                                 onChangeText={(e) => setForm({ ...form, email: e })}
                             />
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.inputp}
-                                    placeholder="Password"
-                                    secureTextEntry={!showPassword}
-                                    value={form.password}
-                                    onChangeText={(e) => setForm({ ...form, password: e })}
-                                />
-                                <Pressable onPress={() => setShowPassword(!showPassword)}>
-                                    <Ionicons
-                                        name={showPassword ? 'eye-off' : 'eye'}
-                                        size={24}
-                                        color="gray"
+                            <View style={styles.passwordMainContainer}>
+
+                                <View style={styles.inputContainer}>
+                                    <TextInput
+                                        style={styles.inputp}
+                                        placeholder="Password"
+                                        secureTextEntry={!showPassword}
+                                        value={form.password} 
+                                        onChangeText={validatePassword}
                                     />
-                                </Pressable>
+                                    <Pressable onPress={() => setShowPassword(!showPassword)}>
+                                        <Ionicons
+                                            name={showPassword ? 'eye-off' : 'eye'}
+                                            size={24}
+                                            color="gray"
+                                        />
+                                    </Pressable>
+                                </View>
+                                {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                             </View>
 
-                            {/* Confirm Password Field */}
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.inputp}
-                                    placeholder="Confirm Password"
-                                    secureTextEntry={!showConfirmPassword}
-                                    value={form.confirmPassword}
-                                    onChangeText={(e) => setForm({ ...form, confirmPassword: e })}
-                                />
-                                <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                    <Ionicons
-                                        name={showConfirmPassword ? 'eye-off' : 'eye'}
-                                        size={24}
-                                        color="gray"
+                            <View style={styles.passwordMainContainer}>
+                                <View style={styles.inputContainer}>
+                                    <TextInput
+                                        style={styles.inputp}
+                                        placeholder="Confirm Password"
+                                        secureTextEntry={!showConfirmPassword}
+                                        value={form.confirmPassword}
+                                        onChangeText={validateConfirmPassword}
                                     />
-                                </Pressable>
+                                    <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                        <Ionicons
+                                            name={showConfirmPassword ? 'eye-off' : 'eye'}
+                                            size={24}
+                                            color="gray"
+                                        />
+                                    </Pressable>
+                                </View>
+                                {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
                             </View>
+
+
                             <Pressable style={styles.button} onPress={handleSubmit}>
                                 <Text style={styles.buttonText}>Register</Text>
                             </Pressable>
@@ -343,6 +421,9 @@ const styles = StyleSheet.create({
     footerText: {
         color: 'gray',
     },
+    passwordMainContainer: {
+        marginBottom: 15,
+    },
     link: {
         color: '#358B8B',
         textAlign: 'center',
@@ -389,13 +470,17 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 5,
         paddingHorizontal: 10,
-        marginBottom: 15,
         backgroundColor: '#f9f9f9',
     },
     inputp: {
         flex: 1,
         height: 50,
         fontSize: 16,
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 14,
+        marginTop: 5,
     },
 });
 

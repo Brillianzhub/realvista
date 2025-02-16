@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform, ActivityIndicator, Dimensions } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images';
@@ -7,7 +7,6 @@ import axios from 'axios';
 import { router } from 'expo-router';
 import TransactionDetail from '../../components/TransactionDetail';
 import useUserOrders from "../../hooks/useUserOrders";
-import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatCurrency } from '../../utils/formatCurrency';
 import usePortfolioDetail from '../../hooks/usePortfolioDetail';
@@ -40,7 +39,6 @@ const Profile = () => {
         overallSummary?.totalCurrentValue +
         overallSummary?.totalIncome -
         overallSummary?.totalExpenses;
-
 
 
     const handleDeleteAccount = () => {
@@ -165,8 +163,11 @@ const Profile = () => {
         return formattedDate;
     };
 
-    const sortedOrders = orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const formattedPlan = user?.subscription?.plan
+        ? user.subscription.plan.charAt(0).toUpperCase() + user.subscription.plan.slice(1)
+        : 'N/A';
 
+    const sortedOrders = orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     if (loading) {
         return (
@@ -187,7 +188,7 @@ const Profile = () => {
                     {user?.profile.avatar ? (
                         <Image source={{ uri: user.profile.avatar }} style={styles.avatar} />
                     ) : (
-                        <Text style={{ textAlign: 'center' }}>Select Profile Picture</Text>
+                        <Text style={{ textAlign: 'center' }}>Profile Picture</Text>
                     )}
                 </TouchableOpacity>
                 <View style={styles.userNameView}>
@@ -213,6 +214,45 @@ const Profile = () => {
                         <Text style={[styles.portfolioItemText, { color: '#FB902E' }]}>{formatCurrency(overallAccountNet, currency)}</Text>
                     </View>
                 </View>
+
+                <View style={styles.portfolioSummary}>
+                    <View style={styles.portfolioNet}>
+                        <Text style={styles.portfolioNetText}>Subscription</Text>
+                    </View>
+
+                    <View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text>Current subscription plan</Text>
+                            <Text>{formattedPlan}</Text>
+                        </View>
+
+                        {user?.subscription?.plan && user?.subscription?.plan !== 'free' ? (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <Text>Next renewal</Text>
+                                <Text>{formatDate(user?.subscription?.next_renewal_date)}</Text>
+                            </View>
+                        ) : null}
+                    </View>
+
+                    {user?.subscription?.plan && user?.subscription?.plan !== 'free' ? (
+                        <View style={{ marginVertical: 10 }}>
+                            <TouchableOpacity
+                                onPress={() => Alert.alert("Feature Not Available", "The feature you're trying to access is not available yet.")}
+                            >
+                                <Text style={{ fontWeight: '600', color: '#358B8B', fontSize: 16 }}>Manage subscription</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <View style={{ marginVertical: 10 }}>
+                            <TouchableOpacity
+                                onPress={() => Alert.alert("Feature Not Available", "The feature you're trying to access is not available yet.")}
+                            >
+                                <Text style={{ fontWeight: '600', color: '#358B8B', fontSize: 16 }}>Upgrade plan</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
                         <Text style={styles.portfolioNetText}>Transactions</Text>
@@ -236,7 +276,7 @@ const Profile = () => {
                         </View>
                     ))}
 
-                    <View style={{ marginVertical: 10, paddingLeft: 10 }}>
+                    <View style={{ marginVertical: 10 }}>
                         <TouchableOpacity
                             onPress={() => router.replace('Transactions')}
                         >
@@ -246,7 +286,7 @@ const Profile = () => {
                 </View>
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
-                        <Text style={styles.portfolioNetText}>Info & Interaction</Text>
+                        <Text style={styles.portfolioNetText}>Basic Info </Text>
                     </View>
                     <View style={styles.portfolioItem}>
                         <TouchableOpacity
@@ -296,11 +336,14 @@ const Profile = () => {
                         style={styles.portfolioItem}
                         onPress={() => router.replace('/update-profile')}
                     >
-                        <Text style={styles.portfolioItemText}>Update your profile</Text>
+                        <Text style={styles.portfolioItemText}>Update profile</Text>
                     </TouchableOpacity>
-                    <View style={styles.portfolioItem}>
-                        <Text style={styles.portfolioItemText}>Change your password</Text>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.portfolioItem}
+                        onPress={() => router.replace('/change-password')}
+                    >
+                        <Text style={styles.portfolioItemText}>Change password</Text>
+                    </TouchableOpacity>
                     <View style={styles.portfolioItem}>
                         <TouchableOpacity onPress={handleDeleteAccount}>
                             <Text style={[styles.portfolioItemText, { color: 'red' }]}>Delete your account</Text>
@@ -319,29 +362,15 @@ const Profile = () => {
                 </View>
 
             </View>
-
-            {/* <BottomSheet
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={['25%', '50%', '100%']}
-                enablePanDownToClose={true}
-                onClose={closeBottomSheet}
-                enableContentPanningGesture={true}
-                handleStyle={styles.handleContainer}
-                handleIndicatorStyle={styles.handleIndicator}
-            >
-                <TransactionDetail
-                    selectedItem={selectedItem}
-                    closeBottomSheet={closeBottomSheet}
-                    refreshData={fetchUserOrders}
-                />
-            </BottomSheet> */}
-
         </ScrollView>
     )
 }
 
 export default Profile
+
+const { width: screenWidth } = Dimensions.get('window');
+
+const dynamicFontSize = screenWidth < 380 ? 18 : 20;
 
 const styles = StyleSheet.create({
     container: {
@@ -377,17 +406,17 @@ const styles = StyleSheet.create({
         marginTop: 30,
     },
     portfolioNetText: {
-        fontSize: 25,
+        fontSize: dynamicFontSize,
         fontWeight: 'bold'
     },
     portfolioItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 16,
+        paddingVertical: 10,
     },
     portfolioItemText: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
     },
     notificationsViewItem: {

@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SearchCourses = ({ query, setQuery, setFilteredCourses, setCourses }) => {
     const [loading, setLoading] = useState(false);
-    const [allCourses, setAllCourses] = useState([]); // New state to store all courses
+    const [allCourses, setAllCourses] = useState([]); 
 
     useEffect(() => {
         loadAllCourses();
@@ -19,7 +19,6 @@ const SearchCourses = ({ query, setQuery, setFilteredCourses, setCourses }) => {
             }, 500);
             return () => clearTimeout(delaySearch);
         } else {
-            // Reset filtered courses to all courses when query is cleared
             setFilteredCourses(allCourses);
         }
     }, [query]);

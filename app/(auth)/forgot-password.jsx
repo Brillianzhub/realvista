@@ -11,6 +11,7 @@ import {
     Image,
 } from 'react-native';
 import images from '../../constants/images';
+import { router } from 'expo-router';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -23,7 +24,7 @@ const ForgotPassword = () => {
         }
 
         setIsSubmitting(true);
-
+ 
         try {
             const response = await fetch(
                 'https://www.realvistamanagement.com/accounts/request-password-reset/',
@@ -41,7 +42,11 @@ const ForgotPassword = () => {
                 throw new Error(errorData.error || 'Failed to send reset email');
             }
 
-            Alert.alert('Success', 'A password reset link has been sent to your email.');
+            router.replace({
+                pathname: '/verify-otp',
+                params: { email },
+            });
+
         } catch (error) {
             console.error('Forgot Password Error:', error);
             Alert.alert('Error', error.message);

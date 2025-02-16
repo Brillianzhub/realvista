@@ -4,13 +4,16 @@ import { MaterialIcons, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { contactPropertyOwner } from '../../utils/contactPropertyOwner';
 import { contactViaWhatsApp } from '../../utils/contactViaWhatsApp';
 import { contactViaPhoneCall } from '../../utils/contactViaPhoneCall';
+import { router } from "expo-router";
+import { useNavigation } from '@react-navigation/native';
+
 
 const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
     const { contact_by_email, contact_by_phone, contact_by_whatsapp, email, phone_number, owner_name, owner_photo } = owner;
 
     const featuresData = property.features?.[0];
     const { verified_user } = featuresData || {};
-
+    const navigation = useNavigation();
     const handlePhoneCallContact = async () => {
         if (contact_by_phone && phone_number) {
             await contactViaPhoneCall({
@@ -55,9 +58,10 @@ const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
 
     return (
         <View style={styles.container}>
-            {/* Owner Info Section */}
-            <View style={styles.ownerInfoContainer}>
-                {/* Owner Photo or Placeholder */}
+            <TouchableOpacity
+                style={styles.ownerInfoContainer}
+                onPress={() => navigation.replace('OwnerProfile', { owner })}
+            >
                 <View style={styles.ownerPhotoContainer}>
                     {owner_photo ? (
                         <Image source={{ uri: owner_photo }} style={styles.ownerPhoto} />
@@ -73,14 +77,11 @@ const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
                     )}
                 </View>
 
-                {/* Owner Name */}
                 {owner_name && <Text style={styles.ownerName}>{owner_name}</Text>}
 
-                {/* Owner Subtitle */}
                 <Text style={styles.ownerSubtitle}>Owner</Text>
-            </View>
+            </TouchableOpacity>
 
-            {/* Contacts Section */}
             <View style={styles.contactsContainer}>
                 <TouchableOpacity style={styles.contactItem} onPress={handleEmailContact}>
                     <MaterialIcons name="email" size={24} color="#3498db" />

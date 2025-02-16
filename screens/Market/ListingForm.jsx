@@ -67,12 +67,6 @@ const statesOfNigeria = [
 ];
 
 
-const statusTypes = [
-    { label: 'Available', value: 'available' },
-    { label: 'Occupied', value: 'occupied' },
-    { label: 'Sold', value: 'sold' },
-];
-
 const currencyOptions = Object.entries(CurrencyData.symbols).map(([key, value]) => ({
     label: `${value} (${key})`,
     value: key,
@@ -353,7 +347,7 @@ const ListingForm = ({ property, onSubmit }) => {
             />
             <CustomForm
                 label="Postal Code"
-                placeholder="000000"
+                placeholder="e.g. 000000"
                 keyboardType="numeric"
                 value={formData.zip_code}
                 onChangeText={(value) => handleInputChange('zip_code', value)}
@@ -406,7 +400,7 @@ const ListingForm = ({ property, onSubmit }) => {
                 <CustomForm
                     label="Year Built"
                     required
-                    placeholder="1998"
+                    placeholder="e.g. 1998"
                     keyboardType="numeric"
                     value={formData.year_built}
                     onChangeText={(value) => handleInputChange('year_built', value)}

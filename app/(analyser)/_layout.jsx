@@ -37,7 +37,7 @@ const AnalysisLayout = () => {
                         title: "Analysis",
                         headerTitleAlign: "center",
                         headerStyle: { backgroundColor: "#FFFFFF" },
-                        headerTintColor: "#358B8B",
+                        headerTintColor: colors.tint,
                         headerLeft: () => null,
                         headerBackVisible: false,
                     }}
@@ -71,11 +71,6 @@ const AnalysisLayout = () => {
                             backgroundColor: colors.background
                         },
                         headerTintColor: colors.tint,
-                        // headerLeft: () => (
-                        //     <TouchableOpacity onPress={handleBackPress}>
-                        //         <Ionicons name="arrow-back" size={24} color="#358B8B" />
-                        //     </TouchableOpacity>
-                        // ),
                     }}
                 />
             </Stack>

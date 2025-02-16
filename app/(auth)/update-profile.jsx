@@ -119,6 +119,36 @@ const ProfileForm = () => {
         setProfile({ ...profile, [field]: value });
     };
 
+    const validateDateOfBirth = (selectedDate) => {
+        const today = new Date();
+        const minAgeDate = new Date();
+        minAgeDate.setFullYear(today.getFullYear() - 18);
+
+        if (!selectedDate) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                birth_date: "Date of birth is required.",
+            }));
+            return;
+        }
+
+        if (selectedDate > minAgeDate) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                birth_date: "You must be at least 18 years old to register.",
+            }));
+        } else {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                birth_date: "",
+            }));
+            const formattedDate = selectedDate.toISOString().split("T")[0];
+            setDate(selectedDate);
+            handleInputChange("birth_date", formattedDate);
+        }
+    };
+
+
     const handleSubmit = async () => {
         if (!validateForm()) {
             const errorMessage = errors.phone_number
@@ -129,14 +159,18 @@ const ProfileForm = () => {
             return;
         }
 
-ae
+        if (errors.birth_date) {
+            Alert.alert("Validation Error", errors.birth_date);
+            return;
+        }
+
         setLoading(true);
         const formData = new FormData();
 
-        if (profile.avatar?.uri) {
+        if (profile.avatar?.uri && !profile.avatar.uri.startsWith("https")) {
             formData.append("avatar", {
                 uri: profile.avatar.uri,
-                name: profile.avatar.name || 'default-avatar.jpg',
+                name: profile.avatar.name || `avatar-${Date.now()}.jpg`,
                 type: profile.avatar.type || 'image/jpeg',
             });
         }
@@ -278,7 +312,7 @@ ae
                         display="default"
                         onChange={(event, selectedDate) => {
                             setShowDatePicker(false);
-
+                            validateDateOfBirth(selectedDate);
                             if (selectedDate) {
                                 const formattedDate = selectedDate.toISOString().split('T')[0];
                                 setDate(selectedDate);
@@ -322,6 +356,10 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         marginBottom: 10,
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 14,
     },
     button: {
         backgroundColor: '#FB902E',
