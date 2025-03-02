@@ -7,7 +7,6 @@ const FileRenderer = ({ files }) => {
 
     return (
         <View>
-            {/* Render Documents */}
             {files.documents?.length > 0 && (
                 <View style={{ marginBottom: 10 }}>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>Documents</Text>
@@ -28,7 +27,6 @@ const FileRenderer = ({ files }) => {
                 </View>
             )}
 
-            {/* Render Images */}
             {files.images?.length > 0 && (
                 <View style={{ marginBottom: 10 }}>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>Images</Text>
@@ -51,7 +49,6 @@ const FileRenderer = ({ files }) => {
                 </View>
             )}
 
-            {/* Render Videos */}
             {files.videos?.length > 0 && (
                 <View style={{ marginBottom: 10 }}>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>Videos</Text>

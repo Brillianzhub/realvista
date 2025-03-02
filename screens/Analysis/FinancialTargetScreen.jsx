@@ -201,14 +201,6 @@ const FinancialTargetScreen = () => {
                     error={errors.timeframe}
                 />
                 <CustomForm
-                    label="Rate of Return"
-                    placeholder="Enter rate of return"
-                    keyboardType="numeric"
-                    value={formData.rate_of_return}
-                    onChangeText={(value) => handleInputChange('rate_of_return', value)}
-                    error={errors.rate_of_return}
-                />
-                <CustomForm
                     label="Currency"
                     required
                     placeholder="Select a currency"

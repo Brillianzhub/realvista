@@ -97,21 +97,8 @@ const PortfolioDetails = () => {
                     title={property.title}
                 />
             </View>
-            <TouchableOpacity
-                style={{
-                    marginBottom: 20,
-                    backgroundColor: '#FB902E',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: 25,
-                    height: 45,
-                }}
-                onPress={() => (
-                    router.replace('/(tabs)/Market')
-                )}
-            >
-                <Text style={{ color: 'white' }}>BUY PROPERTY</Text>
-            </TouchableOpacity>
+
+            {/* Add adverts here */}
         </ScrollView>
     );
 }

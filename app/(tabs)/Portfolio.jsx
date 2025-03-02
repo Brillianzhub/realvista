@@ -37,7 +37,7 @@ const Portfolio = () => {
     currency
   );
   const totalCurrentValue = formatCurrency(
-    overallSummary?.totalCurrentValue + overallSummary?.totalIncome,
+    overallSummary?.totalValue,
     currency
   );
 
@@ -103,7 +103,7 @@ const Portfolio = () => {
                 <View style={styles.modalContent}>
                   <Text style={styles.modalText}>
                     <Text style={styles.modalSubText}>Total Value:</Text>{' '}
-                    The Total Value is the sum of all current values of investments and all recorded incomes.
+                    The Total Value is calculated by adding the current values of all investments and recorded incomes, then subtracting the total expenses.
                     {"\n\n"}
                     <Text style={styles.modalSubText}>Investment:</Text>{' '}
                     Total Investment refers to the total sum of all initial costs of all assets, along with all recorded expenses.

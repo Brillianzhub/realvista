@@ -31,6 +31,7 @@ const ProfileForm = () => {
         avatar: '',
         phone_number: '',
         country_of_residence: '',
+        state: '',
         city: '',
         street: '',
         house_number: '',
@@ -44,6 +45,7 @@ const ProfileForm = () => {
                 avatar: user.profile.avatar ? { uri: user.profile.avatar } : '',
                 phone_number: user.profile.phone_number || '',
                 country_of_residence: user.profile.country_of_residence || '',
+                state: user.profile.state || '',
                 city: user.profile.city || '',
                 street: user.profile.street || '',
                 house_number: user.profile.house_number || '',
@@ -63,6 +65,7 @@ const ProfileForm = () => {
         }
 
         if (!profile.country_of_residence.trim()) newErrors.country_of_residence = 'Country is required';
+        if (!profile.state.trim()) newErrors.state = 'State is required';
         if (!profile.city.trim()) newErrors.city = 'City is required';
         if (!profile.street.trim()) newErrors.street = 'Street is required';
 
@@ -177,6 +180,7 @@ const ProfileForm = () => {
 
         formData.append("phone_number", profile.phone_number.trim());
         formData.append("country_of_residence", profile.country_of_residence.trim());
+        formData.append("state", profile.state.trim());
         formData.append("city", profile.city.trim());
         formData.append("street", profile.street.trim());
         formData.append("house_number", profile.house_number.trim());
@@ -256,7 +260,16 @@ const ProfileForm = () => {
                 {errors.country_of_residence && (
                     <Text style={styles.errorText}>{errors.country_of_residence}</Text>
                 )}
-
+                <Text style={styles.label}>
+                    State <Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                    style={[styles.input, errors.city && { borderColor: 'red' }]}
+                    placeholder="State"
+                    value={profile.state}
+                    onChangeText={(value) => handleInputChange('state', value)}
+                />
+                {errors.city && <Text style={styles.errorText}>{errors.city}</Text>}
                 <Text style={styles.label}>
                     City <Text style={styles.required}>*</Text>
                 </Text>

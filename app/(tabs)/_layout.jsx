@@ -59,7 +59,12 @@ export default function Layout() {
                     <Tabs.Screen
                         name="HomeScreen"
                         options={{
-                            headerTitle: `Hi, ${user.name}`,
+                            headerTitle: `Hi, ${user?.name}`,
+                            headerTitleStyle: {
+                                fontSize: 16,
+                                fontWeight: '600',
+                                color: '#358B8B',
+                            },
                             tabBarIcon: ({ color, focused }) => (
                                 <View style={{ alignItems: 'center' }}>
                                     {focused && <View style={styles.topBorder} />}

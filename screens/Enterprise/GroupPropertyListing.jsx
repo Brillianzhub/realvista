@@ -1,4 +1,3 @@
-import images from '@/constants/images';
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { formatCurrency } from '../../utils/formatCurrency';

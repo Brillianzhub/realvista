@@ -19,7 +19,7 @@ const ChangePassword = () => {
         setNewPassword(text);
         if (text.length < 8) {
             setPasswordError('Password must be at least 8 characters long.');
-        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(text)) {
+        } else if (!/[!@#$%^&*(),.?":{}|<>_-]/.test(text)) {
             setPasswordError('Password must contain at least one special character.');
         } else {
             setPasswordError('');
@@ -46,7 +46,7 @@ const ChangePassword = () => {
             return;
         }
 
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+        if (!/[!@#$%^&*(),.?":{}|<>_-]/.test(newPassword)) {
             Alert.alert('Error', 'Password must contain at least one special character.');
             return;
         }

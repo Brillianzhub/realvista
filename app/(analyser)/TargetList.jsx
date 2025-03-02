@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useRouter } from 'expo-router';
+
 
 const TargetListScreen = () => {
     const [targets, setTargets] = useState([]);
@@ -122,7 +123,6 @@ const TargetListScreen = () => {
                     marginVertical: 8,
                 }}>
                     <Text style={styles.targetName}>{item.target_name}</Text>
-
                     <TouchableOpacity
                         onPress={() => handleDeleteTarget(item.id)}
                         style={{
@@ -130,7 +130,7 @@ const TargetListScreen = () => {
                             height: 25,
                             borderRadius: 12.5,
                             borderWidth: 2,
-                            borderColor: '#d3d3d3', 
+                            borderColor: '#d3d3d3',
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}
@@ -154,38 +154,48 @@ const TargetListScreen = () => {
         );
     };
 
-
     return (
-        <View style={styles.outerContainer}>
-            <View style={styles.contentContainer}>
-                {loading ? (
-                    <ActivityIndicator size="large" color="#358B8B" style={styles.activityIndicator} />
-                ) : (
-                    <FlatList
-                        data={targets}
-                        keyExtractor={(item) => item.id.toString()}
-                        renderItem={renderTarget}
-                        contentContainerStyle={styles.listContainer}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={refreshing}
-                                onRefresh={handleRefresh}
-                                colors={['#358B8B']}
-                            />
-                        }
-                        showsVerticalScrollIndicator={false}
-                    />
-                )}
+        <ScrollView
+            style={styles.outerContainer}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#358B8B']} />
+            }
+        >
+            {!loading && targets.length > 0 && (
+                <View style={styles.headerContainer}>
+                    <Ionicons name="wallet-outline" size={24} color="#358B8B" style={styles.headerIcon} />
 
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => router.replace('Analysis')}
-                >
-                    <Ionicons name="add" size={30} color="white" />
-                </TouchableOpacity>
-            </View>
+                    <View style={styles.headerTextContainer}>
+                        <Text style={styles.headerTitle}>Every step counts! Keep saving and growing.</Text>
+                        <Text style={styles.headerSubtitle}>Stay consistent, and watch your dreams become reality.</Text>
+                        <TouchableOpacity
+                            style={styles.addTargetButton2} onPress={() => router.replace('Analysis')}
+                        >
+                            <Text style={styles.addTargetButtonText}>Add Savings Target</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
 
-        </View>
+            {!loading && targets.length === 0 && (
+                <View style={styles.emptyStateContainer}>
+                    <Ionicons name="wallet-outline" size={40} color="#358B8B" />
+                    <Text style={styles.emptyStateTitle}>Start Your Savings Plan Today</Text>
+                    <Text style={styles.emptyStateSubtitle}>Save towards investment goals</Text>
+                    <TouchableOpacity style={styles.addTargetButton} onPress={() => router.replace('Analysis')}>
+                        <Text style={styles.addTargetButtonText}>Add Savings Target</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {loading ? (
+                <ActivityIndicator size="large" color="#358B8B" style={styles.activityIndicator} />
+            ) : (
+                targets.map((item) => (
+                    <View key={item.id.toString()}>{renderTarget({ item })}</View>
+                ))
+            )}
+        </ScrollView>
     );
 };
 
@@ -194,32 +204,42 @@ export default TargetListScreen;
 const styles = StyleSheet.create({
     outerContainer: {
         flex: 1,
+        padding: 16,
         backgroundColor: '#f5f5f5',
     },
-    contentContainer: {
+
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 15,
+        backgroundColor: '#358B8B0D',
+        justifyContent: 'flex-start',
+        borderRadius: 10,
+        padding: 10,
+        marginVertical: 10,
+    },
+    headerIcon: {
+        marginRight: 15,
+    },
+    headerTextContainer: {
         flex: 1,
-        padding: 16,
     },
-    header: {
-        fontSize: 24,
+    headerTitle: {
+        fontSize: 16,
         fontWeight: 'bold',
-        color: '#358B8B',
-        marginBottom: 20,
-        textAlign: 'center',
+        color: '#333',
     },
-    listContainer: {
-        paddingBottom: 100,
+    headerSubtitle: {
+        fontSize: 14,
+        color: '#777',
+        marginVertical: 5,
     },
+
     targetItem: {
         backgroundColor: 'white',
         borderRadius: 10,
         padding: 16,
         marginBottom: 10,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
     },
     targetName: {
         fontSize: 18,
@@ -229,36 +249,6 @@ const styles = StyleSheet.create({
     targetDetails: {
         fontSize: 16,
         marginTop: 5,
-    },
-    addButton: {
-        position: 'absolute',
-        bottom: 30,
-        right: 30,
-        backgroundColor: '#FB902E',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-    },
-    bottomSheet: {
-        backgroundColor: '#f0f0f0',
-    },
-    handleContainer: {
-        backgroundColor: '#358B8B1A',
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
-    },
-    handleIndicator: {
-        backgroundColor: '#136e8b',
-        width: 50,
-        height: 5,
-        borderRadius: 3,
     },
     progressBarContainer: {
         height: 5,
@@ -275,6 +265,46 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#555',
         marginBottom: 8,
+    },
+
+    emptyStateContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        marginTop: 50,
+    },
+    emptyStateTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        marginTop: 15,
+    },
+    emptyStateSubtitle: {
+        fontSize: 16,
+        color: '#777',
+        marginVertical: 10,
+        textAlign: 'center',
+    },
+    addTargetButton2: {
+        marginTop: 15,
+        backgroundColor: '#FB902E',
+        paddingVertical: 8,
+        borderRadius: 8,
+    },
+
+    addTargetButton: {
+        marginTop: 5,
+        backgroundColor: '#FB902E',
+        paddingVertical: 8,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+        alignSelf: 'center',
+    },
+    addTargetButtonText: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: 'bold',
+        textAlign: 'center'
     },
     activityIndicator: {
         marginTop: 20,

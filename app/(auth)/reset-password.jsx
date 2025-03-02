@@ -24,7 +24,7 @@ const ResetPassword = () => {
 
         if (text.length < 8) {
             setPasswordError('Password must be at least 8 characters long.');
-        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(text)) {
+        } else if (!/[!@#$%^&*(),.?":{}|<>_-]/.test(text)) {
             setPasswordError('Password must contain at least one special character.');
         } else {
             setPasswordError('');
@@ -54,7 +54,7 @@ const ResetPassword = () => {
             return;
         }
 
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        if (!/[!@#$%^&*(),.?":{}|<>_-]/.test(password)) {
             Alert.alert('Error', 'Password must contain at least one special character.');
             return;
         }

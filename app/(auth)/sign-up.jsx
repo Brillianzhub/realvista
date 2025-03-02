@@ -74,8 +74,8 @@ const RegistrationForm = () => {
             setPasswordError('');
         } else if (text.length < 8) {
             setPasswordError('Password must be at least 8 characters long.');
-        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(text)) {
-            setPasswordError('Password must contain at least one special character.');
+        } else if (!/[!@#$%^&*(),.?":{}|<>_-]/.test(text)) {
+            setPasswordError('Password must contain at least one special character (_ or - included).');
         } else {
             setPasswordError('');
         }
@@ -210,6 +210,10 @@ const RegistrationForm = () => {
                 dateJoined: userData.date_joined,
                 profile: userData.profile,
                 subscription: userData.subscription,
+                referral_code: userData.referral_code,
+                referrer: userData.referrer,
+                referred_users_count: userData.referred_users_count,
+                total_referral_earnings: userData.total_referral_earnings,
                 preference: userData.preference,
                 groups: userData.groups,
             });
@@ -266,7 +270,7 @@ const RegistrationForm = () => {
                                         style={styles.inputp}
                                         placeholder="Password"
                                         secureTextEntry={!showPassword}
-                                        value={form.password} 
+                                        value={form.password}
                                         onChangeText={validatePassword}
                                     />
                                     <Pressable onPress={() => setShowPassword(!showPassword)}>

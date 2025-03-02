@@ -60,15 +60,17 @@ const usePortfolioDetail = () => {
 
             // Perform calculations
             const netAppreciation = total_current_value - total_initial_cost;
+            const totalValue = total_current_value + total_income - total_expenses;
             const averageAppreciationPercentage =
                 (netAppreciation / total_initial_cost) * 100;
-            const roi = ((netAppreciation + net_cash_flow) / total_initial_cost) * 100;
+            const roi = ((netAppreciation + net_cash_flow) / (total_initial_cost + total_expenses)) * 100;
 
             // Store results
             results[category] = {
                 totalInitialCost: total_initial_cost,
                 totalCurrentValue: total_current_value,
                 netAppreciation,
+                totalValue: totalValue,
                 averageAppreciationPercentage: parseFloat(averageAppreciationPercentage.toFixed(2)),
                 totalIncome: total_income,
                 totalExpenses: total_expenses,
@@ -90,6 +92,7 @@ const usePortfolioDetail = () => {
     useEffect(() => {
         fetchPortfolioDetails();
     }, []);
+
 
     return { result, portfolioData, loading, setLoading, currency, fetchPortfolioDetails };
 };

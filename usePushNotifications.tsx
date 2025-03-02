@@ -20,7 +20,7 @@ export interface PushNotificationState {
 
 export const usePushNotifications = (): PushNotificationState => {
     const { user } = useGlobalContext();
-    const userId = user.id;
+    const userId = user?.id;
 
     const [expoPushToken, setExpoPushToken] = useState<Notifications.ExpoPushToken>();
     const [notification, setNotification] = useState<Notifications.Notification>();

@@ -169,6 +169,7 @@ const SignIn = () => {
 
         try {
             const result = await signIn(form.email, form.password);
+
             if (result) {
                 setUser({
                     id: result.id,
@@ -182,6 +183,10 @@ const SignIn = () => {
                     profile: result.profile,
                     preference: result.preference,
                     subscription: result.subscription,
+                    referral_code: result.referral_code,
+                    referrer: result.referrer,
+                    referred_users_count: result.referred_users_count,
+                    total_referral_earnings: result.total_referral_earnings,
                     groups: result.groups,
                 });
                 setIsLogged(true);

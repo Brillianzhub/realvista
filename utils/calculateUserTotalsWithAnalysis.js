@@ -10,7 +10,6 @@ export function calculateUserTotalsWithAnalysis(properties) {
         { totalInvestment: 0, totalCurrentValue: 0, totalExpenses: 0, totalIncome: 0 }
     );
 
-    // Calculate derived metrics
     const totalProfit =
         (totals.totalCurrentValue + totals.totalIncome) -
         (totals.totalInvestment + totals.totalExpenses);

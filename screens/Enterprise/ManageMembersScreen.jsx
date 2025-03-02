@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import MemberItem from './Manage/MemberItem'; // Import the MemberItem component
 
 export default function ManageMembersScreen({ route }) {
     const { groupId, role } = route.params;
@@ -26,7 +27,6 @@ export default function ManageMembersScreen({ route }) {
             setLoading(false);
         }
     };
-
 
     const handleAddMember = async () => {
         if (!email.trim()) {
@@ -53,6 +53,7 @@ export default function ManageMembersScreen({ route }) {
 
             Alert.alert('Success', 'Invitation sent successfully.');
             setEmail('');
+            fetchGroupMembers();
         } catch (error) {
             console.error('Error inviting member:', error);
             Alert.alert('Error', 'Failed to send invitation. Please try again.');
@@ -61,13 +62,85 @@ export default function ManageMembersScreen({ route }) {
         }
     };
 
+    const handleMakeAdmin = async (memberId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            const response = await axios.post(
+                `https://www.realvistamanagement.com/enterprise/members/${groupId}/make-admin/`,
+                { member_id: memberId },
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            Alert.alert("Success", "User promoted to admin.");
+            fetchGroupMembers(); // Refresh the list
+        } catch (error) {
+            console.error("Error making admin:", error);
+            Alert.alert("Error", "Failed to make user admin.");
+        }
+    };
+
+
+
+    const handleRemoveAdmin = async (userId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            await axios.post(
+                `https://www.realvistamanagement.com/enterprise/members/${groupId}/remove-admin/`,
+                { user_id: userId },
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            Alert.alert('Success', 'Admin status removed.');
+            fetchGroupMembers(); // Refresh the list
+        } catch (error) {
+            console.error('Error removing admin:', error);
+            Alert.alert('Error', 'Failed to remove admin status.');
+        }
+    };
+
+
+    const handleRemoveUser = async (memberId) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            if (!token) {
+                Alert.alert('Error', 'Authentication token is missing.');
+                return;
+            }
+
+            await axios.delete(
+                `https://www.realvistamanagement.com/enterprise/members/${groupId}/remove-user/`,
+                {
+                    data: { member_id: memberId }, 
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            Alert.alert('Success', 'User has been removed from the corporate entity.');
+            fetchGroupMembers();
+        } catch (error) {
+            console.error('Error removing user:', error);
+            Alert.alert('Error', 'Failed to remove user.');
+        }
+    };
+
+
     useEffect(() => {
         fetchGroupMembers();
     }, []);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Group Members</Text>
 
             {loading ? (
                 <Text>Loading...</Text>
@@ -76,11 +149,15 @@ export default function ManageMembersScreen({ route }) {
                     data={members}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                        <View style={styles.memberItem}>
-                            <Text style={styles.memberEmail}>{item.email}</Text>
-                            <Text style={styles.memberRole}>Role: {item.role}</Text>
-                        </View>
+                        <MemberItem
+                            item={item}
+                            role={role}
+                            onMakeAdmin={handleMakeAdmin}
+                            onRemoveAdmin={handleRemoveAdmin}
+                            onRemoveUser={handleRemoveUser}
+                        />
                     )}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
 
@@ -104,26 +181,8 @@ export default function ManageMembersScreen({ route }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    memberItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-    },
-    memberEmail: {
-        fontSize: 16,
-    },
-    memberRole: {
-        fontSize: 16,
-        color: '#666',
+        padding: 16,
+        backgroundColor: '#f5f5f5',
     },
     input: {
         borderWidth: 1,
@@ -131,11 +190,13 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         marginBottom: 10,
+        backgroundColor: '#fff',
     },
     addMemberButton: {
         backgroundColor: '#FB902E',
         padding: 15,
         borderRadius: 5,
+        alignItems: 'center',
     },
     addMemberButtonText: {
         textAlign: 'center',

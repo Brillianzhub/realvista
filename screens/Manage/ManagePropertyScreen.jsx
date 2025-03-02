@@ -16,7 +16,6 @@ const ManageProperty = () => {
         { id: '6', label: 'List to the Market', icon: images.sale, onPress: () => router.replace('MarketListing') },
         { id: '7', label: 'Add Coordinates', icon: images.coordinate, onPress: () => navigation.navigate('AddCoordinates') },
         { id: '8', label: 'Add Files/Images', icon: images.addfile, onPress: () => navigation.navigate('AddFiles') },
-        { id: '9', label: 'Target List', icon: images.ftarget, onPress: () => router.replace('/(analyser)/TargetList') },
     ];
 
     const renderAction = ({ item }) => (

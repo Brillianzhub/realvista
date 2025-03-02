@@ -1,4 +1,7 @@
-import { StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share, Platform, ActivityIndicator, Dimensions } from 'react-native';
+import {
+    StyleSheet, Text, View, Image, ScrollView, Alert, Linking, Share,
+    Button, Platform, ActivityIndicator, Dimensions
+} from 'react-native';
 import React, { useState, useRef } from 'react';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import images from '../../constants/images';
@@ -11,7 +14,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatCurrency } from '../../utils/formatCurrency';
 import usePortfolioDetail from '../../hooks/usePortfolioDetail';
 import { useTheme } from '@/context/ThemeContext';
-
+import DeleteAccountModal from './DeleteAccountModal';
+import SubmitReferralModal from './SubmitReferralModal';
+import WithdrawModal from './WithdrawModal';
+import SubscriptionModal from './SubscriptionModal';
+import * as Clipboard from 'expo-clipboard';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import SubscriptionCard from './SubscriptionCard';
 
 const Profile = () => {
     const { user, setIsLogged, setUser, } = useGlobalContext();
@@ -19,7 +28,10 @@ const Profile = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const bottomSheetRef = useRef(null);
     const { orders, fetchUserOrders } = useUserOrders();
-
+    const [modalVisible, setModalVisible] = useState(false);
+    const [refModalVisible, setRefModalVisible] = useState(false);
+    const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
+    const [subModalVisible, setSubModalVisible] = useState(false);
     const { result, loading, setLoading, currency, fetchPortfolioDetails } = usePortfolioDetail();
     const personalSummary = result?.personal_summary;
     const groupSummary = result?.group_summary;
@@ -41,34 +53,6 @@ const Profile = () => {
         overallSummary?.totalExpenses;
 
 
-    const handleDeleteAccount = () => {
-        if (!user?.email) {
-            Alert.alert("Error", "User email not found. Please log in and try again.");
-            return;
-        }
-
-        const deleteAccountUrl = `https://www.realvistaproperties.com/accounts/delete/?email=${encodeURIComponent(
-            user.email
-        )}`;
-
-        Alert.alert(
-            "Delete Account",
-            "You will be redirected to a web page to delete your account. This action is irreversible.",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel",
-                },
-                {
-                    text: "Proceed",
-                    onPress: () => Linking.openURL(deleteAccountUrl).catch(() =>
-                        Alert.alert("Error", "Failed to open the link. Please try again.")
-                    ),
-                },
-            ]
-        );
-    };
-
 
     const signOut = async () => {
         try {
@@ -76,7 +60,6 @@ const Profile = () => {
                 'https://www.realvistamanagement.com/accounts/logout/'
             );
             if (response.status === 200) {
-                console.log("Logged out successfully");
                 return true;
             } else {
                 console.error("Failed to log out");
@@ -152,10 +135,26 @@ const Profile = () => {
         bottomSheetRef.current?.expand();
     };
 
+    const handleWithdraw = (amount) => {
+        console.log(`Withdrawing amount: ${amount}`);
+    };
+
+    const handleCopyReferralCode = async () => {
+        if (user?.referral_code) {
+            await Clipboard.setStringAsync(user.referral_code); 
+            Alert.alert('Copied!', 'Referral code has been copied to your clipboard.');
+        } else {
+            Alert.alert('Error', 'No referral code available.');
+        }
+    };
+
     const closeBottomSheet = () => {
         bottomSheetRef.current?.close();
         setSelectedItem(null);
     };
+    const changePlan = () => {
+        router.replace('Subscriptions');
+    }
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -215,43 +214,14 @@ const Profile = () => {
                     </View>
                 </View>
 
-                <View style={styles.portfolioSummary}>
-                    <View style={styles.portfolioNet}>
-                        <Text style={styles.portfolioNetText}>Subscription</Text>
-                    </View>
+                {user?.subscription ? (
+                    <SubscriptionCard
+                        user={user}
+                        changePlan={changePlan}
+                    />
+                ) : null}
 
-                    <View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text>Current subscription plan</Text>
-                            <Text>{formattedPlan}</Text>
-                        </View>
-
-                        {user?.subscription?.plan && user?.subscription?.plan !== 'free' ? (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <Text>Next renewal</Text>
-                                <Text>{formatDate(user?.subscription?.next_renewal_date)}</Text>
-                            </View>
-                        ) : null}
-                    </View>
-
-                    {user?.subscription?.plan && user?.subscription?.plan !== 'free' ? (
-                        <View style={{ marginVertical: 10 }}>
-                            <TouchableOpacity
-                                onPress={() => Alert.alert("Feature Not Available", "The feature you're trying to access is not available yet.")}
-                            >
-                                <Text style={{ fontWeight: '600', color: '#358B8B', fontSize: 16 }}>Manage subscription</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ) : (
-                        <View style={{ marginVertical: 10 }}>
-                            <TouchableOpacity
-                                onPress={() => Alert.alert("Feature Not Available", "The feature you're trying to access is not available yet.")}
-                            >
-                                <Text style={{ fontWeight: '600', color: '#358B8B', fontSize: 16 }}>Upgrade plan</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                </View>
+                <SubscriptionModal visible={subModalVisible} onClose={() => setSubModalVisible(false)} />
 
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
@@ -298,11 +268,7 @@ const Profile = () => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.portfolioItem}>
-                        <TouchableOpacity
-                            onPress={() =>
-                                Linking.openURL('https://www.realvistaproperties.com/contact-us')
-                            }
-                        >
+                        <TouchableOpacity onPress={() => Linking.openURL('mailto:contact@realvistaproperties.com')}>
                             <Text style={styles.portfolioItemText}>Contact us</Text>
                         </TouchableOpacity>
                     </View>
@@ -330,6 +296,56 @@ const Profile = () => {
 
                 <View style={styles.portfolioSummary}>
                     <View style={styles.portfolioNet}>
+                        <Text style={styles.portfolioNetText}>Referral Details</Text>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <Text style={styles.portfolioKey}>Referral code:</Text>
+                        <TouchableOpacity onPress={handleCopyReferralCode} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={{ color: '#358B8B', fontSize: 16, marginRight: 5 }}>{user?.referral_code}</Text>
+                            <MaterialIcons name="content-copy" size={20} color="#358B8B" />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <Text style={styles.portfolioKey}>Referrer:</Text>
+                        <Text style={styles.portfolioValue}>{user?.referrer}</Text>
+                    </View>
+                    <View style={styles.portfolioItem}>
+                        <Text style={styles.portfolioKey}>No. of Referrals:</Text>
+                        <Text style={styles.portfolioValue}>{user?.referred_users_count}</Text>
+                    </View>
+
+                    <View style={styles.portfolioItem}>
+                        <Text style={styles.portfolioKey}>Referral earnings:</Text>
+                        <Text style={styles.portfolioValue}>{formatCurrency(user?.total_referral_earnings, currency)}</Text>
+                    </View>
+
+                    {!user?.referrer && (
+                        <TouchableOpacity
+                            style={{ alignItems: 'center', backgroundColor: '#FB902E', padding: 12, borderRadius: 25, marginVertical: 10 }}
+                            onPress={() => setRefModalVisible(true)}
+                        >
+                            <Text style={{ color: 'white' }}>Enter Referral Code</Text>
+                        </TouchableOpacity>
+                    )}
+                    <SubmitReferralModal visible={refModalVisible} onClose={() => setRefModalVisible(false)} />
+
+                    <TouchableOpacity
+                        style={{ alignItems: 'center', backgroundColor: '#358B8B', padding: 12, borderRadius: 25, marginVertical: 10 }}
+                        onPress={() => setWithdrawModalVisible(true)}
+                    >
+                        <Text style={{ color: 'white' }}>Withdraw Earnings</Text>
+                    </TouchableOpacity>
+
+                    <WithdrawModal
+                        visible={withdrawModalVisible}
+                        onClose={() => setWithdrawModalVisible(false)}
+                        onWithdraw={handleWithdraw}
+                        totalEarnings={user?.total_referral_earnings}
+                    />
+                </View>
+
+                <View style={styles.portfolioSummary}>
+                    <View style={styles.portfolioNet}>
                         <Text style={styles.portfolioNetText}>Personal details</Text>
                     </View>
                     <TouchableOpacity
@@ -345,10 +361,15 @@ const Profile = () => {
                         <Text style={styles.portfolioItemText}>Change password</Text>
                     </TouchableOpacity>
                     <View style={styles.portfolioItem}>
-                        <TouchableOpacity onPress={handleDeleteAccount}>
-                            <Text style={[styles.portfolioItemText, { color: 'red' }]}>Delete your account</Text>
+                        <TouchableOpacity onPress={() => setModalVisible(true)}>
+                            <Text style={[styles.portfolioItemText, { color: 'red' }]}>Delete account</Text>
                         </TouchableOpacity>
                     </View>
+
+                    <DeleteAccountModal
+                        visible={modalVisible}
+                        onClose={() => setModalVisible(false)}
+                    />
                 </View>
                 <View style={styles.portfolioSummary}>
                     <TouchableOpacity
@@ -356,7 +377,7 @@ const Profile = () => {
                     >
                         <Image
                             source={images.logout}
-                            style={{ height: 30, width: 30, marginTop: 20 }}
+                            style={{ height: 24, width: 24, marginTop: 20 }}
                         />
                     </TouchableOpacity>
                 </View>
@@ -395,7 +416,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     userName: {
-        fontSize: 30,
+        fontSize: 24,
         fontWeight: '600',
         textAlign: 'center'
     },
@@ -414,6 +435,18 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 10,
+    },
+
+    portfolioKey: {
+        fontSize: 16,
+        color: "#666",
+        flex: 1,
+    },
+    portfolioValue: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#333",
+        textAlign: "right",
     },
     portfolioItemText: {
         fontSize: 15,
@@ -447,7 +480,6 @@ const styles = StyleSheet.create({
     },
     centered: {
         flex: 1,
-        // justifyContent: 'center',
         alignItems: 'center',
     },
 

@@ -3,19 +3,21 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useNotifications } from '../../context/NotificationContext';
 
 const Notifications = () => {
-    const { notifications, markNotificationsAsRead } = useNotifications();
-
-    console.log(notifications)
+    const { notifications, markNotificationsAsRead, setNotifications } = useNotifications();
 
     useEffect(() => {
         markNotificationsAsRead();
-    }, []);
+
+        if (notifications.length > 30) {
+            setNotifications(notifications.slice(0, 30));
+        }
+    }, [notifications]);
 
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Notifications</Text>
             <FlatList
-                data={notifications}
+                data={[...notifications].reverse()}
                 keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.notification}>

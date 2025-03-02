@@ -14,6 +14,7 @@ import { handleAddBookmark } from '@/utils/handleBookmarks';
 import { MaterialIcons } from "@expo/vector-icons";
 import MapViewer from '../../components/MapViewer';
 import useUserBookmarks from '@/hooks/useUserBookmark';
+import PaymentPlans from './PaymentPlans';
 
 
 const MarketListingDetails = () => {
@@ -133,6 +134,7 @@ const MarketListingDetails = () => {
         square_feet,
         state,
         title,
+        payment_plans,
         updated_date,
         year_built,
         zip_code,
@@ -147,6 +149,7 @@ const MarketListingDetails = () => {
         availability_date: availability_date,
         year_built: year_built,
     };
+
 
     return (
         <ScrollView
@@ -197,7 +200,21 @@ const MarketListingDetails = () => {
                         </TouchableOpacity>
                     </View>
 
-                    <DetailsComponent {...details} />
+                    {payment_plans.length > 0 ? (
+                        <View style={[styles.featuresContainer, { marginBottom: 10 }]}>
+                            <Text style={styles.sectionTitle}>Payment Plans</Text>
+                            <View style={{ flex: 1 }}>
+                                <PaymentPlans
+                                    actual_price={price}
+                                    currency={currency}
+                                />
+                            </View>
+                        </View>
+                    ) : null}
+
+                    <View style={[styles.featuresContainer, { marginBottom: 10 }]}>
+                        <DetailsComponent {...details} />
+                    </View>
 
                     <View style={styles.featuresContainer}>
                         <Text style={styles.sectionTitle}>Property Info.</Text>

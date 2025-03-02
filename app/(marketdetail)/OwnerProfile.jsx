@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { FontAwesome } from '@expo/vector-icons'; // Importing an icon for the city
+import { FontAwesome } from '@expo/vector-icons';
 
 const OwnerProfile = () => {
     const route = useRoute();
@@ -33,17 +33,47 @@ const OwnerProfile = () => {
             <Text style={styles.name}>{owner_name}</Text>
 
             {/* City with Icon */}
-            <View style={styles.cityContainer}>
-                <FontAwesome name="map-marker" size={18} color="red" />
+            <View style={styles.infoContainer}>
+                <View style={styles.labelContainer}>
+                    <FontAwesome name="map-marker" size={18} color="red" />
+                    <Text style={styles.label}>City:</Text>
+                </View>
                 <Text style={styles.info}>{base_city}</Text>
             </View>
 
-            <Text style={styles.info}>📧 {email}</Text>
-            <Text style={styles.info}>📞 {phone_number}</Text>
+            {/* Email with Icon */}
+            <View style={styles.infoContainer}>
+                <View style={styles.labelContainer}>
+                    <FontAwesome name="envelope" size={16} color="#6565f6ec" />
+                    <Text style={styles.label}>Email:</Text>
+                </View>
+                <Text style={styles.info}>{email}</Text>
+            </View>
+
+            {/* Phone with Icon */}
+            <View style={styles.infoContainer}>
+                <View style={styles.labelContainer}>
+                    <FontAwesome name="phone" size={16} color="green" />
+                    <Text style={styles.label}>Phone:</Text>
+                </View>
+                <Text style={styles.info}>{phone_number}</Text>
+            </View>
+
+            {/* Active Since */}
             {active_since && (
-                <Text style={styles.info}>
-                    Active Since: {new Date(active_since).toDateString()}
-                </Text>
+                <View style={styles.infoContainer}>
+                    <View style={styles.labelContainer}>
+                        <FontAwesome name="calendar" size={16} color="orange" />
+                        <Text style={styles.label}>Active Since:</Text>
+                    </View>
+                    <Text style={styles.info}>
+                        {new Date(active_since).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                        })}
+                    </Text>
+                </View>
             )}
         </View>
     );
@@ -53,6 +83,7 @@ export default OwnerProfile;
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         alignItems: 'center',
         padding: 16,
     },
@@ -65,15 +96,26 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 20,
         fontWeight: 'bold',
+        marginBottom: 10,
     },
-    cityContainer: {
+    infoContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        marginBottom: 15,
+    },
+    labelContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 5,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 5,
     },
     info: {
         fontSize: 16,
-        marginLeft: 5,
     },
     errorText: {
         fontSize: 16,

@@ -71,6 +71,22 @@ const ManageLayout = () => {
                     }}
                 />
                 <Stack.Screen
+                    name="Subscriptions"
+                    options={{
+                        headerShown: true,
+                        title: "Subscriptions",
+                        headerTitleAlign: 'center',
+                        headerStyle: { backgroundColor: "#FFFFFF" },
+                        headerTintColor: "#358B8B",
+                        headerBackVisible: false,
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={handleBackPress}>
+                                <Ionicons name="arrow-back" size={24} color="#358B8B" />
+                            </TouchableOpacity>
+                        ),
+                    }}
+                />
+                <Stack.Screen
                     name="Notifications"
                     options={{
                         headerShown: true,

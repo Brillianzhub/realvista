@@ -81,12 +81,15 @@ import heart from '../assets/images/heart.png';
 import menu from '../assets/images/menu.png';
 import paystack from '../assets/images/paystack.png';
 import paypal from '../assets/images/paypal.png';
+import targets from '../assets/images/targets.png';
+
 
 
 
 
 
 export default {
+    targets,
     paystack,
     paypal,
     heart,

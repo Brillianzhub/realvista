@@ -24,7 +24,7 @@ const ForgotPassword = () => {
         }
 
         setIsSubmitting(true);
- 
+
         try {
             const response = await fetch(
                 'https://www.realvistamanagement.com/accounts/request-password-reset/',
@@ -75,7 +75,7 @@ const ForgotPassword = () => {
                 {isSubmitting ? (
                     <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                    <Text style={styles.buttonText}>Send Reset Link</Text>
+                    <Text style={styles.buttonText}>Send</Text>
                 )}
             </Pressable>
         </SafeAreaView>

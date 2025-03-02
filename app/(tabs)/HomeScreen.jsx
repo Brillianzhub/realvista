@@ -24,7 +24,7 @@ import { useNavigationState } from '@react-navigation/native';
 const ROUTES = {
     PORTFOLIO: 'Portfolio',
     INVESTMENT: 'Investment',
-    MARKET: 'Market',
+    TARGETS: 'TargetList',
     TRENDS: 'Trends',
     ANALYSIS: 'Analysis',
     LEARN: 'Learn',
@@ -48,7 +48,6 @@ const HomeMenu = () => {
     const pagerRef = useRef(null);
     const totalPages = 5;
     const autoSlideInterval = 4000;
-    const { user } = useGlobalContext();
     const { colors } = useTheme();
 
     const lastBackPressed = useRef(null);
@@ -114,10 +113,9 @@ const HomeMenu = () => {
 
                 <View style={styles.auxiliaryMenu}>
                     <View style={styles.menuRow}>
-                        <MenuItem onPress={() => navigation.navigate(ROUTES.MARKET)} imageSource={images.market} text="Market" />
+                        <MenuItem onPress={() => router.replace(ROUTES.TARGETS)} imageSource={images.targets} text="Targets" />
                         <MenuItem onPress={() => router.replace(ROUTES.ANALYSIS)} imageSource={images.calculator} text="Calculator" />
                         <MenuItem onPress={() => router.replace(ROUTES.MANAGER)} imageSource={images.manager} text="Manager" />
-
                     </View>
                     <View style={styles.menuRow}>
                         <MenuItem onPress={() => router.replace(ROUTES.LEARN)} imageSource={images.learn} text="Learn" />
