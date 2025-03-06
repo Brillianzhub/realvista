@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+
+import { View, Text, TextInput, FlatList, StyleSheet, Keyboard, Image, TouchableOpacity } from 'react-native';
 import { io } from 'socket.io-client';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useChatMessages from '../../hooks/useChatMessages';
 import { Audio } from 'expo-av';
-
+import { KeyboardAvoidingView, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 
 // const socket = io('http://192.168.0.57:9000');
@@ -21,11 +23,13 @@ const Chat = ({ route }) => {
     const [selectedMessage, setSelectedMessage] = useState(null);
     const { user } = useGlobalContext();
     const [userToken, setUserToken] = useState(null);
+    const flatListRef = useRef(null);
+    const [isInputFocused, setIsInputFocused] = useState(false);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
 
+    const inputRef = useRef(null);
 
-    const soundFiles = {
-        'custom-sound.mp3': require('../../assets/sounds/custom-sound.mp3'),
-    };
+    // const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
     const playNotificationSound = async () => {
         try {
@@ -94,6 +98,34 @@ const Chat = ({ route }) => {
 
 
     useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+            scrollToBottom();
+        });
+
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+    const scrollToBottom = () => {
+        if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
+        }
+    };
+
+    useEffect(() => {
+        if (keyboardVisible) {
+            scrollToBottom();
+        }
+    }, [keyboardVisible]);
+
+    useEffect(() => {
         const retrieveUserToken = async () => {
             const token = await AsyncStorage.getItem('authToken');
             setUserToken(token);
@@ -108,6 +140,7 @@ const Chat = ({ route }) => {
         const message = {
             text: input,
             sender: user.name,
+            image: user.profile.avatar,
             groupID: uniqueGroupId,
             userToken: userToken,
             timestamp,
@@ -157,7 +190,6 @@ const Chat = ({ route }) => {
 
 
     const renderMessage = ({ item, index }) => {
-        const senderInitial = item.sender.charAt(0).toUpperCase();
         const showDateHeader =
             index === 0 ||
             new Date(messages[index].timestamp).toDateString() !==
@@ -172,7 +204,17 @@ const Chat = ({ route }) => {
                 )}
                 <View style={styles.messageContainer}>
                     <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>{senderInitial}</Text>
+                        {item?.image ? (
+                            <Image
+                                source={{ uri: item.image }}
+                                style={styles.avatarImage}
+                            />
+                        ) : (
+                            <Image
+                                source={{ uri: 'https://via.placeholder.com/100' }}
+                                style={styles.avatarImage}
+                            />
+                        )}
                     </View>
                     <View style={styles.messageContent}>
                         <Text style={styles.senderName}>{item.sender}</Text>
@@ -212,7 +254,11 @@ const Chat = ({ route }) => {
     };
 
     return (
-        <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
+        <KeyboardAvoidingView
+            style={[styles.container, { backgroundColor: '#F5F6FA' }]}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        >
             {replyTo && (
                 <View style={styles.replyBox}>
                     <Text style={styles.replyText}>
@@ -225,6 +271,7 @@ const Chat = ({ route }) => {
             )}
 
             <FlatList
+                ref={flatListRef}
                 data={messages}
                 keyExtractor={(item) => item.message_id}
                 renderItem={({ item, index }) => (
@@ -234,49 +281,58 @@ const Chat = ({ route }) => {
                         {renderMessage({ item, index })}
                     </TouchableOpacity>
                 )}
-                style={{ flex: 1, marginBottom: 10 }}
+                contentContainerStyle={styles.messagesContainer}
                 showsVerticalScrollIndicator={false}
-            />
-            <TextInput
-                placeholder="Type a message..."
-                value={input}
-                onChangeText={setInput}
-                multiline={true}
-                textAlignVertical="center"
-                style={{
-                    borderWidth: 1,
-                    borderColor: '#ddd',
-                    padding: 10,
-                    borderRadius: 5,
-                    marginBottom: 10,
-                    alignItems: 'center',
-                    maxHeight: 120,
-                }}
-                onSubmitEditing={(event) => {
-                    setInput((prev) => `${prev}\n`);
-                }}
-                blurOnSubmit={false}
-            />
+                onContentSizeChange={scrollToBottom}
 
-            <TouchableOpacity
-                onPress={sendMessage}
-                style={styles.sendBtn}
-            >
-                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>
-                    Send
-                </Text>
-            </TouchableOpacity>
-        </View>
+            />
+            <View style={[styles.inputContainer, {
+                backgroundColor: '#FFFFFF',
+                borderTopColor: '#E0E0E0'
+            }]}>
+                <TextInput
+                    ref={inputRef}
+                    style={[styles.input, {
+                        backgroundColor: '#F5F6FA',
+                        color: '#2D3436'
+                    }]}
+                    value={input}
+                    onChangeText={setInput}
+                    placeholder="Type a message..."
+                    placeholderTextColor={'#95A5A6'}
+                    multiline
+                    maxLength={500}
+                />
+                <TouchableOpacity
+                    style={[styles.sendButton, !input.trim() && styles.sendButtonDisabled]}
+                    onPress={sendMessage}
+                    disabled={!input.trim()}>
+                    <Ionicons
+                        name="send"
+                        size={20}
+                        color={input.trim() ? '#FFFFFF' : '#95A5A6'}
+                    />
+                </TouchableOpacity>
+            </View>
+            {/* </View> */}
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1
+    },
     dateHeader: {
         textAlign: 'center',
         fontSize: 14,
         fontWeight: 'bold',
         color: '#555',
         marginVertical: 10,
+    },
+    messagesContainer: {
+        padding: 16,
+        paddingBottom: 24,
     },
     messageContainer: {
         flexDirection: 'row',
@@ -287,15 +343,16 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#358B8B',
+        backgroundColor: '#e0e0e0',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 10,
+        overflow: 'hidden',
     },
-    avatarText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16
+    avatarImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 20,
     },
     messageContent: {
         flex: 1,
@@ -352,12 +409,33 @@ const styles = StyleSheet.create({
     toolbarButton: {
         padding: 5,
     },
-    sendBtn: {
-        backgroundColor: '#FB902E',
-        padding: 16,
-        borderRadius: 8,
-        alignItems: 'center'
-    }
+
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        borderTopWidth: 1,
+    },
+    input: {
+        flex: 1,
+        borderRadius: 20,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        maxHeight: 100,
+        fontSize: 16,
+    },
+    sendButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#2ECC71',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+    },
+    sendButtonDisabled: {
+        backgroundColor: '#E0E0E0',
+    },
 });
 
 export default Chat;

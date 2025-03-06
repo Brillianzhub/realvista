@@ -239,7 +239,7 @@ const MarketListingDetails = () => {
                         )}
                     </View>
                     <View style={[styles.ownerContainer, { marginBottom: 20 }]}>
-                        <Text style={styles.sectionTitle}>Contact Owner</Text>
+                        <Text style={styles.sectionTitle}>Contact Vendor</Text>
                         <ContactComponent
                             owner={owner}
                             property={property}

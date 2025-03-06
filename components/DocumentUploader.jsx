@@ -17,20 +17,18 @@ const DocumentUploader = ({ propertyId }) => {
 
         if (result.type !== 'cancel') {
             const allowedTypes = ['pdf', 'png', 'jpg', 'jpeg', 'mp3', 'mp4'];
-            const maxFileSize = 10 * 1024 * 1024; // 10MB
+            const maxFileSize = 10 * 1024 * 1024; 
 
             const selectedDocuments = result.assets
                 .filter(asset => {
                     const name = asset.name || `file_${Date.now()}`;
                     const extension = name.split('.').pop().toLowerCase();
 
-                    // Validate file type
                     if (!allowedTypes.includes(extension)) {
                         alert(`The file "${name}" is not allowed. Only PDF, JPG, JPEG, MP3, and MP4 files are supported.`);
                         return false;
                     }
 
-                    // Validate file size
                     if ((asset.size || 0) > maxFileSize) {
                         alert(`The file "${name}" exceeds the 10MB size limit.`);
                         return false;
@@ -66,55 +64,6 @@ const DocumentUploader = ({ propertyId }) => {
             setDocuments([...documents, ...selectedDocuments]);
         }
     };
-
-    // const selectDocuments = async () => {
-    //     const result = await DocumentPicker.getDocumentAsync({
-    //         type: '*/*',
-    //         multiple: true,
-    //     });
-
-    //     if (result.type !== 'cancel') {
-    //         const maxFileSize = 10 * 1024 * 1024; // 10MB
-    //         const selectedDocuments = result.assets
-    //             .filter(asset => {
-    //                 if ((asset.size || 0) > maxFileSize) {
-    //                     alert(`The file "${asset.name || 'selected'}" exceeds the 5MB size limit.`);
-    //                     return false;
-    //                 }
-    //                 return true;
-    //             })
-    //             .map(asset => {
-    //                 const uri = asset.uri;
-    //                 const name = asset.name || `file_${Date.now()}`;
-    //                 const extension = name.split('.').pop().toLowerCase();
-
-    //                 // Map file extensions to MIME types
-    //                 let type = 'application/octet-stream';
-    //                 if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension)) {
-    //                     type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
-    //                 } else if (extension === 'pdf') {
-    //                     type = 'application/pdf';
-    //                 } else if (['doc', 'docx'].includes(extension)) {
-    //                     type = 'application/msword';
-    //                 } else if (['mp4', 'mov', 'avi', 'mkv'].includes(extension)) {
-    //                     type = `video/${extension}`;
-    //                 } else if (extension === 'mp3') {
-    //                     type = 'audio/mpeg';
-    //                 }
-
-    //                 const fileName = name.includes('.') ? name : `${name}.${extension}`;
-
-    //                 return {
-    //                     uri,
-    //                     type,
-    //                     name: fileName,
-    //                 };
-    //             });
-
-    //         setDocuments([...documents, ...selectedDocuments]);
-    //     }
-    // };
-
 
     const removeDocument = (index) => {
         setDocuments(documents.filter((_, i) => i !== index));

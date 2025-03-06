@@ -20,6 +20,18 @@ const ManageGroupPropertyScreen = ({ route, navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
                 style={styles.button}
+                onPress={() => handleManageProperty('AddPropertyCoordinate')}
+            >
+                <Text style={styles.buttonText}>Add Coordinate</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleManageProperty('AddPropertyFiles')}
+            >
+                <Text style={styles.buttonText}>Upload Files/Images</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.button}
                 onPress={() => handleManageProperty('UpdateGroupProperty')}
             >
                 <Text style={styles.buttonText}>Update Property</Text>

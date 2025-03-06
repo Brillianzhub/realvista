@@ -17,6 +17,10 @@ import UpdateGroupProperty from '../../screens/Enterprise/Manage/UpdateGroupProp
 import AddGroupPropertyIncome from '../../screens/Enterprise/Manage/AddGroupPropertyIncome';
 import AddGroupPropertyExpense from '../../screens/Enterprise/Manage/AddGroupPropertyExpense';
 import ManageAllocations from '../../screens/Enterprise/Manage/ManageAllocations';
+import AddPropertyCoordinate from '../../screens/Enterprise/Manage/AddPropertyCoordinate';
+import AddPropertyFiles from '../../screens/Enterprise/Manage/AddPropertyFiles';
+
+
 
 import { useTheme } from '@/context/ThemeContext';
 
@@ -105,6 +109,28 @@ export default function EnterpriseNavigator() {
                 options={{
                     headerShown: true,
                     title: "Add Group Property",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
+                }}
+            />
+            <Stack.Screen
+                name="AddPropertyCoordinate"
+                component={AddPropertyCoordinate}
+                options={{
+                    headerShown: true,
+                    title: "Add Coordinate",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
+                }}
+            />
+            <Stack.Screen
+                name="AddPropertyFiles"
+                component={AddPropertyFiles}
+                options={{
+                    headerShown: true,
+                    title: "Upload Files/Images",
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.tint,

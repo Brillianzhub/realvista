@@ -8,6 +8,7 @@ import { NotificationProvider } from '../context/NotificationContext';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { CurrencyProvider } from '../context/CurrencyContext';
 import { ThemeProvider } from '../context/ThemeContext';
+import { MenuProvider } from 'react-native-popup-menu';
 
 import { useFonts } from "expo-font";
 import { StatusBar } from 'react-native';
@@ -56,19 +57,21 @@ const RealVistaLayout = () => {
               <PaperProvider>
                 <CurrencyProvider>
                   <ThemeProvider>
-                    <Stack>
-                      <Stack.Screen name="index" options={{ headerShown: false }} />
-                      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(manage)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(learn)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(enterprise)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(analyser)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(trends)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(marketlisting)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(marketdetail)" options={{ headerShown: false }} />
-                      <Stack.Screen name="(portfoliodetail)" options={{ headerShown: false }} />
-                    </Stack>
+                    <MenuProvider>
+                      <Stack>
+                        <Stack.Screen name="index" options={{ headerShown: false }} />
+                        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(manage)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(learn)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(enterprise)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(analyser)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(trends)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(marketlisting)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(marketdetail)" options={{ headerShown: false }} />
+                        <Stack.Screen name="(portfoliodetail)" options={{ headerShown: false }} />
+                      </Stack>
+                    </MenuProvider>
                   </ThemeProvider>
                   <StatusBar
                     barStyle="dark-content"

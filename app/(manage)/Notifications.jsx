@@ -8,10 +8,12 @@ const Notifications = () => {
     useEffect(() => {
         markNotificationsAsRead();
 
+        // Only update state if notifications exceed 30 and have actually changed
         if (notifications.length > 30) {
-            setNotifications(notifications.slice(0, 30));
+            setNotifications(prev => prev.length > 30 ? prev.slice(0, 30) : prev);
         }
-    }, [notifications]);
+    }, []);
+
 
     return (
         <View style={styles.container}>

@@ -57,7 +57,6 @@ const Bookmarks = () => {
             </View>
         );
     }
-
     if (error) {
         return (
             <View style={styles.center}>
@@ -66,7 +65,6 @@ const Bookmarks = () => {
             </View>
         );
     }
-
     if (bookmarks.length === 0) {
         return (
             <View style={styles.center}>

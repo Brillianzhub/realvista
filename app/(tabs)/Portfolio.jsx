@@ -15,7 +15,7 @@ const WelcomeView = () => (
   <View style={styles.welcomeContainer}>
     <Text style={styles.welcomeText}>Welcome to Your Portfolio!</Text>
     <Text style={styles.instructionText}>
-      Start managing your real estate properties today. Tap the "+" button at the bottom right to add your first property!
+      Start managing your real estate properties today. Tap the "+" button to add your first property!
     </Text>
   </View>
 );

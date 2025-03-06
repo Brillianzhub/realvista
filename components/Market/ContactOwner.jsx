@@ -79,7 +79,7 @@ const ContactComponent = ({ owner, property, user, setIsRecordingInquiry }) => {
 
                 {owner_name && <Text style={styles.ownerName}>{owner_name}</Text>}
 
-                <Text style={styles.ownerSubtitle}>Owner</Text>
+                <Text style={styles.ownerSubtitle}>Vendor</Text>
             </TouchableOpacity>
 
             <View style={styles.contactsContainer}>

@@ -49,7 +49,7 @@ const MarketDetailLayout = () => {
                     name="OwnerProfile"
                     options={{
                         headerShown: true,
-                        title: "Dealer Profile",
+                        title: "Vendor's Profile",
                         headerTitleAlign: "center",
                         headerStyle: {
                             fontFamily: 'RobotoSerif-SemiBold',

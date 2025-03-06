@@ -279,7 +279,7 @@ const GroupPropertyForm = ({ onSubmit }) => {
             <CustomForm
                 label="Year bought"
                 required
-                placeholder="2020"
+                placeholder="e.g. 2020"
                 keyboardType="numeric"
                 value={formData.year_bought}
                 onChangeText={(value) => handleInputChange('year_bought', value)}

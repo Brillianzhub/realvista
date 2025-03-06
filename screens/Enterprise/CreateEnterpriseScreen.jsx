@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Alert, StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { TouchableOpacity } from 'react-native';
 
-const CreateEnterpriseScreen = ({ navigation }) => {
+const CreateEnterpriseScreen = ({ route, navigation }) => {
+    const { groupId, name, description } = route.params || {};
 
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        navigation.setOptions({
+            title: groupId ? 'Update Group' : 'Create New Group',
+        });
+    }, [groupId, navigation]);
+
     const initialValues = {
-        name: '',
-        description: '',
+        name: name || '',
+        description: description || '',
     };
 
     const validationSchema = Yup.object().shape({
@@ -20,44 +27,56 @@ const CreateEnterpriseScreen = ({ navigation }) => {
         description: Yup.string(),
     });
 
-
-    const handleCreateGroup = async (values, { setSubmitting, resetForm }) => {
+    const handleSubmitGroup = async (values, { setSubmitting, resetForm }) => {
         setLoading(true);
 
         try {
             const token = await AsyncStorage.getItem('authToken');
+            if (!token) throw new Error('Authentication token is missing.');
 
-            if (!token) {
-                throw new Error('Authentication token is missing.');
+            let response;
+            if (groupId) {
+                response = await axios.put(
+                    `https://www.realvistamanagement.com/enterprise/update-group/${groupId}/`,
+                    {
+                        name: values.name,
+                        description: values.description,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+            } else {
+                response = await axios.post(
+                    `https://www.realvistamanagement.com/enterprise/create-group/`,
+                    {
+                        name: values.name,
+                        description: values.description,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
             }
 
-            // Send POST request
-            const response = await axios.post(
-                `https://www.realvistamanagement.com/enterprise/create-group/`,
-                {
-                    name: values.name,
-                    description: values.description,
-                },
-                {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            if (response.status === 201) {
-                Alert.alert('Success', 'Group created successfully!\n\nYou will be redirected to My Groups page. If you do not see your new group, try to refersh the page.');
+            if (response.status === 200 || response.status === 201) {
+                Alert.alert(
+                    'Success',
+                    groupId ? 'Group updated successfully!' : 'Group created successfully!'
+                );
                 resetForm();
-                navigation.navigate('EnterpriseHomeScreen')
+                navigation.navigate('EnterpriseHomeScreen');
             } else {
-                Alert.alert('Error', response.data?.error || 'Failed to create group.');
+                Alert.alert('Error', response.data?.error || 'Operation failed.');
             }
         } catch (error) {
-            const errorMessage =
-                error.response?.data?.error ||
-                error.message ||
-                'An error occurred. Please try again.';
+            const errorMessage = error.response?.data?.error || error.message || 'An error occurred.';
             Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
@@ -69,7 +88,8 @@ const CreateEnterpriseScreen = ({ navigation }) => {
         <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={handleCreateGroup}
+            onSubmit={handleSubmitGroup}
+            enableReinitialize={true}
         >
             {({
                 handleChange,
@@ -109,29 +129,23 @@ const CreateEnterpriseScreen = ({ navigation }) => {
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? (
-                            <Text style={{ color: 'white', fontWeight: '600', fontSize: 18 }}>Creating...</Text>
+                            <Text style={styles.btnText}>{groupId ? 'Updating...' : 'Creating...'}</Text>
                         ) : (
-                            <Text style={{ color: 'white', fontWeight: '600', fontSize: 18 }}>Create Group</Text>
+                            <Text style={styles.btnText}>{groupId ? 'Update Group' : 'Create Group'}</Text>
                         )}
                     </TouchableOpacity>
                 </View>
             )}
         </Formik>
     );
-}
+};
 
-export default CreateEnterpriseScreen
-
+export default CreateEnterpriseScreen;
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        padding: 16,
         flex: 1,
-        // justifyContent: 'center',
-    },
-    title: {
-        fontSize: 18,
-        marginBottom: 10,
     },
     input: {
         borderWidth: 1,
@@ -150,10 +164,14 @@ const styles = StyleSheet.create({
     },
     submitBtn: {
         backgroundColor: '#FB902E',
-        padding: 10,
+        padding: 15,
         borderRadius: 5,
         alignItems: 'center',
         marginVertical: 10,
-        paddingVertical: 15
-    }
+    },
+    btnText: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 18,
+    },
 });

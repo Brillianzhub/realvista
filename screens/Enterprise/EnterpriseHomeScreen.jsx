@@ -17,6 +17,8 @@ import {
 import { useNavigation } from 'expo-router';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -142,6 +144,63 @@ const StoryFeature = () => {
         }
     };
 
+    const handleUpdateGroup = (groupId, name, description) => {
+        navigation.navigate('CreateEnterprise', { groupId, name, description });
+    };
+
+
+    const handleDeleteGroup = async (groupId) => {
+        Alert.alert(
+            'Delete Group',
+            'Are you sure you want to delete this group? All data associated with this group will be permanently deleted and cannot be recovered.', // Message
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        setLoading(true);
+                        try {
+                            const authToken = await AsyncStorage.getItem('authToken');
+                            if (!authToken?.trim()) {
+                                Alert.alert('Error', 'Authentication token is missing or invalid.');
+                                return;
+                            }
+
+                            const response = await fetch(
+                                `https://www.realvistamanagement.com/enterprise/delete-group/${groupId}/`,
+                                {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Token ${authToken}`,
+                                    },
+                                }
+                            );
+
+                            if (response.ok) {
+                                Alert.alert('Success', 'Group deleted successfully!');
+                                fetchGroups();
+                            } else {
+                                const data = await response.json();
+                                Alert.alert('Error', data.detail || 'Failed to delete the group. Please try again.');
+                            }
+                        } catch (error) {
+                            Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+                            console.error('Delete Group Error:', error);
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
     return (
         <ScrollView
             style={styles.container}
@@ -149,6 +208,7 @@ const StoryFeature = () => {
             refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
+            showsVerticalScrollIndicator={false}
         >
             <View style={{ height: height * 0.3 }}>
                 <FlatList
@@ -169,31 +229,52 @@ const StoryFeature = () => {
                 />
             </View>
             <View style={styles.groupContainer}>
-                {groups?.length > 0 && (
+                {groups?.length > 0 &&
                     groups.map((item) => (
-                        <TouchableOpacity
-                            key={item.group.id}
-                            style={styles.groupItem}
-                            onPress={() =>
-                                navigation.navigate('GroupDashboard', {
-                                    groupId: item.group.id,
-                                    uniqueGroupId: item.group.group_id,
-                                    role: item.role,
-                                })
-                            }
-                        >
-                            <Text style={styles.groupName}>{item.group.name}</Text>
-                            <Text style={styles.groupDescription}>{item.group.description}</Text>
-                        </TouchableOpacity>
-                    ))
-                )}
+                        <View key={item.group.id} style={styles.groupItem}>
+                            <TouchableOpacity
+                                style={styles.groupInfo}
+                                onPress={() =>
+                                    navigation.navigate('GroupDashboard', {
+                                        groupId: item.group.id,
+                                        uniqueGroupId: item.group.group_id,
+                                        role: item.role,
+                                    })
+                                }
+                            >
+                                <Text style={styles.groupName}>{item.group.name}</Text>
+                                <Text style={styles.groupDate}>
+                                    Created on: {new Date(item.group.created_at).toLocaleDateString()}
+                                </Text>
+                                <Text style={styles.groupDescription}>{item.group.description}</Text>
+
+                            </TouchableOpacity>
+
+                            {/* Conditionally render the menu button for SUPERADMIN only */}
+                            {item.role === 'SUPERADMIN' && (
+                                <Menu>
+                                    <MenuTrigger>
+                                        <Icon name="more-vert" size={24} color="#000" />
+                                    </MenuTrigger>
+                                    <MenuOptions>
+                                        <MenuOption onSelect={() => handleUpdateGroup(item.group.id, item.group.name, item.group.description)}>
+                                            <Text style={styles.menuOptionText}>Update Group</Text>
+                                        </MenuOption>
+                                        <MenuOption onSelect={() => handleDeleteGroup(item.group.id)}>
+                                            <Text style={styles.menuOptionTextDelete}>Delete Group</Text>
+                                        </MenuOption>
+                                    </MenuOptions>
+                                </Menu>
+                            )}
+                        </View>
+                    ))}
             </View>
             <View style={styles.actionBtns}>
                 <TouchableOpacity style={styles.joinGroupButton} onPress={() => setModalVisible(true)}>
                     <Text style={styles.joinGroupButtonText}>Join a Group</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.joinGroupButton} onPress={() => navigation.navigate('CreateEnterprise')}>
-                    <Text style={styles.joinGroupButtonText}>Create a Group</Text>
+                <TouchableOpacity style={styles.createGroupButton} onPress={() => navigation.navigate('CreateEnterprise')}>
+                    <Text style={styles.createGroupButtonText}>Create a Group</Text>
                 </TouchableOpacity>
             </View>
             <View style={styles.contactBtn}>
@@ -300,13 +381,17 @@ const styles = StyleSheet.create({
         color: '#222',
     },
     groupItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         padding: 15,
-        backgroundColor: '#fff',
-        borderRadius: 8,
         marginBottom: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
         borderWidth: 1,
         borderColor: '#ddd',
     },
+
     actionBtns: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -314,12 +399,28 @@ const styles = StyleSheet.create({
     },
     groupName: {
         fontSize: 16,
+        fontWeight: 'bold',
         color: '#333',
     },
     groupDescription: {
         fontSize: 14,
         color: '#666',
-        marginTop: 5,
+        marginTop: 4,
+    },
+    groupDate: {
+        fontSize: 12,
+        color: '#999',
+        marginTop: 4,
+    },
+    menuOptionText: {
+        fontSize: 16,
+        padding: 10,
+        borderRadius: 5
+    },
+    menuOptionTextDelete: {
+        fontSize: 16,
+        padding: 10,
+        color: 'red',
     },
     contactBtn: {
         paddingVertical: 10,
@@ -343,7 +444,17 @@ const styles = StyleSheet.create({
     },
     joinGroupButton: {
         flex: 1,
+        borderWidth: 1.5,
+        borderColor: '#FB902E',
         backgroundColor: '#FB902E',
+        padding: 15,
+        margin: 10,
+        borderRadius: 5,
+    },
+    createGroupButton: {
+        flex: 1,
+        borderWidth: 1.5,
+        borderColor: '#FB902E',
         padding: 15,
         margin: 10,
         borderRadius: 5,
@@ -351,6 +462,12 @@ const styles = StyleSheet.create({
     joinGroupButtonText: {
         textAlign: 'center',
         color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    createGroupButtonText: {
+        textAlign: 'center',
+        // color: 'white',
         fontWeight: 'bold',
         fontSize: 16,
     },

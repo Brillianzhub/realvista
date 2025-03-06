@@ -10,39 +10,56 @@ const RemoveGroupProperty = ({ navigation, route }) => {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const { properties, fetchGroupProperties, setLoading, loading } = useGroupProperty({ uniqueGroupId });
 
-
     const handleDeleteProperty = async () => {
         if (!selectedProperty) {
             Alert.alert('Error', 'Please select a property to delete.');
             return;
         }
-        try {
-            setLoading(true);
 
-            const token = await AsyncStorage.getItem('authToken');
-            if (!token) {
-                Alert.alert('Error', 'Authentication token not found. Please log in again.');
-                return;
-            }
+        Alert.alert(
+            'Confirm Deletion',
+            'Are you sure you want to delete this property?',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    onPress: async () => {
+                        try {
+                            setLoading(true);
 
-            const headers = {
-                Authorization: `Token ${token}`,
-            };
+                            const token = await AsyncStorage.getItem('authToken');
+                            if (!token) {
+                                Alert.alert('Error', 'Authentication token not found. Please log in again.');
+                                return;
+                            }
 
-            const response = await axios.delete(
-                `https://www.realvistamanagement.com/enterprise/groups/${uniqueGroupId}/properties/${selectedProperty.id}/`,
-                { headers }
-            );
-            Alert.alert('Success', response.data.detail || 'Property deleted successfully.');
-            fetchGroupProperties();
-        } catch (error) {
-            const errorMessage = error.response?.data?.detail || 'Failed to delete the property. Please try again later.';
-            Alert.alert('Error', errorMessage);
-        } finally {
-            setLoading(false);
-            setSelectedProperty(null);
-        }
+                            const headers = {
+                                Authorization: `Token ${token}`,
+                            };
+
+                            const response = await axios.delete(
+                                `https://www.realvistamanagement.com/enterprise/groups/${uniqueGroupId}/properties/${selectedProperty.id}/`,
+                                { headers }
+                            );
+                            Alert.alert('Success', response.data.detail || 'Property deleted successfully.');
+                            fetchGroupProperties();
+                        } catch (error) {
+                            const errorMessage = error.response?.data?.detail || 'Failed to delete the property. Please try again later.';
+                            Alert.alert('Error', errorMessage);
+                        } finally {
+                            setLoading(false);
+                            setSelectedProperty(null);
+                        }
+                    },
+                    style: 'destructive',
+                },
+            ]
+        );
     };
+
 
     const renderProperty = ({ item }) => (
         <TouchableOpacity
@@ -58,7 +75,7 @@ const RemoveGroupProperty = ({ navigation, route }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Remove Group Property</Text>
+            <Text style={styles.title}>Select Property to remove</Text>
             {loading && <ActivityIndicator size="large" color="#358B8B" />}
             <FlatList
                 data={properties}
@@ -83,10 +100,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8f9fa',
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 16,
+        // fontWeight: 'bold',
         marginBottom: 20,
-        textAlign: 'center',
+        textAlign: 'left',
     },
     listContainer: {
         paddingBottom: 20,
