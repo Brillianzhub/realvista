@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import useUserProperty from '@/hooks/useUserProperty';
 import { useTheme } from '@/context/ThemeContext';
 import { useRoute } from '@react-navigation/native';
-import DocumentUploader from '@/components/DocumentUploader';
+import GroupDocumentUploader from '@/components/GroupDocumentUploader';
+import useGroupProperty from '../../../hooks/useGroupProperty';
 
-const AddPropertyFiles = () => {
-    const route = useRoute();
-    const { properties } = useUserProperty();
+
+const AddPropertyFiles = ({ route, navigation }) => {
+    const { uniqueGroupId } = route.params;
+    const { properties } = useGroupProperty({ uniqueGroupId });
+
     const { colors } = useTheme();
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,7 +21,6 @@ const AddPropertyFiles = () => {
         }
     }, [route.params]);
 
-    const filteredProperties = properties.filter((property) => property.group_owner_name === null);
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -37,7 +38,7 @@ const AddPropertyFiles = () => {
                             style={styles.picker}
                         >
                             <Picker.Item label="Select a property" value={null} />
-                            {filteredProperties.map((property) => (
+                            {properties.map((property) => (
                                 <Picker.Item key={property.id} label={property.title} value={property.id} />
                             ))}
                         </Picker>
@@ -45,7 +46,7 @@ const AddPropertyFiles = () => {
 
                     {selectedPropertyId ? (
                         <>
-                            <DocumentUploader propertyId={selectedPropertyId} />
+                            <GroupDocumentUploader propertyId={selectedPropertyId} />
                         </>
                     ) : (
                         <Text style={styles.infoText}>Select a property to add files using the dropdown menu above.</Text>

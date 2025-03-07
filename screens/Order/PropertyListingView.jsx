@@ -13,7 +13,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import images from '@/constants/images';
 import PropertyBooking from './PropertyBooking';
-
+import FileRenderer from '../Enterprise/Details/FileRenderer';
 
 
 const PropertyDetail = ({
@@ -111,6 +111,12 @@ const PropertyDetail = ({
                                 </Text>
                             </TouchableOpacity>
                         </View>
+
+                        <FileRenderer
+                            files={selectedItem.files}
+                            onRefresh={onRefresh}
+                            closeBottomSheet={closeBottomSheet}
+                        />
 
                         {selectedItem.virtual_tour_url ? (
                             <View style={styles.dividendsContainer}>

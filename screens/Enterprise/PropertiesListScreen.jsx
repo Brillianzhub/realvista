@@ -27,7 +27,7 @@ const PropertyListScreen = ({ route, navigation }) => {
     const bottomSheetRef = useRef(null);
     const { properties, fetchGroupProperties, loading } = useGroupProperty({ uniqueGroupId });
     const userReturns = calculateReturns(properties)
-
+    
     const [refreshing, setRefreshing] = useState(false);
 
     const handleAddProperty = () => {
