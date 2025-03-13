@@ -7,20 +7,24 @@ const Notifications = () => {
 
     useEffect(() => {
         markNotificationsAsRead();
-
-        // Only update state if notifications exceed 30 and have actually changed
-        if (notifications.length > 30) {
-            setNotifications(prev => prev.length > 30 ? prev.slice(0, 30) : prev);
-        }
     }, []);
 
+    useEffect(() => {
+        if (notifications.length > 30) {
+            setNotifications(prev => prev.slice(0, 30));
+        }
+    }, [notifications.length]);
+
+    const filteredNotifications = notifications.filter(
+        item => item?.id !== null && item?.title !== null
+    );
 
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Notifications</Text>
             <FlatList
-                data={[...notifications].reverse()}
-                keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                data={[...filteredNotifications].reverse()}
+                keyExtractor={(item, index) => item.id.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.notification}>
                         <Text style={styles.title}>{item.title}</Text>

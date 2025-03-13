@@ -87,7 +87,10 @@ const PortfolioDetails = () => {
                 </View>
                 <Details data={groupedData.details} property={property} />
             </View>
-            <FileRenderer files={groupedData.files} />
+            <FileRenderer
+                files={groupedData.files}
+
+            />
 
             <View style={{ marginVertical: 20 }}>
                 <Text style={styles.descriptionHeader}>Map Location</Text>

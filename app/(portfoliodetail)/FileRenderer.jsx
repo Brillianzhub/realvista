@@ -1,76 +1,81 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image, Linking } from 'react-native';
-import { Video } from 'expo-av';
+import React, { useState } from 'react';
+import { View, Alert, Text } from 'react-native';
+import DocumentRender from './DocumentRender';
+import ImageRender from './ImageRender';
+import VideoRender from './VideoRender';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FileRenderer = ({ files }) => {
-    if (!files) return null;
+    const [categorizedFiles, setCategorizedFiles] = useState({
+        documents: files.documents || [],
+        images: files.images || [],
+        videos: files.videos || [],
+    });
+
+    if (!files || Object.values(files).every(arr => arr.length === 0)) return null;
+
+    const handleDelete = async (fileId, fileType) => {
+        const authToken = await AsyncStorage.getItem('authToken');
+        if (!authToken?.trim()) {
+            Alert.alert('Error', 'Authentication token is missing or invalid.');
+            return;
+        }
+
+        Alert.alert(
+            'Delete File',
+            'Are you sure you want to delete this file?',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    onPress: async () => {
+                        try {
+                            const response = await fetch(
+                                `https://www.realvistamanagement.com/portfolio/delete-file/${fileId}/`,
+                                {
+                                    method: 'DELETE',
+                                    headers: {
+                                        Authorization: `Token ${authToken}`,
+                                    },
+                                },
+                            );
+
+                            if (!response.ok) {
+                                throw new Error('Failed to delete the file.');
+                            }
+
+                            setCategorizedFiles((prev) => ({
+                                ...prev,
+                                [fileType]: prev[fileType].filter((item) => item.id !== fileId),
+                            }));
+
+                        } catch (error) {
+                            Alert.alert('Error', 'Failed to delete the file. Please try again.');
+                            console.error('Delete error:', error);
+                        }
+                    },
+                },
+            ],
+        );
+    };
 
     return (
-        <View>
-            {files.documents?.length > 0 && (
-                <View style={{ marginBottom: 10 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>Documents</Text>
-                    {files.documents.map((item, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={{
-                                padding: 10,
-                                backgroundColor: '#f0f0f0',
-                                marginBottom: 5,
-                                borderRadius: 5,
-                            }}
-                            onPress={() => Linking.openURL(item.file)}
-                        >
-                            <Text style={{ color: '#007bff' }}>{item.name || 'Unnamed Document'}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            )}
-
-            {files.images?.length > 0 && (
-                <View style={{ marginBottom: 10 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>Images</Text>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                        {files.images.map((item, index) => (
-                            <Image
-                                key={index}
-                                source={{ uri: item.file }}
-                                style={{
-                                    width: 100,
-                                    height: 100,
-                                    borderRadius: 5,
-                                    marginRight: 10,
-                                    marginBottom: 10,
-                                }}
-                                resizeMode="cover"
-                            />
-                        ))}
-                    </View>
-                </View>
-            )}
-
-            {files.videos?.length > 0 && (
-                <View style={{ marginBottom: 10 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>Videos</Text>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                        {files.videos.map((item, index) => (
-                            <Video
-                                key={index}
-                                source={{ uri: item.file }}
-                                style={{
-                                    width: 150,
-                                    height: 100,
-                                    borderRadius: 5,
-                                    marginRight: 10,
-                                    marginBottom: 10,
-                                }}
-                                useNativeControls
-                                resizeMode="cover"
-                            />
-                        ))}
-                    </View>
-                </View>
-            )}
+        <View style={{ marginVertical: 10 }}>
+            <DocumentRender
+                documents={categorizedFiles.documents}
+                onDeleteDocument={(fileId) => handleDelete(fileId, 'documents')}
+            />
+            <ImageRender
+                images={categorizedFiles.images}
+                onDeleteImage={(fileId) => handleDelete(fileId, 'images')}
+            />
+            <VideoRender
+                videos={categorizedFiles.videos}
+                onDeleteVideo={(fileId) => handleDelete(fileId, 'videos')}
+            />
         </View>
     );
 };
