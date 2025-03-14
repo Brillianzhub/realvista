@@ -5,7 +5,7 @@ import ImageRender from './ImageRender';
 import VideoRender from './VideoRender';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const FileRenderer = ({ files, onRefresh, closeBottomSheet }) => {
+const FileRenderer = ({ files, onRefresh, role, closeBottomSheet }) => {
     const [categorizedFiles, setCategorizedFiles] = useState({
         documents: files.filter((item) => item.file_type === 'pdf'),
         images: files.filter((item) => item.file_type === 'image'),
@@ -70,14 +70,17 @@ const FileRenderer = ({ files, onRefresh, closeBottomSheet }) => {
         <View style={{ marginVertical: 10 }}>
             <DocumentRender
                 documents={categorizedFiles.documents}
+                role={role}
                 onDeleteDocument={(fileId) => handleDelete(fileId, 'documents')}
             />
             <ImageRender
                 images={categorizedFiles.images}
+                role={role}
                 onDeleteImage={(fileId) => handleDelete(fileId, 'images')}
             />
             <VideoRender
                 videos={categorizedFiles.videos}
+                role={role}
                 onDeleteVideo={(fileId) => handleDelete(fileId, 'videos')}
             />
         </View>

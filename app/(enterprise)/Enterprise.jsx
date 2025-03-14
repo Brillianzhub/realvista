@@ -6,7 +6,6 @@ import GroupDashboardScreen from '../../screens/Enterprise/GroupDashboardScreen'
 import EnterpriseHomeScreen from '../../screens/Enterprise/EnterpriseHomeScreen';
 import ManageGroupPropertyScreen from '../../screens/Enterprise/Manage/ManageGroupPropertyScreen';
 
-
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
@@ -18,7 +17,7 @@ import AddGroupPropertyExpense from '../../screens/Enterprise/Manage/AddGroupPro
 import ManageAllocations from '../../screens/Enterprise/Manage/ManageAllocations';
 import AddPropertyCoordinate from '../../screens/Enterprise/Manage/AddPropertyCoordinate';
 import AddPropertyFiles from '../../screens/Enterprise/Manage/AddPropertyFiles';
-
+import ReleasedSlots from '../../screens/Enterprise/Order/ReleasedSlots';
 
 
 import { useTheme } from '@/context/ThemeContext';
@@ -75,6 +74,17 @@ export default function EnterpriseNavigator() {
             <Stack.Screen
                 name="ManageMembers"
                 component={ManageMembersScreen}
+            />
+            <Stack.Screen
+                name="ReleasedSlots"
+                component={ReleasedSlots}
+                options={{
+                    headerShown: true,
+                    title: "Released Slots",
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.tint,
+                }}
             />
             <Stack.Screen
                 name="PropertyList"

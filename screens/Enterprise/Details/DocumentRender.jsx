@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, Linking, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Assuming you're using Expo for icons
 
-const DocumentRender = ({ documents, onDeleteDocument }) => {
+const DocumentRender = ({ documents, onDeleteDocument, role }) => {
     if (!documents || documents.length === 0) return null;
 
     // Function to truncate long text
@@ -29,12 +29,15 @@ const DocumentRender = ({ documents, onDeleteDocument }) => {
                             {truncateText(item.name || 'Unnamed Document', 30)} {/* Adjust maxLength as needed */}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => onDeleteDocument(item.id)} // Call onDeleteDocument with the document ID
-                        style={styles.deleteButton}
-                    >
-                        <Ionicons name="trash-outline" size={20} color="red" />
-                    </TouchableOpacity>
+
+                    {role !== 'MEMBER' && (
+                        <TouchableOpacity
+                            onPress={() => onDeleteDocument(item.id)} // Call onDeleteDocument with the document ID
+                            style={styles.deleteButton}
+                        >
+                            <Ionicons name="trash-outline" size={20} color="red" />
+                        </TouchableOpacity>
+                    )}
                 </View>
             ))}
         </View>

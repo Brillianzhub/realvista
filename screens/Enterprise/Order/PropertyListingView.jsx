@@ -8,18 +8,22 @@ import {
     Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import MapViewer from '../../components/MapViewer';
-import { useCurrency } from '../../context/CurrencyContext';
-import { formatCurrency } from '../../utils/formatCurrency';
+import MapViewer from '@/components/MapViewer';
+import { useCurrency } from '../../../context/CurrencyContext';
+import { formatCurrency } from '../../../utils/formatCurrency';
 import images from '@/constants/images';
 import PropertyBooking from './PropertyBooking';
-import FileRenderer from '../Enterprise/Details/FileRenderer';
+import FileRenderer from '../Details/FileRenderer';
+import CoordinatesList from '../Details/CoordinatesList';
+import ShareDistribution from '../Details/ShareDistribution';
 
 
 const PropertyDetail = ({
     selectedItem,
     closeBottomSheet,
     role,
+    groupId,
+    uniqueGroupId,
     navigation,
     deviceTokens,
     onRefresh
@@ -35,6 +39,7 @@ const PropertyDetail = ({
 
     const { currency } = useCurrency();
     const formattedInitialCost = formatCurrency(selectedItem.initial_cost, currency);
+
 
     return (
         <ScrollView
@@ -62,7 +67,10 @@ const PropertyDetail = ({
                                     />
                                     <View>
                                         <Text style={styles.modalTitle}>{selectedItem.title}</Text>
-                                        <Text style={[styles.modalLocation, { color: '#FB902E' }]}>{selectedItem.location}</Text>
+                                        <Text style={[styles.modalLocation, { color: '#FB902E' }]}>
+                                            {selectedItem.location.charAt(0).toUpperCase() + selectedItem.location.slice(1)}, {' '}
+                                            {selectedItem.city.charAt(0).toUpperCase() + selectedItem.city.slice(1)}
+                                        </Text>
                                     </View>
                                 </View>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
@@ -71,7 +79,9 @@ const PropertyDetail = ({
                                 </View>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                                     <Text style={styles.portfolioSummary}>Property Type</Text>
-                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>{selectedItem.property_type}</Text>
+                                    <Text style={[styles.portfolioSummary, { fontWeight: '600' }]}>
+                                        {selectedItem.property_type.charAt(0).toUpperCase() + selectedItem.property_type.slice(1)}
+                                    </Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                                     <Text style={styles.portfolioSummary}>Property Area</Text>
@@ -93,9 +103,12 @@ const PropertyDetail = ({
                         </View>
                         <PropertyBooking
                             property={selectedItem}
+                            groupId={groupId}
+                            uniqueGroupId={uniqueGroupId}
                             tokens={deviceTokens}
                             closeBottomSheet={closeBottomSheet}
                             onRefresh={onRefresh}
+                            navigation={navigation}
                         />
                         <View style={styles.dividendsContainer}>
                             <Text style={styles.dividendsHeader}>Property info</Text>
@@ -114,37 +127,32 @@ const PropertyDetail = ({
 
                         <FileRenderer
                             files={selectedItem.files}
+                            role={role}
                             onRefresh={onRefresh}
                             closeBottomSheet={closeBottomSheet}
                         />
 
-                        {selectedItem.virtual_tour_url ? (
+                        {selectedItem.coordinates ? (
                             <View style={styles.dividendsContainer}>
                                 <Text style={styles.dividendsHeader}>Map Location</Text>
+                                <CoordinatesList
+                                    coordinates={selectedItem.coordinates}
+                                    role={role}
+                                    onRefresh={onRefresh}
+                                    closeBottomSheet={closeBottomSheet}
+                                />
                             </View>
                         ) : null}
+
                         <MapViewer
-                            // latitude={48.7758}
-                            // longitude={9.1829}
+                            latitude={selectedItem.coordinates.length > 0 ? selectedItem.coordinates[0].latitude : 0}
+                            longitude={selectedItem.coordinates.length > 0 ? selectedItem.coordinates[0].longitude : 0}
                             title={selectedItem.title}
-                            virtual_tour_url={selectedItem.virtual_tour_url}
                         />
 
-                        {(role === "SUPERADMIN" || "ADMIN") && <View style={[styles.dividendsContainer, { marginBottom: 20 }]}>
-                            <Text style={styles.dividendsHeader}>Manage Bookings</Text>
-                            <TouchableOpacity
-                                onPress={() => navigation.navigate('ManageBooking', { propertyId: selectedItem.id })}
-                            >
-                                <Text
-                                    style={styles.dividendDescription}
-                                >
-                                    See list of all bookings on this project and approve payments.
-                                </Text>
-                                <Text style={[styles.toggleText, { marginTop: 5, color: '#FB902E' }]}>
-                                    Continue
-                                </Text>
-                            </TouchableOpacity>
-                        </View>}
+                        <ShareDistribution
+                            property={selectedItem}
+                        />
                     </>
                 )}
             </View>

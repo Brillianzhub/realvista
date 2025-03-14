@@ -2,11 +2,11 @@ import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'rea
 import React, { useRef, useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import useGroupProperty from '../../hooks/useGroupProperty';
-import PropertyListingDetail from '../Order/PropertyListingView';
+import PropertyListingDetail from './Order/PropertyListingView';
 import GroupPropertiesList from './GroupPropertyListing';
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { calculateReturns } from '../../utils/calculateReturns';
-import useFetchAdminDeviceTokens from "../../hooks/useFetchAdminDeviceTokens";
+import useFetchAdminDeviceTokens from "@/hooks/useFetchAdminDeviceTokens";
 
 
 const WelcomeView = () => (
@@ -27,7 +27,7 @@ const PropertyListScreen = ({ route, navigation }) => {
     const bottomSheetRef = useRef(null);
     const { properties, fetchGroupProperties, loading } = useGroupProperty({ uniqueGroupId });
     const userReturns = calculateReturns(properties)
-    
+
     const [refreshing, setRefreshing] = useState(false);
 
     const handleAddProperty = () => {
@@ -103,6 +103,7 @@ const PropertyListScreen = ({ route, navigation }) => {
                         closeBottomSheet={closeBottomSheet}
                         mapType={mapType}
                         role={role}
+                        groupId={groupId}
                         deviceTokens={deviceTokens}
                         navigation={navigation}
                         uniqueGroupId={uniqueGroupId}
@@ -184,16 +185,5 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#555',
         paddingHorizontal: 20,
-    },
-    addButton1: {
-        backgroundColor: '#007bff',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-    },
-    addButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
+    }
 });

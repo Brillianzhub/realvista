@@ -5,6 +5,8 @@ import PagerView from 'react-native-pager-view';
 import { PinchGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import moment from 'moment';
+import Swiper from 'react-native-swiper';
+
 
 const { width: screenWidth } = Dimensions.get('window');
 const aspectRatio = 1.5;
@@ -14,9 +16,10 @@ const ImageCarousel = ({ images, listed_date }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-    const pagerRef = useRef(null);
 
-    const scale = useSharedValue(1);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    const pagerRef = useRef(null);
 
     const handleImagePress = (file) => {
         setSelectedImage(file);
@@ -55,17 +58,6 @@ const ImageCarousel = ({ images, listed_date }) => {
         </View>
     );
 
-    const animatedImageStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
-
-    const onPinchGestureEvent = (event) => {
-        scale.value = withTiming(event.nativeEvent.scale);
-    };
-
-    const onPinchGestureEnd = () => {
-        scale.value = withTiming(1);
-    };
 
     if (!images || images.length === 0) {
         return (
@@ -87,24 +79,37 @@ const ImageCarousel = ({ images, listed_date }) => {
             </PagerView>
             {renderDots()}
 
-            <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
-                <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                    <View style={styles.modalContainer}>
-                        <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                            <Text style={styles.closeButtonText}>Close</Text>
-                        </TouchableOpacity>
-                        <TouchableWithoutFeedback>
-                            <PinchGestureHandler onGestureEvent={onPinchGestureEvent} onEnded={onPinchGestureEnd}>
-                                <Animated.Image
-                                    source={{ uri: selectedImage?.file }}
-                                    style={[styles.expandedImage, animatedImageStyle]}
-                                    resizeMode="contain"
+            <Modal
+                visible={isModalVisible}
+                transparent={true}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <Swiper
+                        index={activeIndex}
+                        loop={false}
+                        showsPagination={true}
+                        paginationStyle={{ bottom: 10 }}
+                    >
+                        {images.map((item, index) => (
+                            <View key={index} style={styles.slide}>
+                                <Image
+                                    source={{ uri: item.file }}
+                                    style={styles.fullScreenImage}
+                                    contentFit="contain"
                                 />
-                            </PinchGestureHandler>
-                        </TouchableWithoutFeedback>
-                    </View>
-                </TouchableWithoutFeedback>
+                            </View>
+                        ))}
+                    </Swiper>
+                    <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => setModalVisible(false)}
+                    >
+                        <Text style={styles.closeButtonText}>Close</Text>
+                    </TouchableOpacity>
+                </View>
             </Modal>
+
         </View>
     );
 };
@@ -178,22 +183,26 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
     },
-    expandedImage: {
-        width: screenWidth * 0.9,
-        height: (screenWidth * 0.9) / aspectRatio,
-        borderRadius: 8,
+    slide: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullScreenImage: {
+        width: screenWidth,
+        height: '100%',
     },
     closeButton: {
         position: 'absolute',
         top: 40,
         right: 20,
         padding: 10,
-        backgroundColor: '#FB902E',
-        borderRadius: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        borderRadius: 5,
     },
     closeButtonText: {
+        color: 'black',
         fontSize: 16,
-        color: '#fff',
     },
 });
 

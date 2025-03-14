@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useTheme } from '@/context/ThemeContext';
-import { useRoute } from '@react-navigation/native';
 import GroupDocumentUploader from '@/components/GroupDocumentUploader';
 import useGroupProperty from '../../../hooks/useGroupProperty';
 

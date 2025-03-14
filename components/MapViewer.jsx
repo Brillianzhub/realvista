@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Modal, TouchableOpacity, Text, Linking } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { WebView } from 'react-native-webview';
 
 const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const [mapType, setMapType] = useState('hybrid'); 
+    const [mapType, setMapType] = useState('hybrid');
+    const [showVirtualTour, setShowVirtualTour] = useState(false);
 
     const extractCoordinatesFromUrl = (url) => {
         const regex = /(?:q=)([-+]?[0-9]*\.?[0-9]+),([-+]?[0-9]*\.?[0-9]+)/;
@@ -32,16 +34,20 @@ const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }
     }
 
     const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
-
-    // Toggle map type
     const toggleMapType = () => {
         const nextMapType = mapType === 'standard' ? 'satellite' : mapType === 'satellite' ? 'hybrid' : 'standard';
         setMapType(nextMapType);
     };
 
+    const toggleVirtualTour = () => setShowVirtualTour(!showVirtualTour);
+
+    const buildStreetViewUrl = (latitude, longitude, heading = 0, pitch = 0, fov = 90) => {
+        return `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyCcYzACRrTH74yVaWiEmTu3zRrha6POOcE&location=${latitude},${longitude}&heading=${heading}&pitch=${pitch}&fov=${fov}`;
+    };
+
+
     return (
         <View style={styles.mapContainer}>
-            {/* Main Map */}
             <MapView
                 style={styles.map}
                 mapType={mapType}
@@ -59,13 +65,15 @@ const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }
                 />
             </MapView>
 
-            {/* Action Buttons */}
             <View style={styles.buttonsContainer}>
                 <TouchableOpacity style={styles.button} onPress={toggleFullscreen}>
                     <Text style={styles.buttonText}>View Fullscreen</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={toggleMapType}>
                     <Text style={styles.buttonText}>Toggle Map</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={toggleVirtualTour}>
+                    <Text style={styles.buttonText}>Virtual Tour</Text>
                 </TouchableOpacity>
             </View>
 
@@ -104,6 +112,25 @@ const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }
                     </View>
                 </View>
             </Modal>
+
+            {/* Virtual Tour Modal */}
+            <Modal
+                visible={showVirtualTour}
+                animationType="slide"
+                onRequestClose={toggleVirtualTour}
+                transparent={false}
+            >
+                <View style={styles.modalContainer}>
+                    <WebView
+                        source={{ uri: buildStreetViewUrl(latitude, longitude) }}
+                        style={styles.fullscreenMap}
+                    />
+                    <TouchableOpacity style={styles.button} onPress={toggleVirtualTour}>
+                        <Text style={styles.buttonText}>Close Virtual Tour</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
         </View>
     );
 };

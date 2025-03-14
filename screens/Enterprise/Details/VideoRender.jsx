@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Video } from 'expo-av';
 
-const VideoRender = ({ videos, onDeleteVideo }) => {
+const VideoRender = ({ videos, role, onDeleteVideo }) => {
     const [deleteMode, setDeleteMode] = useState(false);
     const [videoToDelete, setVideoToDelete] = useState(null);
 
@@ -10,7 +10,7 @@ const VideoRender = ({ videos, onDeleteVideo }) => {
 
     const handleLongPress = (item) => {
         setDeleteMode(true);
-        setVideoToDelete(item.id); 
+        setVideoToDelete(item.id);
     };
 
     const handleDelete = () => {
@@ -32,28 +32,32 @@ const VideoRender = ({ videos, onDeleteVideo }) => {
                     <TouchableOpacity
                         key={index}
                         onPress={() => {
-                            if (deleteMode) {
+                            if (deleteMode && role !== 'MEMBER') {
                                 handleUnselect();
                             }
                         }}
-                        onLongPress={() => handleLongPress(item)} 
+                        onLongPress={() => {
+                            if (role !== 'MEMBER') {
+                                handleLongPress(item);
+                            }
+                        }}
                     >
                         <View
                             style={[
                                 styles.videoContainer,
-                                deleteMode && videoToDelete === item.id && styles.selectedVideoContainer,
+                                deleteMode && role !== 'MEMBER' && videoToDelete === item.id && styles.selectedVideoContainer,
                             ]}
                         >
                             <Video
                                 source={{ uri: item.file }}
                                 style={[
                                     styles.video,
-                                    deleteMode && videoToDelete === item.id && styles.selectedVideo,
+                                    deleteMode && role !== 'MEMBER' && videoToDelete === item.id && styles.selectedVideo,
                                 ]}
                                 useNativeControls
                                 resizeMode="cover"
                             />
-                            {deleteMode && videoToDelete === item.id && (
+                            {deleteMode && role !== 'MEMBER' && videoToDelete === item.id && (
                                 <View style={styles.overlay}>
                                     <TouchableOpacity
                                         style={styles.deleteButton}
@@ -67,6 +71,7 @@ const VideoRender = ({ videos, onDeleteVideo }) => {
                     </TouchableOpacity>
                 ))}
             </View>
+
         </View>
     );
 };
@@ -80,13 +85,14 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     selectedVideoContainer: {
-        borderWidth: 3,
+        borderWidth: 1.5,
         borderColor: 'gray',
+        borderRadius: 8,
     },
     video: {
         width: 150,
         height: 100,
-        borderRadius: 5,
+        borderRadius: 8,
     },
     selectedVideo: {
         opacity: 0.6,

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Switch, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, ActivityIndicator, Switch, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGlobalContext } from '../../context/GlobalProvider';
-import { sendNotification } from '../../utils/sendNotifications';
+import { useGlobalContext } from '@/context/GlobalProvider';
+import { sendNotification } from '@/utils/sendNotifications';
+import { formatCurrency } from '@/utils/formatCurrency';
+import UserBooking from './UserBooking';
 
 
-const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
+const PropertyBooking = ({ property, tokens, onRefresh, groupId, uniqueGroupId, navigation, closeBottomSheet }) => {
     const { user } = useGlobalContext();
     const [toggle, setToggle] = useState(false);
     const [slots, setSlots] = useState('');
@@ -17,6 +19,10 @@ const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
         const slotPrice = parseFloat(property.slot_price || '0');
         const totalAmount = slots && !isNaN(slots) ? (parseInt(slots) * slotPrice).toFixed(2) : '0.00';
         setTotal(totalAmount);
+    };
+
+    const handleReleasedProperty = () => {
+        navigation.navigate('ReleasedSlots', { propertyId: property.id });
     };
 
     const handleSlotChange = (value) => {
@@ -44,14 +50,14 @@ const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
             Alert.alert('Invalid Input', 'Please enter a valid number of slots.');
             return;
         }
-    
+
         const bookingReference = `RV-${Math.random().toString(36).slice(2, 8).toUpperCase()}-${Date.now()}`;
         const messageData = {
             sender: user.name,
             text: `booked ${parseInt(slots)} slots.`,
             senderEmail: user.email,
         };
-    
+
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem('authToken');
@@ -59,8 +65,7 @@ const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
                 Alert.alert('Error', 'Authentication token is missing.');
                 return;
             }
-    
-            // Make the booking request
+
             const response = await axios.post(
                 `https://www.realvistamanagement.com/enterprise/groups/${property.id}/book-slot/`,
                 {
@@ -75,10 +80,9 @@ const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
                     },
                 }
             );
-    
+
             Alert.alert('Success', 'Your slots have been booked successfully.');
-    
-            // Send notification
+
             if (deviceTokens && deviceTokens.length > 0) {
                 try {
                     await sendNotification({ title, messageData, deviceTokens });
@@ -89,7 +93,7 @@ const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
             } else {
                 console.warn('No device tokens available for notification.');
             }
-    
+
             onRefresh();
             closeBottomSheet();
         } catch (error) {
@@ -102,21 +106,65 @@ const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
             setLoading(false);
         }
     };
-    
+
 
     return (
         <View style={styles.detailItem}>
-            <View style={styles.booking}>
-                <Text style={styles.detailLabel}>BOOK SLOTS</Text>
-                <Switch
-                    value={toggle}
-                    onValueChange={(value) => setToggle(value)}
-                    thumbColor={toggle ? '#FB902E' : '#f4f3f4'}
-                    trackColor={{ false: '#9cc9c9', true: '#9cc9c9' }}
-                    style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
-                />
-            </View>
+            <UserBooking
+                user={user}
+                property={property}
+                onRefresh={onRefresh}
+                groupId={groupId}
+                uniqueGroupId={uniqueGroupId}
+                tokens={tokens}
+            />
+            <View style={{}}>
+                {property.available_slots > 0 ? (
+                    <View style={styles.booking}>
+                        <Text style={styles.detailLabel}>BOOK SLOTS</Text>
+                        <Switch
+                            value={toggle}
+                            onValueChange={(value) => setToggle(value)}
+                            thumbColor={toggle ? '#FB902E' : '#f4f3f4'}
+                            trackColor={{ false: '#9cc9c9', true: '#9cc9c9' }}
+                            style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
+                        />
+                    </View>
+                ) : (
+                    <View style={{}}>
+                        <Text style={{
+                            color: '#721c24',
+                            fontSize: 16,
+                            marginBottom: 10,
+                            fontWeight: '500',
+                            textAlign: 'left'
+                        }}>
+                            You can't book slots again!
+                        </Text>
 
+                        <TouchableOpacity
+                            onPress={handleReleasedProperty}
+                            style={{
+                                padding: 8,
+                                borderRadius: 8,
+                                width: '50%',
+                                borderWidth: 1,
+                                borderRadius: 8
+                            }}
+                        >
+                            <Text style={{
+                                color: '#FB902E',
+                                fontSize: 14,
+                                fontWeight: '600',
+                                textAlign: 'center'
+                            }}>
+                                SEE RELEASED SLOTS
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                )}
+            </View>
             {toggle && (
                 <View style={styles.detailContent}>
                     <View style={styles.inputContainer}>
@@ -132,15 +180,28 @@ const PropertyBooking = ({ property, tokens, onRefresh, closeBottomSheet }) => {
 
                     <View style={styles.totalContainer}>
                         <Text style={styles.bookingValue}>Total:</Text>
-                        <Text style={styles.total}>{`₦${total}`}</Text>
+                        <Text style={styles.total}>{formatCurrency(total, property.currency)}</Text>
                     </View>
 
-                    <Button
-                        title={loading ? 'Booking...' : 'Submit'}
+                    <TouchableOpacity
                         onPress={handleBooking}
-                        color="#FB902E"
                         disabled={loading}
-                    />
+                        style={[
+                            {
+                                backgroundColor: loading ? '#FB902Eaa' : '#FB902E',
+                                padding: 12,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                            },
+                        ]}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={{ color: 'white', fontWeight: '600' }}>Submit</Text>
+                        )}
+                    </TouchableOpacity>
+
                 </View>
             )}
         </View>
@@ -152,7 +213,6 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         padding: 15,
         borderColor: '#ddd',
-        backgroundColor: '#f9f9f9',
         borderWidth: 1,
         borderRadius: 10,
     },

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import PropertyExpenseForm from '../Manage/AddExpenseForm';
 import { ActivityIndicator } from 'react-native';
-import useGroupProperty from '../../../hooks/useGroupProperty';
+import useGroupProperty from '@/hooks/useGroupProperty';
 import { Picker } from '@react-native-picker/picker';
-import ManageAllocation from '../../../components/Enterprise/ManageAllocation';
+import ManageAllocation from '@/components/Enterprise/ManageAllocation';
 
 
 const ManageAllocations = ({ route, navigation }) => {

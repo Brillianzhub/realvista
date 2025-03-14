@@ -5,12 +5,28 @@ import useManageBookings from '../../hooks/useManageBookings';
 
 const ManageAllocation = ({ property }) => {
     const { bookings, loading, error, confirmPayment } = useManageBookings(property.id);
-    const allocatedSlots = bookings.reduce((sum, booking) => sum + booking.slots_owned, 0);
+
+    const allocatedSlots = bookings.reduce((sum, booking) => {
+        if (booking.status === 'booked' || booking.status === 'pending') {
+            return sum + booking.slots_owned;
+        }
+        return sum;
+    }, 0);
+
     const remainingSlots = property.total_slots - allocatedSlots;
 
     const renderBooking = ({ item }) => (
         <View style={styles.bookingItem}>
-            <Text style={styles.propertyName}>Property: {item.property}</Text>
+            <Text style={styles.propertyName}>{item.property}</Text>
+            <Text style={styles.dateText}>
+                {new Date(item.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                })}
+            </Text>
             <View style={styles.slotItems}>
                 <Text>User</Text>
                 <Text style={{ color: '#FB902E' }}>{item.user}</Text>
@@ -29,7 +45,6 @@ const ManageAllocation = ({ property }) => {
             </View>
 
             {item.status === "pending" && (
-
                 <TouchableOpacity
                     onPress={() => confirmPayment(item.id)}
                     style={styles.confirmPaymentBtn}
@@ -97,17 +112,23 @@ const styles = StyleSheet.create({
     },
     propertyName: {
         fontWeight: "bold",
+        marginBottom: 8,
+    },
+    dateText: {
+        color: '#666',
+        marginBottom: 8,
     },
     confirmPaymentBtn: {
         marginTop: 20,
         backgroundColor: '#FB902E',
         padding: 10,
         borderRadius: 30,
-        alignItems: 'center'
+        alignItems: 'center',
     },
     slotItems: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
-    }
+        alignItems: 'center',
+        marginBottom: 8,
+    },
 });

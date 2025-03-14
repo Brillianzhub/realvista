@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet, ActivityIndicator, ScrollView, Modal } from 'react-native';
 import * as Location from 'expo-location';
-import CustomForm from '../components/CustomForm';
+import CustomForm from '../../components/CustomForm';
 import { Ionicons } from '@expo/vector-icons';
 
 const CoordinateForm = ({ property, onSubmit }) => {
@@ -13,7 +13,7 @@ const CoordinateForm = ({ property, onSubmit }) => {
     const [longitude, setLongitude] = useState('');
     const [isFetchingLocation, setIsFetchingLocation] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isUTMInput, setIsUTMInput] = useState(true); 
+    const [isUTMInput, setIsUTMInput] = useState(true);
 
     const handlePickCoordinates = async () => {
         setIsFetchingLocation(true);

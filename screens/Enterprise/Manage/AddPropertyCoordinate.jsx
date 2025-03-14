@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Alert, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import CoordinateForm from '../../../components/CoordinateForm';
-import useUserProperty from '../../../hooks/useUserProperty';
+import CoordinateForm from '@/components/Enterprise/GroupCoordinateForm';
+import useGroupProperty from '@/hooks/useGroupProperty';
+
 import { useTheme } from '@/context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { useRoute } from '@react-navigation/native';
 
-const AddPropertyCoordinate = () => {
-    const route = useRoute();
-    const { properties } = useUserProperty();
+
+const AddPropertyCoordinate = ({ route, navigation }) => {
+    const { uniqueGroupId } = route.params;
+    const { properties } = useGroupProperty({ uniqueGroupId });
     const { colors } = useTheme();
+
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,6 +22,7 @@ const AddPropertyCoordinate = () => {
             setSelectedPropertyId(route.params.property);
         }
     }, [route.params]);
+
 
     const handleSubmit = async (payload) => {
         if (!selectedPropertyId) {
@@ -59,7 +62,7 @@ const AddPropertyCoordinate = () => {
             }
 
             const response = await axios.post(
-                'https://realvistamanagement.com/portfolio/property/coordinates/',
+                'https://realvistamanagement.com/enterprise/group-property/coordinates/',
                 updatedPayload,
                 {
                     headers: {
@@ -79,8 +82,6 @@ const AddPropertyCoordinate = () => {
     };
 
 
-    const filteredProperties = properties.filter((property) => property.group_owner_name === null);
-
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             {isSubmitting ? (
@@ -97,7 +98,7 @@ const AddPropertyCoordinate = () => {
                             style={styles.picker}
                         >
                             <Picker.Item label="Select a property" value={null} />
-                            {filteredProperties.map((property) => (
+                            {properties.map((property) => (
                                 <Picker.Item key={property.id} label={property.title} value={property.id} />
                             ))}
                         </Picker>

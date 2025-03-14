@@ -3,17 +3,17 @@ import {
     View,
     Text,
     TouchableOpacity,
-    Image,
     Modal,
     Dimensions,
     StyleSheet,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
+import { Image } from 'expo-image';
 
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const ImageRender = ({ images, onDeleteImage }) => {
+const ImageRender = ({ images, role, onDeleteImage }) => {
     const [imageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [deleteMode, setDeleteMode] = useState(false);
@@ -28,11 +28,11 @@ const ImageRender = ({ images, onDeleteImage }) => {
 
     const handleLongPress = (item) => {
         setDeleteMode(true);
-        setImageToDelete(item.id); 
+        setImageToDelete(item.id);
     };
 
     const handleDelete = () => {
-        onDeleteImage(imageToDelete); // Call the parent's delete function
+        onDeleteImage(imageToDelete);
         setDeleteMode(false);
         setImageToDelete(null);
     };
@@ -50,29 +50,33 @@ const ImageRender = ({ images, onDeleteImage }) => {
                     <TouchableOpacity
                         key={index}
                         onPress={() => {
-                            if (deleteMode) {
+                            if (deleteMode && role !== 'MEMBER') {
                                 handleUnselect();
                             } else {
                                 openImageModal(index);
                             }
                         }}
-                        onLongPress={() => handleLongPress(item)} 
+                        onLongPress={() => {
+                            if (role !== 'MEMBER') {
+                                handleLongPress(item);
+                            }
+                        }}
                     >
                         <View
                             style={[
                                 styles.imageContainer,
-                                deleteMode && imageToDelete === item.id && styles.selectedImageContainer,
+                                deleteMode && role !== 'MEMBER' && imageToDelete === item.id && styles.selectedImageContainer,
                             ]}
                         >
                             <Image
                                 source={{ uri: item.file }}
                                 style={[
                                     styles.image,
-                                    deleteMode && imageToDelete === item.id && styles.selectedImage,
+                                    deleteMode && role !== 'MEMBER' && imageToDelete === item.id && styles.selectedImage,
                                 ]}
-                                resizeMode="cover"
+                                contentFit="cover"
                             />
-                            {deleteMode && imageToDelete === item.id && (
+                            {deleteMode && role !== 'MEMBER' && imageToDelete === item.id && (
                                 <View style={styles.overlay}>
                                     <TouchableOpacity
                                         style={styles.deleteButton}
@@ -105,7 +109,7 @@ const ImageRender = ({ images, onDeleteImage }) => {
                                 <Image
                                     source={{ uri: item.file }}
                                     style={styles.fullScreenImage}
-                                    resizeMode="contain"
+                                    contentFit="contain"
                                 />
                             </View>
                         ))}
@@ -125,18 +129,19 @@ const ImageRender = ({ images, onDeleteImage }) => {
 const styles = StyleSheet.create({
     imageContainer: {
         position: 'relative',
-        borderRadius: 8,
+        borderRadius: 5,
         overflow: 'hidden',
+        marginBottom: 10
     },
     selectedImageContainer: {
         borderWidth: 1.5,
         borderColor: 'gray',
+        borderRadius: 8,
     },
     image: {
         width: (screenWidth - 45) / 3,
         height: (screenWidth - 45) / 3,
         borderRadius: 8,
-        marginBottom: 10,
     },
     selectedImage: {
         opacity: 0.6,
@@ -165,7 +170,7 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         flex: 1,
-        backgroundColor: 'black',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         justifyContent: 'center',
         alignItems: 'center',
     },

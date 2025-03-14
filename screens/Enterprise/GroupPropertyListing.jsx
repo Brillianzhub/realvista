@@ -30,9 +30,10 @@ const GroupPropertiesList = ({ properties, onPress, refreshing, onRefresh }) => 
                             <Text style={styles.title}>
                                 {item.title}{' '}
                                 <Text style={{ fontStyle: 'italic', color: 'gray', fontSize: 14 }}>
-                                    (Location: {item.location})
+                                    (Location: {item.location.charAt(0).toUpperCase() + item.location.slice(1)})
                                 </Text>
                             </Text>
+
                             <Text style={{ fontSize: 12, color: '#FB902E' }}>
                                 {new Date(item.added_on).toLocaleDateString()}
                             </Text>
