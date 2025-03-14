@@ -41,9 +41,7 @@ const MapViewer = ({ latitude, longitude, title, description, virtual_tour_url }
 
     const toggleVirtualTour = () => setShowVirtualTour(!showVirtualTour);
 
-    const buildStreetViewUrl = (latitude, longitude, heading = 0, pitch = 0, fov = 90) => {
-        return `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyCcYzACRrTH74yVaWiEmTu3zRrha6POOcE&location=${latitude},${longitude}&heading=${heading}&pitch=${pitch}&fov=${fov}`;
-    };
+   
 
 
     return (
